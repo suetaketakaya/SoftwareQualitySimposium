@@ -1,0 +1,383 @@
+Start testing: Mar 31 16:05 JST
+----------------------------------------------------------
+1/3 Testing: FormatTests
+1/3 Test: FormatTests
+Command: "/Users/suetaketakaya/SoftwareQualitySymposium/experiment-env/build/test_format"
+Directory: /Users/suetaketakaya/SoftwareQualitySymposium/experiment-env/build
+"FormatTests" start time: Mar 31 16:05 JST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4780-aa0gxy/googletest-1.17.0/googletest/src/gtest_main.cc
+[==========] Running 61 tests from 3 test suites.
+[----------] Global test environment set-up.
+[----------] 21 tests from GetDateTimeFormat
+[ RUN      ] GetDateTimeFormat.YearFull_PercentY
+[       OK ] GetDateTimeFormat.YearFull_PercentY (0 ms)
+[ RUN      ] GetDateTimeFormat.YearShort_PercentSmallY
+[       OK ] GetDateTimeFormat.YearShort_PercentSmallY (0 ms)
+[ RUN      ] GetDateTimeFormat.Month_PercentM
+[       OK ] GetDateTimeFormat.Month_PercentM (0 ms)
+[ RUN      ] GetDateTimeFormat.Day_PercentD
+[       OK ] GetDateTimeFormat.Day_PercentD (0 ms)
+[ RUN      ] GetDateTimeFormat.Hour_PercentH
+[       OK ] GetDateTimeFormat.Hour_PercentH (0 ms)
+[ RUN      ] GetDateTimeFormat.Minute_PercentM
+[       OK ] GetDateTimeFormat.Minute_PercentM (0 ms)
+[ RUN      ] GetDateTimeFormat.Second_PercentS
+[       OK ] GetDateTimeFormat.Second_PercentS (0 ms)
+[ RUN      ] GetDateTimeFormat.UnknownSpecifier
+[       OK ] GetDateTimeFormat.UnknownSpecifier (0 ms)
+[ RUN      ] GetDateTimeFormat.NullCharInMiddle
+[       OK ] GetDateTimeFormat.NullCharInMiddle (0 ms)
+[ RUN      ] GetDateTimeFormat.EmptyFormat
+[       OK ] GetDateTimeFormat.EmptyFormat (0 ms)
+[ RUN      ] GetDateTimeFormat.LiteralOnly
+[       OK ] GetDateTimeFormat.LiteralOnly (0 ms)
+[ RUN      ] GetDateTimeFormat.CompositeFormat
+[       OK ] GetDateTimeFormat.CompositeFormat (0 ms)
+[ RUN      ] GetDateTimeFormat.PercentEscape
+[       OK ] GetDateTimeFormat.PercentEscape (0 ms)
+[ RUN      ] GetDateTimeFormat.TrailingPercent
+[       OK ] GetDateTimeFormat.TrailingPercent (0 ms)
+[ RUN      ] GetDateTimeFormat.AllFieldsZero
+[       OK ] GetDateTimeFormat.AllFieldsZero (0 ms)
+[ RUN      ] GetDateTimeFormat.BV_YearSingleDigit
+[       OK ] GetDateTimeFormat.BV_YearSingleDigit (0 ms)
+[ RUN      ] GetDateTimeFormat.BV_YearMultipleOf100
+[       OK ] GetDateTimeFormat.BV_YearMultipleOf100 (0 ms)
+[ RUN      ] GetDateTimeFormat.BV_Year5Digits
+[       OK ] GetDateTimeFormat.BV_Year5Digits (0 ms)
+[ RUN      ] GetDateTimeFormat.BV_HourMinMax
+[       OK ] GetDateTimeFormat.BV_HourMinMax (0 ms)
+[ RUN      ] GetDateTimeFormat.BV_MonthSingleAndDouble
+[       OK ] GetDateTimeFormat.BV_MonthSingleAndDouble (0 ms)
+[ RUN      ] GetDateTimeFormat.BV_SecondMax
+[       OK ] GetDateTimeFormat.BV_SecondMax (0 ms)
+[----------] 21 tests from GetDateTimeFormat (0 ms total)
+
+[----------] 27 tests from ParseVersion
+[ RUN      ] ParseVersion.AlphaModifier
+[       OK ] ParseVersion.AlphaModifier (0 ms)
+[ RUN      ] ParseVersion.BetaModifier
+[       OK ] ParseVersion.BetaModifier (0 ms)
+[ RUN      ] ParseVersion.RcModifier
+[       OK ] ParseVersion.RcModifier (0 ms)
+[ RUN      ] ParseVersion.RcUpperCase
+[       OK ] ParseVersion.RcUpperCase (0 ms)
+[ RUN      ] ParseVersion.PlModifier
+[       OK ] ParseVersion.PlModifier (0 ms)
+[ RUN      ] ParseVersion.UnknownModifier
+[       OK ] ParseVersion.UnknownModifier (0 ms)
+[ RUN      ] ParseVersion.DigitOnlyComponent
+[       OK ] ParseVersion.DigitOnlyComponent (0 ms)
+[ RUN      ] ParseVersion.ThreeDigitTruncation
+[       OK ] ParseVersion.ThreeDigitTruncation (0 ms)
+[ RUN      ] ParseVersion.SeparatorDot
+[       OK ] ParseVersion.SeparatorDot (0 ms)
+[ RUN      ] ParseVersion.SeparatorHyphen
+[       OK ] ParseVersion.SeparatorHyphen (0 ms)
+[ RUN      ] ParseVersion.SeparatorUnderscore
+[       OK ] ParseVersion.SeparatorUnderscore (0 ms)
+[ RUN      ] ParseVersion.SeparatorPlus
+[       OK ] ParseVersion.SeparatorPlus (0 ms)
+[ RUN      ] ParseVersion.FiveComponentsTruncated
+[       OK ] ParseVersion.FiveComponentsTruncated (0 ms)
+[ RUN      ] ParseVersion.AlphaPartialMatch
+[       OK ] ParseVersion.AlphaPartialMatch (0 ms)
+[ RUN      ] ParseVersion.AlphaTypo
+[       OK ] ParseVersion.AlphaTypo (0 ms)
+[ RUN      ] ParseVersion.BetaPartialMatch
+[       OK ] ParseVersion.BetaPartialMatch (0 ms)
+[ RUN      ] ParseVersion.RcPartialMatch
+[       OK ] ParseVersion.RcPartialMatch (0 ms)
+[ RUN      ] ParseVersion.PlPartialMatch
+[       OK ] ParseVersion.PlPartialMatch (0 ms)
+[ RUN      ] ParseVersion.EC_DigitsOnly
+[       OK ] ParseVersion.EC_DigitsOnly (0 ms)
+[ RUN      ] ParseVersion.EC_ModifierOrder
+[       OK ] ParseVersion.EC_ModifierOrder (0 ms)
+[ RUN      ] ParseVersion.EC_AlphaWithTrailingDigit
+[       OK ] ParseVersion.EC_AlphaWithTrailingDigit (0 ms)
+[ RUN      ] ParseVersion.BV_SingleDigit
+[       OK ] ParseVersion.BV_SingleDigit (0 ms)
+[ RUN      ] ParseVersion.BV_TwoDigitMax
+[       OK ] ParseVersion.BV_TwoDigitMax (0 ms)
+[ RUN      ] ParseVersion.BV_ZeroComponents
+[       OK ] ParseVersion.BV_ZeroComponents (0 ms)
+[ RUN      ] ParseVersion.BV_OneComponent
+[       OK ] ParseVersion.BV_OneComponent (0 ms)
+[ RUN      ] ParseVersion.BV_FourComponents
+[       OK ] ParseVersion.BV_FourComponents (0 ms)
+[ RUN      ] ParseVersion.ER_EmptyString
+[       OK ] ParseVersion.ER_EmptyString (0 ms)
+[----------] 27 tests from ParseVersion (0 ms total)
+
+[----------] 13 tests from CompareVersion
+[ RUN      ] CompareVersion.SameVersion
+[       OK ] CompareVersion.SameVersion (0 ms)
+[ RUN      ] CompareVersion.AisNewer_MajorDiff
+[       OK ] CompareVersion.AisNewer_MajorDiff (0 ms)
+[ RUN      ] CompareVersion.BisNewer_MinorDiff
+[       OK ] CompareVersion.BisNewer_MinorDiff (0 ms)
+[ RUN      ] CompareVersion.ModifierOrdering_AlphaLessThanBeta
+[       OK ] CompareVersion.ModifierOrdering_AlphaLessThanBeta (0 ms)
+[ RUN      ] CompareVersion.ModifierOrdering_BetaLessThanRc
+[       OK ] CompareVersion.ModifierOrdering_BetaLessThanRc (0 ms)
+[ RUN      ] CompareVersion.ModifierOrdering_RcLessThanRelease
+[       OK ] CompareVersion.ModifierOrdering_RcLessThanRelease (0 ms)
+[ RUN      ] CompareVersion.ModifierOrdering_ReleaseLessThanPl
+[       OK ] CompareVersion.ModifierOrdering_ReleaseLessThanPl (0 ms)
+[ RUN      ] CompareVersion.ModifierOrdering_UnknownLessThanAlpha
+[       OK ] CompareVersion.ModifierOrdering_UnknownLessThanAlpha (0 ms)
+[ RUN      ] CompareVersion.ModifierOrdering_FullChain
+[       OK ] CompareVersion.ModifierOrdering_FullChain (0 ms)
+[ RUN      ] CompareVersion.DifferentSeparatorsEqual
+[       OK ] CompareVersion.DifferentSeparatorsEqual (0 ms)
+[ RUN      ] CompareVersion.DP_ParseVersionIntegration
+[       OK ] CompareVersion.DP_ParseVersionIntegration (0 ms)
+[ RUN      ] CompareVersion.BV_MinimalDifference
+[       OK ] CompareVersion.BV_MinimalDifference (0 ms)
+[ RUN      ] CompareVersion.BV_BothEmpty
+[       OK ] CompareVersion.BV_BothEmpty (0 ms)
+[----------] 13 tests from CompareVersion (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 61 tests from 3 test suites ran. (0 ms total)
+[  PASSED  ] 61 tests.
+<end of output>
+Test time =   0.25 sec
+----------------------------------------------------------
+Test Passed.
+"FormatTests" end time: Mar 31 16:05 JST
+"FormatTests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+2/3 Testing: CWordParseTests
+2/3 Test: CWordParseTests
+Command: "/Users/suetaketakaya/SoftwareQualitySymposium/experiment-env/build/test_cwordparse"
+Directory: /Users/suetaketakaya/SoftwareQualitySymposium/experiment-env/build
+"CWordParseTests" start time: Mar 31 16:05 JST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4780-aa0gxy/googletest-1.17.0/googletest/src/gtest_main.cc
+[==========] Running 53 tests from 3 test suites.
+[----------] Global test environment set-up.
+[----------] 27 tests from IsMailAddress
+[ RUN      ] IsMailAddress.BR27_OffsetWithValidPrecedingChar
+[       OK ] IsMailAddress.BR27_OffsetWithValidPrecedingChar (0 ms)
+[ RUN      ] IsMailAddress.BR28_LeadingDot
+[       OK ] IsMailAddress.BR28_LeadingDot (0 ms)
+[ RUN      ] IsMailAddress.BR29_LeadingInvalidChar
+[       OK ] IsMailAddress.BR29_LeadingInvalidChar (0 ms)
+[ RUN      ] IsMailAddress.BR30_LocalPartTooShort
+[       OK ] IsMailAddress.BR30_LocalPartTooShort (0 ms)
+[ RUN      ] IsMailAddress.BR31_NoAtSign
+[       OK ] IsMailAddress.BR31_NoAtSign (0 ms)
+[ RUN      ] IsMailAddress.BR32_DomainLabelLengthZero
+[       OK ] IsMailAddress.BR32_DomainLabelLengthZero (0 ms)
+[ RUN      ] IsMailAddress.BR33_DomainNoDot
+[       OK ] IsMailAddress.BR33_DomainNoDot (0 ms)
+[ RUN      ] IsMailAddress.BR34_DomainDotSeparation
+[       OK ] IsMailAddress.BR34_DomainDotSeparation (0 ms)
+[ RUN      ] IsMailAddress.BR35_NullAddressLength
+[       OK ] IsMailAddress.BR35_NullAddressLength (0 ms)
+[ RUN      ] IsMailAddress.EC13_StandardAddress
+[       OK ] IsMailAddress.EC13_StandardAddress (0 ms)
+[ RUN      ] IsMailAddress.EC14_InvalidAddresses
+[       OK ] IsMailAddress.EC14_InvalidAddresses (0 ms)
+[ RUN      ] IsMailAddress.EC15_SymbolsInLocalPart
+[       OK ] IsMailAddress.EC15_SymbolsInLocalPart (0 ms)
+[ RUN      ] IsMailAddress.EC15_ProhibitedCharsInLocalPart
+[       OK ] IsMailAddress.EC15_ProhibitedCharsInLocalPart (0 ms)
+[ RUN      ] IsMailAddress.EC16_OffsetVariations
+[       OK ] IsMailAddress.EC16_OffsetVariations (0 ms)
+[ RUN      ] IsMailAddress.EC_DomainWithHyphen
+[       OK ] IsMailAddress.EC_DomainWithHyphen (0 ms)
+[ RUN      ] IsMailAddress.EC_DomainWithUnderscore
+[       OK ] IsMailAddress.EC_DomainWithUnderscore (0 ms)
+[ RUN      ] IsMailAddress.EC_AddressFollowedBySpace
+[       OK ] IsMailAddress.EC_AddressFollowedBySpace (0 ms)
+[ RUN      ] IsMailAddress.EC_MultipleDotsDomain
+[       OK ] IsMailAddress.EC_MultipleDotsDomain (0 ms)
+[ RUN      ] IsMailAddress.BV07_ValidCharBoundary_0x21
+[       OK ] IsMailAddress.BV07_ValidCharBoundary_0x21 (0 ms)
+[ RUN      ] IsMailAddress.BV07_ValidCharBoundary_0x7E
+[       OK ] IsMailAddress.BV07_ValidCharBoundary_0x7E (0 ms)
+[ RUN      ] IsMailAddress.BV07_InvalidCharBoundary_0x20
+[       OK ] IsMailAddress.BV07_InvalidCharBoundary_0x20 (0 ms)
+[ RUN      ] IsMailAddress.BV07_InvalidCharBoundary_0x7F
+[       OK ] IsMailAddress.BV07_InvalidCharBoundary_0x7F (0 ms)
+[ RUN      ] IsMailAddress.BV08_MinimalAddress
+[       OK ] IsMailAddress.BV08_MinimalAddress (0 ms)
+[ RUN      ] IsMailAddress.BV_LongLocalPart
+[       OK ] IsMailAddress.BV_LongLocalPart (0 ms)
+[ RUN      ] IsMailAddress.BV_BufferLengthInsufficient
+[       OK ] IsMailAddress.BV_BufferLengthInsufficient (0 ms)
+[ RUN      ] IsMailAddress.ER02_EmptyString
+[       OK ] IsMailAddress.ER02_EmptyString (0 ms)
+[ RUN      ] IsMailAddress.ER03_AtSignOnly
+[       OK ] IsMailAddress.ER03_AtSignOnly (0 ms)
+[----------] 27 tests from IsMailAddress (0 ms total)
+
+[----------] 18 tests from WhatKindOfTwoChars
+[ RUN      ] WhatKindOfTwoChars.BR36_SameKindInitialCheck
+[       OK ] WhatKindOfTwoChars.BR36_SameKindInitialCheck (0 ms)
+[ RUN      ] WhatKindOfTwoChars.BR37_NobasuPulledByKatakana
+[       OK ] WhatKindOfTwoChars.BR37_NobasuPulledByKatakana (0 ms)
+[ RUN      ] WhatKindOfTwoChars.BR37_DakuPulledByHiragana
+[       OK ] WhatKindOfTwoChars.BR37_DakuPulledByHiragana (0 ms)
+[ RUN      ] WhatKindOfTwoChars.BR37_KatakanaPullsNobasu
+[       OK ] WhatKindOfTwoChars.BR37_KatakanaPullsNobasu (0 ms)
+[ RUN      ] WhatKindOfTwoChars.BR37_HiraganaPullsDaku
+[       OK ] WhatKindOfTwoChars.BR37_HiraganaPullsDaku (0 ms)
+[ RUN      ] WhatKindOfTwoChars.BR38_NobasuDakuContinuous
+[       OK ] WhatKindOfTwoChars.BR38_NobasuDakuContinuous (0 ms)
+[ RUN      ] WhatKindOfTwoChars.BR39_LatinMappedToCSYM
+[       OK ] WhatKindOfTwoChars.BR39_LatinMappedToCSYM (0 ms)
+[ RUN      ] WhatKindOfTwoChars.BR40_UdefMappedToETC
+[       OK ] WhatKindOfTwoChars.BR40_UdefMappedToETC (0 ms)
+[ RUN      ] WhatKindOfTwoChars.BR41_CtrlMappedToETC
+[       OK ] WhatKindOfTwoChars.BR41_CtrlMappedToETC (0 ms)
+[ RUN      ] WhatKindOfTwoChars.BR42_MappedSameKind
+[       OK ] WhatKindOfTwoChars.BR42_MappedSameKind (0 ms)
+[ RUN      ] WhatKindOfTwoChars.BR43_DifferentKind_CK_NULL
+[       OK ] WhatKindOfTwoChars.BR43_DifferentKind_CK_NULL (0 ms)
+[ RUN      ] WhatKindOfTwoChars.EC17_AllSameKindPairs
+[       OK ] WhatKindOfTwoChars.EC17_AllSameKindPairs (0 ms)
+[ RUN      ] WhatKindOfTwoChars.EC18_DragRuleAllCombinations
+[       OK ] WhatKindOfTwoChars.EC18_DragRuleAllCombinations (0 ms)
+[ RUN      ] WhatKindOfTwoChars.EC19_MappingRules
+[       OK ] WhatKindOfTwoChars.EC19_MappingRules (0 ms)
+[ RUN      ] WhatKindOfTwoChars.EC_LatinLatinSameKind
+[       OK ] WhatKindOfTwoChars.EC_LatinLatinSameKind (0 ms)
+[ RUN      ] WhatKindOfTwoChars.EC_ZenSpaceAndHira_Different
+[       OK ] WhatKindOfTwoChars.EC_ZenSpaceAndHira_Different (0 ms)
+[ RUN      ] WhatKindOfTwoChars.BV_CK_NULL_SameKind
+[       OK ] WhatKindOfTwoChars.BV_CK_NULL_SameKind (0 ms)
+[ RUN      ] WhatKindOfTwoChars.BV_CK_ZEN_ETC_SameKind
+[       OK ] WhatKindOfTwoChars.BV_CK_ZEN_ETC_SameKind (0 ms)
+[----------] 18 tests from WhatKindOfTwoChars (0 ms total)
+
+[----------] 8 tests from WhatKindOfTwoChars4KW
+[ RUN      ] WhatKindOfTwoChars4KW.BR44_UdefMappedToCSYM
+[       OK ] WhatKindOfTwoChars4KW.BR44_UdefMappedToCSYM (0 ms)
+[ RUN      ] WhatKindOfTwoChars4KW.BR45_CtrlRemainsCtrl
+[       OK ] WhatKindOfTwoChars4KW.BR45_CtrlRemainsCtrl (0 ms)
+[ RUN      ] WhatKindOfTwoChars4KW.EC20_UdefAndCSYM_SameKind
+[       OK ] WhatKindOfTwoChars4KW.EC20_UdefAndCSYM_SameKind (0 ms)
+[ RUN      ] WhatKindOfTwoChars4KW.EC21_UdefAndETC_DifferentKind
+[       OK ] WhatKindOfTwoChars4KW.EC21_UdefAndETC_DifferentKind (0 ms)
+[ RUN      ] WhatKindOfTwoChars4KW.EC22_CtrlAndETC_DifferentKind
+[       OK ] WhatKindOfTwoChars4KW.EC22_CtrlAndETC_DifferentKind (0 ms)
+[ RUN      ] WhatKindOfTwoChars4KW.EC_CtrlCtrl_SameKind
+[       OK ] WhatKindOfTwoChars4KW.EC_CtrlCtrl_SameKind (0 ms)
+[ RUN      ] WhatKindOfTwoChars4KW.DP02_DirectComparison
+[       OK ] WhatKindOfTwoChars4KW.DP02_DirectComparison (0 ms)
+[ RUN      ] WhatKindOfTwoChars4KW.CommonBehavior_SameAsNormal
+[       OK ] WhatKindOfTwoChars4KW.CommonBehavior_SameAsNormal (0 ms)
+[----------] 8 tests from WhatKindOfTwoChars4KW (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 53 tests from 3 test suites ran. (0 ms total)
+[  PASSED  ] 53 tests.
+<end of output>
+Test time =   0.18 sec
+----------------------------------------------------------
+Test Passed.
+"CWordParseTests" end time: Mar 31 16:05 JST
+"CWordParseTests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+3/3 Testing: ConvertTests
+3/3 Test: ConvertTests
+Command: "/Users/suetaketakaya/SoftwareQualitySymposium/experiment-env/build/test_convert"
+Directory: /Users/suetaketakaya/SoftwareQualitySymposium/experiment-env/build
+"ConvertTests" start time: Mar 31 16:05 JST
+Output:
+----------------------------------------------------------
+Running main() from /private/tmp/googletest-20250808-4780-aa0gxy/googletest-1.17.0/googletest/src/gtest_main.cc
+[==========] Running 31 tests from 3 test suites.
+[----------] Global test environment set-up.
+[----------] 17 tests from ConvertZeneisuToHaneisu
+[ RUN      ] ConvertZeneisuToHaneisu.BR46_ZenUpperToHanUpper
+[       OK ] ConvertZeneisuToHaneisu.BR46_ZenUpperToHanUpper (0 ms)
+[ RUN      ] ConvertZeneisuToHaneisu.BR47_ZenLowerToHanLower
+[       OK ] ConvertZeneisuToHaneisu.BR47_ZenLowerToHanLower (0 ms)
+[ RUN      ] ConvertZeneisuToHaneisu.BR48_ZenDigitToHanDigit
+[       OK ] ConvertZeneisuToHaneisu.BR48_ZenDigitToHanDigit (0 ms)
+[ RUN      ] ConvertZeneisuToHaneisu.BR49_ZenKigoToHanKigo
+[       OK ] ConvertZeneisuToHaneisu.BR49_ZenKigoToHanKigo (0 ms)
+[ RUN      ] ConvertZeneisuToHaneisu.BR50_NonTargetCharsUnchanged
+[       OK ] ConvertZeneisuToHaneisu.BR50_NonTargetCharsUnchanged (0 ms)
+[ RUN      ] ConvertZeneisuToHaneisu.EC23_AllCategories
+[       OK ] ConvertZeneisuToHaneisu.EC23_AllCategories (0 ms)
+[ RUN      ] ConvertZeneisuToHaneisu.EC24_NonTargetPreserved
+[       OK ] ConvertZeneisuToHaneisu.EC24_NonTargetPreserved (0 ms)
+[ RUN      ] ConvertZeneisuToHaneisu.EC25_MixedCharacters
+[       OK ] ConvertZeneisuToHaneisu.EC25_MixedCharacters (0 ms)
+[ RUN      ] ConvertZeneisuToHaneisu.EC_EmptyArray
+[       OK ] ConvertZeneisuToHaneisu.EC_EmptyArray (0 ms)
+[ RUN      ] ConvertZeneisuToHaneisu.BV09_ZenUpperBoundary_First
+[       OK ] ConvertZeneisuToHaneisu.BV09_ZenUpperBoundary_First (0 ms)
+[ RUN      ] ConvertZeneisuToHaneisu.BV09_ZenUpperBoundary_Last
+[       OK ] ConvertZeneisuToHaneisu.BV09_ZenUpperBoundary_Last (0 ms)
+[ RUN      ] ConvertZeneisuToHaneisu.BV09_ZenUpperBoundary_OutBefore
+[       OK ] ConvertZeneisuToHaneisu.BV09_ZenUpperBoundary_OutBefore (0 ms)
+[ RUN      ] ConvertZeneisuToHaneisu.BV09_ZenUpperBoundary_OutAfter
+[       OK ] ConvertZeneisuToHaneisu.BV09_ZenUpperBoundary_OutAfter (0 ms)
+[ RUN      ] ConvertZeneisuToHaneisu.BV09_ZenLowerBoundary
+[       OK ] ConvertZeneisuToHaneisu.BV09_ZenLowerBoundary (0 ms)
+[ RUN      ] ConvertZeneisuToHaneisu.BV09_ZenDigitBoundary
+[       OK ] ConvertZeneisuToHaneisu.BV09_ZenDigitBoundary (0 ms)
+[ RUN      ] ConvertZeneisuToHaneisu.BV10_LengthZero
+[       OK ] ConvertZeneisuToHaneisu.BV10_LengthZero (0 ms)
+[ RUN      ] ConvertZeneisuToHaneisu.BV_LengthOne
+[       OK ] ConvertZeneisuToHaneisu.BV_LengthOne (0 ms)
+[----------] 17 tests from ConvertZeneisuToHaneisu (0 ms total)
+
+[----------] 11 tests from ConvertHaneisuToZeneisu
+[ RUN      ] ConvertHaneisuToZeneisu.BR51_HanUpperToZenUpper
+[       OK ] ConvertHaneisuToZeneisu.BR51_HanUpperToZenUpper (0 ms)
+[ RUN      ] ConvertHaneisuToZeneisu.BR52_HanLowerToZenLower
+[       OK ] ConvertHaneisuToZeneisu.BR52_HanLowerToZenLower (0 ms)
+[ RUN      ] ConvertHaneisuToZeneisu.BR53_HanDigitToZenDigit
+[       OK ] ConvertHaneisuToZeneisu.BR53_HanDigitToZenDigit (0 ms)
+[ RUN      ] ConvertHaneisuToZeneisu.BR54_HanKigoToZenKigo
+[       OK ] ConvertHaneisuToZeneisu.BR54_HanKigoToZenKigo (0 ms)
+[ RUN      ] ConvertHaneisuToZeneisu.BR55_NonTargetCharsUnchanged
+[       OK ] ConvertHaneisuToZeneisu.BR55_NonTargetCharsUnchanged (0 ms)
+[ RUN      ] ConvertHaneisuToZeneisu.EC26_AllCategories
+[       OK ] ConvertHaneisuToZeneisu.EC26_AllCategories (0 ms)
+[ RUN      ] ConvertHaneisuToZeneisu.EC27_NonTargetPreserved
+[       OK ] ConvertHaneisuToZeneisu.EC27_NonTargetPreserved (0 ms)
+[ RUN      ] ConvertHaneisuToZeneisu.EC_MixedCharacters
+[       OK ] ConvertHaneisuToZeneisu.EC_MixedCharacters (0 ms)
+[ RUN      ] ConvertHaneisuToZeneisu.BV11_HanUpperBoundary
+[       OK ] ConvertHaneisuToZeneisu.BV11_HanUpperBoundary (0 ms)
+[ RUN      ] ConvertHaneisuToZeneisu.BV11_HanLowerBoundary
+[       OK ] ConvertHaneisuToZeneisu.BV11_HanLowerBoundary (0 ms)
+[ RUN      ] ConvertHaneisuToZeneisu.BV11_HanDigitBoundary
+[       OK ] ConvertHaneisuToZeneisu.BV11_HanDigitBoundary (0 ms)
+[----------] 11 tests from ConvertHaneisuToZeneisu (0 ms total)
+
+[----------] 3 tests from ConvertRoundTrip
+[ RUN      ] ConvertRoundTrip.DP03_ZenToHanToZen
+[       OK ] ConvertRoundTrip.DP03_ZenToHanToZen (0 ms)
+[ RUN      ] ConvertRoundTrip.DP03_HanToZenToHan
+[       OK ] ConvertRoundTrip.DP03_HanToZenToHan (0 ms)
+[ RUN      ] ConvertRoundTrip.DP03_MixedRoundTrip
+[       OK ] ConvertRoundTrip.DP03_MixedRoundTrip (0 ms)
+[----------] 3 tests from ConvertRoundTrip (0 ms total)
+
+[----------] Global test environment tear-down
+[==========] 31 tests from 3 test suites ran. (0 ms total)
+[  PASSED  ] 31 tests.
+<end of output>
+Test time =   0.00 sec
+----------------------------------------------------------
+Test Passed.
+"ConvertTests" end time: Mar 31 16:05 JST
+"ConvertTests" time elapsed: 00:00:00
+----------------------------------------------------------
+
+End testing: Mar 31 16:05 JST
