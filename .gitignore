@@ -1,0 +1,39 @@
+### OS / Editor
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*.tmp
+*.bak
+.idea/
+.vscode/
+
+### Python / Node (念のため)
+venv/
+.venv/
+env/
+node_modules/
+dist/
+build/
+
+### ログ・一時ファイル
+*.log
+*.out
+*.err
+
+### 機密情報（生成しない想定だが保険）
+.env
+.env.*
+
+### ツール関連
+.cursor/
+.claude/settings.local.json
+
+### 解析対象リポジトリ（sakura 本体）は追跡しない
+sakura-src/
+
+### 生成物ディレクトリ
+analysis/
+generated-tests/
+experiments/
+
