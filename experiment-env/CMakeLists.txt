@@ -28,6 +28,7 @@ set(SRC_CONVERT     ${CMAKE_SOURCE_DIR}/src/convert_wrapper.cpp)
 add_executable(test_format
     ${SRC_FORMAT}
     ${CMAKE_SOURCE_DIR}/tests/test-format-generated.cpp
+    ${CMAKE_SOURCE_DIR}/tests/test-format-additional.cpp
 )
 target_link_libraries(test_format GTest::gtest GTest::gtest_main)
 
@@ -35,6 +36,7 @@ target_link_libraries(test_format GTest::gtest GTest::gtest_main)
 add_executable(test_cwordparse
     ${SRC_CWORDPARSE}
     ${CMAKE_SOURCE_DIR}/tests/test-cwordparse-generated.cpp
+    ${CMAKE_SOURCE_DIR}/tests/test-cwordparse-additional.cpp
 )
 target_link_libraries(test_cwordparse GTest::gtest GTest::gtest_main)
 
@@ -42,6 +44,7 @@ target_link_libraries(test_cwordparse GTest::gtest GTest::gtest_main)
 add_executable(test_convert
     ${SRC_CONVERT}
     ${CMAKE_SOURCE_DIR}/tests/test-convert-generated.cpp
+    ${CMAKE_SOURCE_DIR}/tests/test-convert-additional.cpp
 )
 target_link_libraries(test_convert GTest::gtest GTest::gtest_main)
 

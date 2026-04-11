@@ -1,14 +1,14 @@
-Start testing: Mar 31 16:05 JST
+Start testing: Apr 05 19:14 JST
 ----------------------------------------------------------
 1/3 Testing: FormatTests
 1/3 Test: FormatTests
 Command: "/Users/suetaketakaya/SoftwareQualitySymposium/experiment-env/build/test_format"
 Directory: /Users/suetaketakaya/SoftwareQualitySymposium/experiment-env/build
-"FormatTests" start time: Mar 31 16:05 JST
+"FormatTests" start time: Apr 05 19:14 JST
 Output:
 ----------------------------------------------------------
 Running main() from /private/tmp/googletest-20250808-4780-aa0gxy/googletest-1.17.0/googletest/src/gtest_main.cc
-[==========] Running 61 tests from 3 test suites.
+[==========] Running 107 tests from 6 test suites.
 [----------] Global test environment set-up.
 [----------] 21 tests from GetDateTimeFormat
 [ RUN      ] GetDateTimeFormat.YearFull_PercentY
@@ -141,14 +141,132 @@ Running main() from /private/tmp/googletest-20250808-4780-aa0gxy/googletest-1.17
 [       OK ] CompareVersion.BV_BothEmpty (0 ms)
 [----------] 13 tests from CompareVersion (0 ms total)
 
+[----------] 13 tests from GetDateTimeFormat_Additional
+[ RUN      ] GetDateTimeFormat_Additional.GAP_EC_01_ZenkakuLiterals
+[       OK ] GetDateTimeFormat_Additional.GAP_EC_01_ZenkakuLiterals (0 ms)
+[ RUN      ] GetDateTimeFormat_Additional.GAP_EC_01_ZenkakuOnlyLiterals
+[       OK ] GetDateTimeFormat_Additional.GAP_EC_01_ZenkakuOnlyLiterals (0 ms)
+[ RUN      ] GetDateTimeFormat_Additional.GAP_EC_02_ConsecutiveSpecifiers
+[       OK ] GetDateTimeFormat_Additional.GAP_EC_02_ConsecutiveSpecifiers (0 ms)
+[ RUN      ] GetDateTimeFormat_Additional.GAP_EC_02_AllSpecifiersNoSeparator
+[       OK ] GetDateTimeFormat_Additional.GAP_EC_02_AllSpecifiersNoSeparator (0 ms)
+[ RUN      ] GetDateTimeFormat_Additional.GAP_BV_01_DayZero
+[       OK ] GetDateTimeFormat_Additional.GAP_BV_01_DayZero (0 ms)
+[ RUN      ] GetDateTimeFormat_Additional.GAP_BV_01_Day31
+[       OK ] GetDateTimeFormat_Additional.GAP_BV_01_Day31 (0 ms)
+[ RUN      ] GetDateTimeFormat_Additional.GAP_BV_02_MinuteZero
+[       OK ] GetDateTimeFormat_Additional.GAP_BV_02_MinuteZero (0 ms)
+[ RUN      ] GetDateTimeFormat_Additional.GAP_BV_02_Minute59
+[       OK ] GetDateTimeFormat_Additional.GAP_BV_02_Minute59 (0 ms)
+[ RUN      ] GetDateTimeFormat_Additional.GAP_BV_03_YearZero_FullYear
+[       OK ] GetDateTimeFormat_Additional.GAP_BV_03_YearZero_FullYear (0 ms)
+[ RUN      ] GetDateTimeFormat_Additional.GAP_BV_03_YearZero_ShortYear
+[       OK ] GetDateTimeFormat_Additional.GAP_BV_03_YearZero_ShortYear (0 ms)
+[ RUN      ] GetDateTimeFormat_Additional.GAP_BV_04_Year5Digits_BufferExact
+[       OK ] GetDateTimeFormat_Additional.GAP_BV_04_Year5Digits_BufferExact (0 ms)
+[ RUN      ] GetDateTimeFormat_Additional.GAP_BV_04_Year5Digits_ShortYear
+[       OK ] GetDateTimeFormat_Additional.GAP_BV_04_Year5Digits_ShortYear (0 ms)
+[ RUN      ] GetDateTimeFormat_Additional.GAP_ER_01_Year6Digits_BufferOverflow
+[       OK ] GetDateTimeFormat_Additional.GAP_ER_01_Year6Digits_BufferOverflow (0 ms)
+[----------] 13 tests from GetDateTimeFormat_Additional (0 ms total)
+
+[----------] 23 tests from ParseVersion_Additional
+[ RUN      ] ParseVersion_Additional.GAP_BR_01_NonDigitSkip_ZeroIterations
+[       OK ] ParseVersion_Additional.GAP_BR_01_NonDigitSkip_ZeroIterations (0 ms)
+[ RUN      ] ParseVersion_Additional.GAP_BR_01_NonDigitSkip_MultipleIterations
+[       OK ] ParseVersion_Additional.GAP_BR_01_NonDigitSkip_MultipleIterations (0 ms)
+[ RUN      ] ParseVersion_Additional.GAP_BR_02_StringEndDuringDigitExtraction
+[       OK ] ParseVersion_Additional.GAP_BR_02_StringEndDuringDigitExtraction (0 ms)
+[ RUN      ] ParseVersion_Additional.GAP_BR_02_TwoDigitStringEnd
+[       OK ] ParseVersion_Additional.GAP_BR_02_TwoDigitStringEnd (0 ms)
+[ RUN      ] ParseVersion_Additional.GAP_BR_03_ConsecutiveDots
+[       OK ] ParseVersion_Additional.GAP_BR_03_ConsecutiveDots (0 ms)
+[ RUN      ] ParseVersion_Additional.GAP_BR_03_MixedConsecutiveSeparators
+[       OK ] ParseVersion_Additional.GAP_BR_03_MixedConsecutiveSeparators (0 ms)
+[ RUN      ] ParseVersion_Additional.GAP_EC_03_ZenkakuDigits
+[       OK ] ParseVersion_Additional.GAP_EC_03_ZenkakuDigits (0 ms)
+[ RUN      ] ParseVersion_Additional.GAP_EC_04_SeparatorsOnly
+[       OK ] ParseVersion_Additional.GAP_EC_04_SeparatorsOnly (0 ms)
+[ RUN      ] ParseVersion_Additional.GAP_EC_05_ModifierOnly_Alpha
+[       OK ] ParseVersion_Additional.GAP_EC_05_ModifierOnly_Alpha (0 ms)
+[ RUN      ] ParseVersion_Additional.GAP_EC_05_ModifierOnly_Beta
+[       OK ] ParseVersion_Additional.GAP_EC_05_ModifierOnly_Beta (0 ms)
+[ RUN      ] ParseVersion_Additional.GAP_EC_05_ModifierOnly_Rc
+[       OK ] ParseVersion_Additional.GAP_EC_05_ModifierOnly_Rc (0 ms)
+[ RUN      ] ParseVersion_Additional.GAP_EC_05_ModifierOnly_Pl
+[       OK ] ParseVersion_Additional.GAP_EC_05_ModifierOnly_Pl (0 ms)
+[ RUN      ] ParseVersion_Additional.GAP_EC_06_VeryLongString
+[       OK ] ParseVersion_Additional.GAP_EC_06_VeryLongString (0 ms)
+[ RUN      ] ParseVersion_Additional.GAP_EC_06_LongModifierString
+[       OK ] ParseVersion_Additional.GAP_EC_06_LongModifierString (0 ms)
+[ RUN      ] ParseVersion_Additional.GAP_BV_05_ShiftMinusMax_nVerZero
+[       OK ] ParseVersion_Additional.GAP_BV_05_ShiftMinusMax_nVerZero (0 ms)
+[ RUN      ] ParseVersion_Additional.GAP_BV_05_ShiftMinusMax_nVerMax
+[       OK ] ParseVersion_Additional.GAP_BV_05_ShiftMinusMax_nVerMax (0 ms)
+[ RUN      ] ParseVersion_Additional.GAP_BV_05_ShiftPl_nVerMax
+[       OK ] ParseVersion_Additional.GAP_BV_05_ShiftPl_nVerMax (0 ms)
+[ RUN      ] ParseVersion_Additional.GAP_BV_06_ComponentOverflow_PlWithDigits
+[       OK ] ParseVersion_Additional.GAP_BV_06_ComponentOverflow_PlWithDigits (0 ms)
+[ RUN      ] ParseVersion_Additional.GAP_ER_02_NullInput
+/Users/suetaketakaya/SoftwareQualitySymposium/experiment-env/tests/test-format-additional.cpp:463: Skipped
+ParseVersion has no NULL check; calling with NULL would crash (segfault)
+
+[  SKIPPED ] ParseVersion_Additional.GAP_ER_02_NullInput (0 ms)
+[ RUN      ] ParseVersion_Additional.GAP_BR_01_BetaFollowedByDigit
+[       OK ] ParseVersion_Additional.GAP_BR_01_BetaFollowedByDigit (0 ms)
+[ RUN      ] ParseVersion_Additional.GAP_BR_01_RcFollowedByDigit
+[       OK ] ParseVersion_Additional.GAP_BR_01_RcFollowedByDigit (0 ms)
+[ RUN      ] ParseVersion_Additional.GAP_BR_01_PlFollowedByDigit
+[       OK ] ParseVersion_Additional.GAP_BR_01_PlFollowedByDigit (0 ms)
+[ RUN      ] ParseVersion_Additional.GAP_BR_02_SingleDigitComponent
+[       OK ] ParseVersion_Additional.GAP_BR_02_SingleDigitComponent (0 ms)
+[----------] 23 tests from ParseVersion_Additional (0 ms total)
+
+[----------] 10 tests from CompareVersion_Additional
+[ RUN      ] CompareVersion_Additional.GAP_EC_21_UINT32_DiffOverflow
+[       OK ] CompareVersion_Additional.GAP_EC_21_UINT32_DiffOverflow (0 ms)
+[ RUN      ] CompareVersion_Additional.GAP_EC_21_LargePositiveDiff
+[       OK ] CompareVersion_Additional.GAP_EC_21_LargePositiveDiff (0 ms)
+[ RUN      ] CompareVersion_Additional.GAP_ER_03_NullInputA
+/Users/suetaketakaya/SoftwareQualitySymposium/experiment-env/tests/test-format-additional.cpp:529: Skipped
+CompareVersion passes NULL to ParseVersion which has no NULL check; would crash
+
+[  SKIPPED ] CompareVersion_Additional.GAP_ER_03_NullInputA (0 ms)
+[ RUN      ] CompareVersion_Additional.GAP_ER_03_NullInputB
+/Users/suetaketakaya/SoftwareQualitySymposium/experiment-env/tests/test-format-additional.cpp:539: Skipped
+CompareVersion passes NULL to ParseVersion which has no NULL check; would crash
+
+[  SKIPPED ] CompareVersion_Additional.GAP_ER_03_NullInputB (0 ms)
+[ RUN      ] CompareVersion_Additional.GAP_ER_03_NullInputBoth
+/Users/suetaketakaya/SoftwareQualitySymposium/experiment-env/tests/test-format-additional.cpp:549: Skipped
+CompareVersion passes NULL to ParseVersion which has no NULL check; would crash
+
+[  SKIPPED ] CompareVersion_Additional.GAP_ER_03_NullInputBoth (0 ms)
+[ RUN      ] CompareVersion_Additional.GAP_ER_04_IntCastOverflow
+[       OK ] CompareVersion_Additional.GAP_ER_04_IntCastOverflow (0 ms)
+[ RUN      ] CompareVersion_Additional.GAP_DP_01_ParseVersionOverflowPropagation
+[       OK ] CompareVersion_Additional.GAP_DP_01_ParseVersionOverflowPropagation (0 ms)
+[ RUN      ] CompareVersion_Additional.GAP_DP_01_OverflowReversesComparison
+[       OK ] CompareVersion_Additional.GAP_DP_01_OverflowReversesComparison (0 ms)
+[ RUN      ] CompareVersion_Additional.Symmetry_OppositeSign
+[       OK ] CompareVersion_Additional.Symmetry_OppositeSign (0 ms)
+[ RUN      ] CompareVersion_Additional.Symmetry_EqualVersions
+[       OK ] CompareVersion_Additional.Symmetry_EqualVersions (0 ms)
+[----------] 10 tests from CompareVersion_Additional (0 ms total)
+
 [----------] Global test environment tear-down
-[==========] 61 tests from 3 test suites ran. (0 ms total)
-[  PASSED  ] 61 tests.
+[==========] 107 tests from 6 test suites ran. (0 ms total)
+[  PASSED  ] 103 tests.
+[  SKIPPED ] 4 tests, listed below:
+[  SKIPPED ] ParseVersion_Additional.GAP_ER_02_NullInput
+[  SKIPPED ] CompareVersion_Additional.GAP_ER_03_NullInputA
+[  SKIPPED ] CompareVersion_Additional.GAP_ER_03_NullInputB
+[  SKIPPED ] CompareVersion_Additional.GAP_ER_03_NullInputBoth
 <end of output>
-Test time =   0.25 sec
+Test time =   0.01 sec
 ----------------------------------------------------------
 Test Passed.
-"FormatTests" end time: Mar 31 16:05 JST
+"FormatTests" end time: Apr 05 19:14 JST
 "FormatTests" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -156,11 +274,11 @@ Test Passed.
 2/3 Test: CWordParseTests
 Command: "/Users/suetaketakaya/SoftwareQualitySymposium/experiment-env/build/test_cwordparse"
 Directory: /Users/suetaketakaya/SoftwareQualitySymposium/experiment-env/build
-"CWordParseTests" start time: Mar 31 16:05 JST
+"CWordParseTests" start time: Apr 05 19:14 JST
 Output:
 ----------------------------------------------------------
 Running main() from /private/tmp/googletest-20250808-4780-aa0gxy/googletest-1.17.0/googletest/src/gtest_main.cc
-[==========] Running 53 tests from 3 test suites.
+[==========] Running 88 tests from 6 test suites.
 [----------] Global test environment set-up.
 [----------] 27 tests from IsMailAddress
 [ RUN      ] IsMailAddress.BR27_OffsetWithValidPrecedingChar
@@ -277,14 +395,98 @@ Running main() from /private/tmp/googletest-20250808-4780-aa0gxy/googletest-1.17
 [       OK ] WhatKindOfTwoChars4KW.CommonBehavior_SameAsNormal (0 ms)
 [----------] 8 tests from WhatKindOfTwoChars4KW (0 ms total)
 
+[----------] 23 tests from IsMailAddress_Additional
+[ RUN      ] IsMailAddress_Additional.GAP_BR04_NegativeOffset
+[       OK ] IsMailAddress_Additional.GAP_BR04_NegativeOffset (0 ms)
+[ RUN      ] IsMailAddress_Additional.GAP_BR05_DomainLabelBufferEnd
+[       OK ] IsMailAddress_Additional.GAP_BR05_DomainLabelBufferEnd (0 ms)
+[ RUN      ] IsMailAddress_Additional.GAP_BR05_DomainLabelTruncatedByBuffer
+[       OK ] IsMailAddress_Additional.GAP_BR05_DomainLabelTruncatedByBuffer (0 ms)
+[ RUN      ] IsMailAddress_Additional.GAP_EC07_LocalPartEndingWithDot
+[       OK ] IsMailAddress_Additional.GAP_EC07_LocalPartEndingWithDot (0 ms)
+[ RUN      ] IsMailAddress_Additional.GAP_EC08_ConsecutiveDotsInLocalPart
+[       OK ] IsMailAddress_Additional.GAP_EC08_ConsecutiveDotsInLocalPart (0 ms)
+[ RUN      ] IsMailAddress_Additional.GAP_EC09_DomainLabelStartingWithHyphen
+[       OK ] IsMailAddress_Additional.GAP_EC09_DomainLabelStartingWithHyphen (0 ms)
+[ RUN      ] IsMailAddress_Additional.GAP_EC09_DomainLabelEndingWithHyphen
+[       OK ] IsMailAddress_Additional.GAP_EC09_DomainLabelEndingWithHyphen (0 ms)
+[ RUN      ] IsMailAddress_Additional.GAP_EC10_DomainTrailingDot
+[       OK ] IsMailAddress_Additional.GAP_EC10_DomainTrailingDot (0 ms)
+[ RUN      ] IsMailAddress_Additional.GAP_EC11_MultipleAtSigns
+[       OK ] IsMailAddress_Additional.GAP_EC11_MultipleAtSigns (0 ms)
+[ RUN      ] IsMailAddress_Additional.GAP_EC12_ControlCharInLocalPart
+[       OK ] IsMailAddress_Additional.GAP_EC12_ControlCharInLocalPart (0 ms)
+[ RUN      ] IsMailAddress_Additional.GAP_EC12_ControlCharAtStart
+[       OK ] IsMailAddress_Additional.GAP_EC12_ControlCharAtStart (0 ms)
+[ RUN      ] IsMailAddress_Additional.GAP_EC12_ControlChar_0x1F
+[       OK ] IsMailAddress_Additional.GAP_EC12_ControlChar_0x1F (0 ms)
+[ RUN      ] IsMailAddress_Additional.GAP_EC12_TabInLocalPart
+[       OK ] IsMailAddress_Additional.GAP_EC12_TabInLocalPart (0 ms)
+[ RUN      ] IsMailAddress_Additional.GAP_EC13_FullWidthAtSign
+[       OK ] IsMailAddress_Additional.GAP_EC13_FullWidthAtSign (0 ms)
+[ RUN      ] IsMailAddress_Additional.GAP_BV07_OffsetZero
+[       OK ] IsMailAddress_Additional.GAP_BV07_OffsetZero (0 ms)
+[ RUN      ] IsMailAddress_Additional.GAP_BV08_EmptyBuffer_BufLen0
+[       OK ] IsMailAddress_Additional.GAP_BV08_EmptyBuffer_BufLen0 (0 ms)
+[ RUN      ] IsMailAddress_Additional.GAP_BV09_BufLen1_SignIssue
+[       OK ] IsMailAddress_Additional.GAP_BV09_BufLen1_SignIssue (0 ms)
+[ RUN      ] IsMailAddress_Additional.GAP_BV09_BufLen1_AtSign
+[       OK ] IsMailAddress_Additional.GAP_BV09_BufLen1_AtSign (0 ms)
+[ RUN      ] IsMailAddress_Additional.GAP_BV10_BufLen2
+[       OK ] IsMailAddress_Additional.GAP_BV10_BufLen2 (0 ms)
+[ RUN      ] IsMailAddress_Additional.GAP_BV10_BufLen2_TwoChars
+[       OK ] IsMailAddress_Additional.GAP_BV10_BufLen2_TwoChars (0 ms)
+[ RUN      ] IsMailAddress_Additional.GAP_BV11_VeryLongDomainLabel
+[       OK ] IsMailAddress_Additional.GAP_BV11_VeryLongDomainLabel (0 ms)
+[ RUN      ] IsMailAddress_Additional.GAP_BV11_VeryLongDomainLabel_1024
+[       OK ] IsMailAddress_Additional.GAP_BV11_VeryLongDomainLabel_1024 (0 ms)
+[ RUN      ] IsMailAddress_Additional.GAP_ER05_NullBuffer
+/Users/suetaketakaya/SoftwareQualitySymposium/experiment-env/tests/test-cwordparse-additional.cpp:350: Skipped
+pszBuf=NULL はクラッシュが予想されるためスキップ (実装に NULL ガードなし)
+
+[  SKIPPED ] IsMailAddress_Additional.GAP_ER05_NullBuffer (0 ms)
+[----------] 23 tests from IsMailAddress_Additional (0 ms total)
+
+[----------] 8 tests from WhatKindOfTwoChars_Additional
+[ RUN      ] WhatKindOfTwoChars_Additional.GAP_BR06_NobasuPlusHira
+[       OK ] WhatKindOfTwoChars_Additional.GAP_BR06_NobasuPlusHira (0 ms)
+[ RUN      ] WhatKindOfTwoChars_Additional.GAP_BR07_DakuPlusZenKata
+[       OK ] WhatKindOfTwoChars_Additional.GAP_BR07_DakuPlusZenKata (0 ms)
+[ RUN      ] WhatKindOfTwoChars_Additional.GAP_BR08_DakuPlusDaku
+[       OK ] WhatKindOfTwoChars_Additional.GAP_BR08_DakuPlusDaku (0 ms)
+[ RUN      ] WhatKindOfTwoChars_Additional.GAP_EC14_TabWithOthers
+[       OK ] WhatKindOfTwoChars_Additional.GAP_EC14_TabWithOthers (0 ms)
+[ RUN      ] WhatKindOfTwoChars_Additional.GAP_EC14_SpaceWithOthers
+[       OK ] WhatKindOfTwoChars_Additional.GAP_EC14_SpaceWithOthers (0 ms)
+[ RUN      ] WhatKindOfTwoChars_Additional.GAP_EC14_CRWithOthers
+[       OK ] WhatKindOfTwoChars_Additional.GAP_EC14_CRWithOthers (0 ms)
+[ RUN      ] WhatKindOfTwoChars_Additional.GAP_EC14_LFWithOthers
+[       OK ] WhatKindOfTwoChars_Additional.GAP_EC14_LFWithOthers (0 ms)
+[ RUN      ] WhatKindOfTwoChars_Additional.GAP_EC15_HankakuKataWithOthers
+[       OK ] WhatKindOfTwoChars_Additional.GAP_EC15_HankakuKataWithOthers (0 ms)
+[----------] 8 tests from WhatKindOfTwoChars_Additional (0 ms total)
+
+[----------] 4 tests from WhatKindOfTwoChars4KW_Additional
+[ RUN      ] WhatKindOfTwoChars4KW_Additional.GAP_BR09_LatinToCSYM_4KW
+[       OK ] WhatKindOfTwoChars4KW_Additional.GAP_BR09_LatinToCSYM_4KW (0 ms)
+[ RUN      ] WhatKindOfTwoChars4KW_Additional.GAP_BR09_LatinToCSYM_WithUDEF
+[       OK ] WhatKindOfTwoChars4KW_Additional.GAP_BR09_LatinToCSYM_WithUDEF (0 ms)
+[ RUN      ] WhatKindOfTwoChars4KW_Additional.GAP_EC16_LatinPlusLatin
+[       OK ] WhatKindOfTwoChars4KW_Additional.GAP_EC16_LatinPlusLatin (0 ms)
+[ RUN      ] WhatKindOfTwoChars4KW_Additional.GAP_EC17_UdefPlusUdef_InitialSameCheck
+[       OK ] WhatKindOfTwoChars4KW_Additional.GAP_EC17_UdefPlusUdef_InitialSameCheck (0 ms)
+[----------] 4 tests from WhatKindOfTwoChars4KW_Additional (0 ms total)
+
 [----------] Global test environment tear-down
-[==========] 53 tests from 3 test suites ran. (0 ms total)
-[  PASSED  ] 53 tests.
+[==========] 88 tests from 6 test suites ran. (0 ms total)
+[  PASSED  ] 87 tests.
+[  SKIPPED ] 1 test, listed below:
+[  SKIPPED ] IsMailAddress_Additional.GAP_ER05_NullBuffer
 <end of output>
-Test time =   0.18 sec
+Test time =   0.00 sec
 ----------------------------------------------------------
 Test Passed.
-"CWordParseTests" end time: Mar 31 16:05 JST
+"CWordParseTests" end time: Apr 05 19:14 JST
 "CWordParseTests" time elapsed: 00:00:00
 ----------------------------------------------------------
 
@@ -292,13 +494,31 @@ Test Passed.
 3/3 Test: ConvertTests
 Command: "/Users/suetaketakaya/SoftwareQualitySymposium/experiment-env/build/test_convert"
 Directory: /Users/suetaketakaya/SoftwareQualitySymposium/experiment-env/build
-"ConvertTests" start time: Mar 31 16:05 JST
+"ConvertTests" start time: Apr 05 19:14 JST
 Output:
 ----------------------------------------------------------
 Running main() from /private/tmp/googletest-20250808-4780-aa0gxy/googletest-1.17.0/googletest/src/gtest_main.cc
-[==========] Running 31 tests from 3 test suites.
+[==========] Running 53 tests from 4 test suites.
 [----------] Global test environment set-up.
-[----------] 17 tests from ConvertZeneisuToHaneisu
+[----------] 23 tests from ConvertZeneisuToHaneisu
+[ RUN      ] ConvertZeneisuToHaneisu.GAP_EC18_AllZenKigoTable
+[       OK ] ConvertZeneisuToHaneisu.GAP_EC18_AllZenKigoTable (0 ms)
+[ RUN      ] ConvertZeneisuToHaneisu.GAP_BV13_ZenKigoTableBoundary
+[       OK ] ConvertZeneisuToHaneisu.GAP_BV13_ZenKigoTableBoundary (0 ms)
+[ RUN      ] ConvertZeneisuToHaneisu.GAP_ER07_NullPointer
+[       OK ] ConvertZeneisuToHaneisu.GAP_ER07_NullPointer (0 ms)
+[ RUN      ] ConvertZeneisuToHaneisu.GAP_ER07_NullPointerPositiveLength
+/Users/suetaketakaya/SoftwareQualitySymposium/experiment-env/tests/test-convert-additional.cpp:168: Skipped
+pData=NULL with nLength>0 would dereference null pointer (no guard in implementation)
+
+[  SKIPPED ] ConvertZeneisuToHaneisu.GAP_ER07_NullPointerPositiveLength (0 ms)
+[ RUN      ] ConvertZeneisuToHaneisu.GAP_ER08_NegativeLength
+[       OK ] ConvertZeneisuToHaneisu.GAP_ER08_NegativeLength (0 ms)
+[ RUN      ] ConvertZeneisuToHaneisu.GAP_ER08_NegativeLengthLarge
+/Users/suetaketakaya/SoftwareQualitySymposium/experiment-env/tests/test-convert-additional.cpp:192: Skipped
+nLength=INT_MIN causes pointer arithmetic overflow (SEGFAULT)
+
+[  SKIPPED ] ConvertZeneisuToHaneisu.GAP_ER08_NegativeLengthLarge (0 ms)
 [ RUN      ] ConvertZeneisuToHaneisu.BR46_ZenUpperToHanUpper
 [       OK ] ConvertZeneisuToHaneisu.BR46_ZenUpperToHanUpper (0 ms)
 [ RUN      ] ConvertZeneisuToHaneisu.BR47_ZenLowerToHanLower
@@ -333,9 +553,37 @@ Running main() from /private/tmp/googletest-20250808-4780-aa0gxy/googletest-1.17
 [       OK ] ConvertZeneisuToHaneisu.BV10_LengthZero (0 ms)
 [ RUN      ] ConvertZeneisuToHaneisu.BV_LengthOne
 [       OK ] ConvertZeneisuToHaneisu.BV_LengthOne (0 ms)
-[----------] 17 tests from ConvertZeneisuToHaneisu (0 ms total)
+[----------] 23 tests from ConvertZeneisuToHaneisu (0 ms total)
 
-[----------] 11 tests from ConvertHaneisuToZeneisu
+[----------] 22 tests from ConvertHaneisuToZeneisu
+[ RUN      ] ConvertHaneisuToZeneisu.GAP_EC19_AllHanKigoTable
+[       OK ] ConvertHaneisuToZeneisu.GAP_EC19_AllHanKigoTable (0 ms)
+[ RUN      ] ConvertHaneisuToZeneisu.GAP_EC20_BV14_EmptyArray
+[       OK ] ConvertHaneisuToZeneisu.GAP_EC20_BV14_EmptyArray (0 ms)
+[ RUN      ] ConvertHaneisuToZeneisu.GAP_BV15_LengthOne
+[       OK ] ConvertHaneisuToZeneisu.GAP_BV15_LengthOne (0 ms)
+[ RUN      ] ConvertHaneisuToZeneisu.GAP_BV16_UpperCaseBoundaryOutside
+[       OK ] ConvertHaneisuToZeneisu.GAP_BV16_UpperCaseBoundaryOutside (0 ms)
+[ RUN      ] ConvertHaneisuToZeneisu.GAP_BV17_LowerCaseBoundaryOutside
+[       OK ] ConvertHaneisuToZeneisu.GAP_BV17_LowerCaseBoundaryOutside (0 ms)
+[ RUN      ] ConvertHaneisuToZeneisu.GAP_BV18_DigitBoundaryOutside
+[       OK ] ConvertHaneisuToZeneisu.GAP_BV18_DigitBoundaryOutside (0 ms)
+[ RUN      ] ConvertHaneisuToZeneisu.GAP_BR10_LoopNotExecuted
+[       OK ] ConvertHaneisuToZeneisu.GAP_BR10_LoopNotExecuted (0 ms)
+[ RUN      ] ConvertHaneisuToZeneisu.GAP_ER09_NullPointer
+[       OK ] ConvertHaneisuToZeneisu.GAP_ER09_NullPointer (0 ms)
+[ RUN      ] ConvertHaneisuToZeneisu.GAP_ER09_NullPointerPositiveLength
+/Users/suetaketakaya/SoftwareQualitySymposium/experiment-env/tests/test-convert-additional.cpp:398: Skipped
+pData=NULL with nLength>0 would dereference null pointer (no guard in implementation)
+
+[  SKIPPED ] ConvertHaneisuToZeneisu.GAP_ER09_NullPointerPositiveLength (0 ms)
+[ RUN      ] ConvertHaneisuToZeneisu.GAP_ER10_NegativeLength
+[       OK ] ConvertHaneisuToZeneisu.GAP_ER10_NegativeLength (0 ms)
+[ RUN      ] ConvertHaneisuToZeneisu.GAP_ER10_NegativeLengthLarge
+/Users/suetaketakaya/SoftwareQualitySymposium/experiment-env/tests/test-convert-additional.cpp:420: Skipped
+nLength=INT_MIN causes pointer arithmetic overflow (SEGFAULT)
+
+[  SKIPPED ] ConvertHaneisuToZeneisu.GAP_ER10_NegativeLengthLarge (0 ms)
 [ RUN      ] ConvertHaneisuToZeneisu.BR51_HanUpperToZenUpper
 [       OK ] ConvertHaneisuToZeneisu.BR51_HanUpperToZenUpper (0 ms)
 [ RUN      ] ConvertHaneisuToZeneisu.BR52_HanLowerToZenLower
@@ -358,26 +606,44 @@ Running main() from /private/tmp/googletest-20250808-4780-aa0gxy/googletest-1.17
 [       OK ] ConvertHaneisuToZeneisu.BV11_HanLowerBoundary (0 ms)
 [ RUN      ] ConvertHaneisuToZeneisu.BV11_HanDigitBoundary
 [       OK ] ConvertHaneisuToZeneisu.BV11_HanDigitBoundary (0 ms)
-[----------] 11 tests from ConvertHaneisuToZeneisu (0 ms total)
+[----------] 22 tests from ConvertHaneisuToZeneisu (0 ms total)
 
-[----------] 3 tests from ConvertRoundTrip
+[----------] 7 tests from ConvertRoundTrip
+[ RUN      ] ConvertRoundTrip.GAP_DP03_AllSymbolsRoundTrip_ZenToHanToZen
+[       OK ] ConvertRoundTrip.GAP_DP03_AllSymbolsRoundTrip_ZenToHanToZen (0 ms)
+[ RUN      ] ConvertRoundTrip.GAP_DP03_AllSymbolsRoundTrip_HanToZenToHan
+[       OK ] ConvertRoundTrip.GAP_DP03_AllSymbolsRoundTrip_HanToZenToHan (0 ms)
+[ RUN      ] ConvertRoundTrip.GAP_DP03_MixedSymbolsAndAlphanumRoundTrip
+[       OK ] ConvertRoundTrip.GAP_DP03_MixedSymbolsAndAlphanumRoundTrip (0 ms)
+[ RUN      ] ConvertRoundTrip.GAP_DP03_IndividualSymbolRoundTrip
+[       OK ] ConvertRoundTrip.GAP_DP03_IndividualSymbolRoundTrip (0 ms)
 [ RUN      ] ConvertRoundTrip.DP03_ZenToHanToZen
 [       OK ] ConvertRoundTrip.DP03_ZenToHanToZen (0 ms)
 [ RUN      ] ConvertRoundTrip.DP03_HanToZenToHan
 [       OK ] ConvertRoundTrip.DP03_HanToZenToHan (0 ms)
 [ RUN      ] ConvertRoundTrip.DP03_MixedRoundTrip
 [       OK ] ConvertRoundTrip.DP03_MixedRoundTrip (0 ms)
-[----------] 3 tests from ConvertRoundTrip (0 ms total)
+[----------] 7 tests from ConvertRoundTrip (0 ms total)
+
+[----------] 1 test from ConvertSymmetry
+[ RUN      ] ConvertSymmetry.GAP_DP03_TableSymmetryVerification
+[       OK ] ConvertSymmetry.GAP_DP03_TableSymmetryVerification (0 ms)
+[----------] 1 test from ConvertSymmetry (0 ms total)
 
 [----------] Global test environment tear-down
-[==========] 31 tests from 3 test suites ran. (0 ms total)
-[  PASSED  ] 31 tests.
+[==========] 53 tests from 4 test suites ran. (0 ms total)
+[  PASSED  ] 49 tests.
+[  SKIPPED ] 4 tests, listed below:
+[  SKIPPED ] ConvertZeneisuToHaneisu.GAP_ER07_NullPointerPositiveLength
+[  SKIPPED ] ConvertZeneisuToHaneisu.GAP_ER08_NegativeLengthLarge
+[  SKIPPED ] ConvertHaneisuToZeneisu.GAP_ER09_NullPointerPositiveLength
+[  SKIPPED ] ConvertHaneisuToZeneisu.GAP_ER10_NegativeLengthLarge
 <end of output>
-Test time =   0.00 sec
+Test time =   0.28 sec
 ----------------------------------------------------------
 Test Passed.
-"ConvertTests" end time: Mar 31 16:05 JST
+"ConvertTests" end time: Apr 05 19:14 JST
 "ConvertTests" time elapsed: 00:00:00
 ----------------------------------------------------------
 
-End testing: Mar 31 16:05 JST
+End testing: Apr 05 19:14 JST

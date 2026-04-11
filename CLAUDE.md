@@ -1,89 +1,127 @@
-# SQiP 2026 論文投稿プロジェクト
+# CLAUDE.md
 
-## プロジェクト概要
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-ソフトウェア品質シンポジウム2026（SQiP 2026）への論文投稿を目的としたマルチエージェント環境。
+## Project Overview
 
-**研究テーマ:**
-「公開コードベースを対象に、静的解析とLLMを組み合わせてホワイトボックステスト要求モデルを生成し、単体テスト生成・実行・評価までを半自動化する方法の提案と実証」
+SQiP 2026（ソフトウェア品質シンポジウム2026）への経験発表投稿プロジェクト。静的解析に基づくテスト要求モデル（TRM）の自動生成と、それを用いたLLM単体テスト生成の実証評価を行う。
 
-**核心主張:**
-> LLMに直接テストを書かせるのではなく、静的解析で抽出したホワイトボックステスト要求を人間が確認可能な中間成果物として固定し、その要求に基づいてテスト生成・実行・評価を反復することで、単体テスト生成の説明可能性と再現性を高める。
+**実証対象:** sakura-editor/sakura (C++, OSS テキストエディタ)
+**対象関数:** 8関数、約385行（format.cpp / CWordParse.cpp / convert_util.cpp）
+**提出締切:** 2026年4月14日（EasyChair または メール添付）
 
-**実証対象:** https://github.com/sakura-editor/sakura
+## Build & Test Commands
 
-## スケジュール
+```bash
+# テスト環境のビルド（experiment-env/内で実行）
+cd experiment-env && rm -rf build && mkdir build && cd build
+cmake ..
+make -j4
 
-| マイルストーン | 期限 |
+# 全テスト実行
+ctest --output-on-failure
+
+# 個別テスト実行
+./test_format           # Format系: 107テスト (103 PASS + 4 SKIP)
+./test_cwordparse       # CWordParse系: 88テスト (87 PASS + 1 SKIP)
+./test_convert          # Convert系: 53テスト (49 PASS + 4 SKIP)
+
+# フィルタ付き実行
+./test_format --gtest_filter='ParseVersion*'
+./test_format --gtest_filter='*_Additional*'
+
+# 簡易出力
+./test_format --gtest_brief=1
+```
+
+**前提:** macOS + Apple clang + Google Test (Homebrew: `brew install googletest`)
+
+## Document Generation
+
+```bash
+# 図表生成（matplotlib, 日本語フォント: Hiragino Sans）
+python3 scripts/generate_figures.py       # fig1-5のPNG生成
+python3 scripts/generate_figures_v2.py    # 改善版fig1 + fig5
+
+# 提出用docx生成（python-docx, cairosvg不使用）
+python3 scripts/generate_submission_final.py   # → report/submission_final_2026.docx
+
+# プレゼン生成（python-pptx）
+python3 scripts/generate_presentation.py       # → report/presentation_2026.pptx
+```
+
+**重要:** docx生成スクリプトでは cairosvg を使わないこと（日本語が文字化けする）。matplotlib で直接PNGを生成し、そのパスを参照する。
+
+## Architecture
+
+### 3段階パイプライン
+
+```
+Step 1: リポジトリ解析     → analysis/repo-analysis.md
+Step 2: TRM生成           → test-requirements/test-requirements.yaml (99件)
+Step 3: テストコード生成   → experiment-env/tests/ (248件)
+                            ↓
+        網羅性監査         → analysis/trm-coverage-audit.md (追加64件特定)
+```
+
+### TRM（テスト要求モデル）スキーマ
+
+YAML形式。5種別のテスト要求をID付きで構造化:
+- **BR** (Branch Coverage): if/else/switchの各パス → 55件
+- **EC** (Equivalence Class): 入力の同値分割 → 27件
+- **BV** (Boundary Value): 同値クラス境界 → 11件
+- **ER** (Error Path): 異常系 → 3件
+- **DP** (Dependency Path): 関数間依存 → 3件
+
+### マルチエージェント（.claude/commands/）
+
+| コマンド | 役割 |
 |---|---|
-| アブストラクト投稿締切 | 2026年4月14日(火) |
-| 採否通知 | 2026年6月下旬 |
-| 発表概要・顔写真提出 | 2026年7月3日(金) |
-| 最終原稿締切（A4 8ページ以内） | 2026年8月18日(火) |
-| プレゼンデータ提出 | 2026年9月3日(木) |
-| シンポジウム発表 | 2026年9月10日(木) or 11日(金) |
+| `/project:repo-analysis` | 対象リポジトリ解析・関数選定 |
+| `/project:test-requirement` | TRM YAML生成 |
+| `/project:test-generation` | TRMからテストコード生成 |
+| `/project:experiment-eval` | 実験結果評価 |
+| `/project:paper-writing` | 論文執筆 |
+| `/project:peer-review` | 査読レビュー |
+| `/project:coordinator` | 進捗管理 |
+| `/project:run-all` | 全フェーズ一括実行 |
 
-## 提出要件
-
-- **アブストラクト:** A4 2枚程度。構成は「1.ねらい / 2.実施概要 / 3.実施結果 / 4.結論」
-- **最終原稿:** A4 8ページ以内
-- **匿名査読:** 著者名・所属・個人特定情報は本文・ファイル名に含めない
-- **提出方法:** EasyChair または所定フォームをメール添付
-- **審査基準:** 有用性、信頼性、構成と読みやすさから総合的に判断
-
-## 申込区分
-
-- **経験論文:** 比較対象あり、定量結果あり、再現可能な手順と図表が揃う場合
-- **経験発表:** 手法提案と試行結果中心、効果は見込みだが件数が少ない場合
-- 現時点では **経験発表** として草稿を作り、結果が揃ったら経験論文へ格上げ判断
-
-## ファイル構成
+### experiment-env/ の構成
 
 ```
-.
-├── CLAUDE.md                 # このファイル（プロジェクト全体指示）
-├── .claude/
-│   ├── settings.local.json
-│   └── commands/             # マルチエージェント用スラッシュコマンド
-│       ├── coordinator.md    # 統括エージェント
-│       ├── repo-analysis.md  # リポジトリ解析エージェント
-│       ├── test-requirement.md # テスト要求モデル設計エージェント
-│       ├── test-generation.md  # テスト生成エージェント
-│       ├── experiment-eval.md  # 実験評価エージェント
-│       ├── paper-writing.md    # 論文執筆エージェント
-│       ├── peer-review.md      # 査読対策エージェント
-│       └── run-all.md          # 全体ワークフロー実行
-├── knowledge/
-│   └── direction.md          # エージェント設計方針（元資料）
-├── report/
-│   └── toukou_form_template_2026.docx  # 提出テンプレート
-├── analysis/                 # リポジトリ解析結果
-├── test-requirements/        # テスト要求モデル
-├── generated-tests/          # 生成テストコード
-├── experiments/              # 実験結果
-└── drafts/                   # 論文草稿
+experiment-env/
+├── compat/                    # macOS用互換レイヤー
+│   ├── windows_compat.h       # SYSTEMTIME, BOOL等のWindows型定義
+│   ├── sakura_compat.h        # ECharKind enum, CWordParse等のsakura固有型
+│   └── StdAfx.h               # プリコンパイル済みヘッダのシム
+├── src/                       # sakura-editorから抽出した対象関数
+│   ├── format_wrapper.cpp     # GetDateTimeFormat, ParseVersion, CompareVersion
+│   ├── cwordparse_wrapper.cpp # IsMailAddress, WhatKindOfTwoChars, WhatKindOfTwoChars4KW
+│   └── convert_wrapper.cpp    # Convert_ZeneisuToHaneisu, Convert_HaneisuToZeneisu
+├── tests/
+│   ├── test-format-generated.cpp       # TRMベース生成テスト (61件)
+│   ├── test-format-additional.cpp      # 網羅性監査後の追加テスト (46件)
+│   ├── test-cwordparse-generated.cpp   # TRMベース生成テスト (53件)
+│   ├── test-cwordparse-additional.cpp  # 追加テスト (35件)
+│   ├── test-convert-generated.cpp      # TRMベース生成テスト (31件)
+│   └── test-convert-additional.cpp     # 追加テスト (22件)
+└── CMakeLists.txt
 ```
 
-## エージェント利用方法
+### テスト実行結果（248件）
 
-各エージェントは `/project:` プレフィックス付きのスラッシュコマンドで呼び出せます。
+| スイート | PASS | SKIP | 合計 |
+|---|---|---|---|
+| Format | 103 | 4 | 107 |
+| CWordParse | 87 | 1 | 88 |
+| Convert | 49 | 4 | 53 |
+| **合計** | **239** | **9** | **248** |
 
-| コマンド | 役割 | 説明 |
-|---|---|---|
-| `/project:coordinator` | 統括 | 全体進捗管理、エージェント間の調整 |
-| `/project:repo-analysis` | 解析 | sakura-editor のコード解析、実験候補選定 |
-| `/project:test-requirement` | 設計 | ホワイトボックステスト要求モデル定義 |
-| `/project:test-generation` | 生成 | テスト要求に基づくテストコード生成 |
-| `/project:experiment-eval` | 評価 | 実験結果の整理・論文用データ作成 |
-| `/project:paper-writing` | 執筆 | SQiP提出テンプレートに沿った論文執筆 |
-| `/project:peer-review` | 査読 | 査読者視点でのレビュー・改善提案 |
-| `/project:run-all` | 統合 | 全エージェントを順序立てて実行 |
+SKIP 9件はNULLポインタ入力・INT_MINポインタ演算等で、実装にガードがない潜在バグとして記録。
 
-## 共通制約
+## Key Constraints
 
-- 匿名査読に違反しない（著者名・所属を書かない）
-- 提出テンプレートの構成に厳密に合わせる
-- 実証対象は sakura-editor/sakura
-- 誇張しない。結果未確定箇所は「現時点の計画値」「今後確定予定」と明記
-- 文章は日本語で、査読者が読みやすい形にする
-- 成果物は対応するディレクトリに保存する
+- **匿名査読:** 著者名・所属・個人特定情報を本文・ファイル名に含めない
+- **日本語:** 論文・発表資料は日本語で記述
+- **参考文献:** 17件（URL付き）。literature-review.mdに39件の調査済み文献
+- **テスト期待値:** 実際のsakura-editor実装から導出すること。LLMの推論だけで期待値を決めない（初回12件のFAILはLLMの期待値推論誤りだった）

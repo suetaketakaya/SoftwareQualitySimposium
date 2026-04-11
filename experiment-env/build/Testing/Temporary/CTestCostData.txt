@@ -1,4 +1,4 @@
-FormatTests 1 0.25404
-CWordParseTests 1 0.183882
-ConvertTests 1 0.00346013
+FormatTests 4 0.0012908
+CWordParseTests 4 0.00105725
+ConvertTests 2 0.142412
 ---

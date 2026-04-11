@@ -1,6 +1,8 @@
 file(REMOVE_RECURSE
   "CMakeFiles/test_cwordparse.dir/src/cwordparse_wrapper.cpp.o"
   "CMakeFiles/test_cwordparse.dir/src/cwordparse_wrapper.cpp.o.d"
+  "CMakeFiles/test_cwordparse.dir/tests/test-cwordparse-additional.cpp.o"
+  "CMakeFiles/test_cwordparse.dir/tests/test-cwordparse-additional.cpp.o.d"
   "CMakeFiles/test_cwordparse.dir/tests/test-cwordparse-generated.cpp.o"
   "CMakeFiles/test_cwordparse.dir/tests/test-cwordparse-generated.cpp.o.d"
   "test_cwordparse"

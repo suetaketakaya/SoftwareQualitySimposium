@@ -237,6 +237,30 @@ src/format_wrapper.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_format.dir/build.make CMakeFiles/test_format.dir/src/format_wrapper.cpp.s
 .PHONY : src/format_wrapper.cpp.s
 
+tests/test-convert-additional.o: tests/test-convert-additional.cpp.o
+.PHONY : tests/test-convert-additional.o
+
+# target to build an object file
+tests/test-convert-additional.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_convert.dir/build.make CMakeFiles/test_convert.dir/tests/test-convert-additional.cpp.o
+.PHONY : tests/test-convert-additional.cpp.o
+
+tests/test-convert-additional.i: tests/test-convert-additional.cpp.i
+.PHONY : tests/test-convert-additional.i
+
+# target to preprocess a source file
+tests/test-convert-additional.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_convert.dir/build.make CMakeFiles/test_convert.dir/tests/test-convert-additional.cpp.i
+.PHONY : tests/test-convert-additional.cpp.i
+
+tests/test-convert-additional.s: tests/test-convert-additional.cpp.s
+.PHONY : tests/test-convert-additional.s
+
+# target to generate assembly for a file
+tests/test-convert-additional.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_convert.dir/build.make CMakeFiles/test_convert.dir/tests/test-convert-additional.cpp.s
+.PHONY : tests/test-convert-additional.cpp.s
+
 tests/test-convert-generated.o: tests/test-convert-generated.cpp.o
 .PHONY : tests/test-convert-generated.o
 
@@ -261,6 +285,30 @@ tests/test-convert-generated.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_convert.dir/build.make CMakeFiles/test_convert.dir/tests/test-convert-generated.cpp.s
 .PHONY : tests/test-convert-generated.cpp.s
 
+tests/test-cwordparse-additional.o: tests/test-cwordparse-additional.cpp.o
+.PHONY : tests/test-cwordparse-additional.o
+
+# target to build an object file
+tests/test-cwordparse-additional.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cwordparse.dir/build.make CMakeFiles/test_cwordparse.dir/tests/test-cwordparse-additional.cpp.o
+.PHONY : tests/test-cwordparse-additional.cpp.o
+
+tests/test-cwordparse-additional.i: tests/test-cwordparse-additional.cpp.i
+.PHONY : tests/test-cwordparse-additional.i
+
+# target to preprocess a source file
+tests/test-cwordparse-additional.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cwordparse.dir/build.make CMakeFiles/test_cwordparse.dir/tests/test-cwordparse-additional.cpp.i
+.PHONY : tests/test-cwordparse-additional.cpp.i
+
+tests/test-cwordparse-additional.s: tests/test-cwordparse-additional.cpp.s
+.PHONY : tests/test-cwordparse-additional.s
+
+# target to generate assembly for a file
+tests/test-cwordparse-additional.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cwordparse.dir/build.make CMakeFiles/test_cwordparse.dir/tests/test-cwordparse-additional.cpp.s
+.PHONY : tests/test-cwordparse-additional.cpp.s
+
 tests/test-cwordparse-generated.o: tests/test-cwordparse-generated.cpp.o
 .PHONY : tests/test-cwordparse-generated.o
 
@@ -284,6 +332,30 @@ tests/test-cwordparse-generated.s: tests/test-cwordparse-generated.cpp.s
 tests/test-cwordparse-generated.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_cwordparse.dir/build.make CMakeFiles/test_cwordparse.dir/tests/test-cwordparse-generated.cpp.s
 .PHONY : tests/test-cwordparse-generated.cpp.s
+
+tests/test-format-additional.o: tests/test-format-additional.cpp.o
+.PHONY : tests/test-format-additional.o
+
+# target to build an object file
+tests/test-format-additional.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_format.dir/build.make CMakeFiles/test_format.dir/tests/test-format-additional.cpp.o
+.PHONY : tests/test-format-additional.cpp.o
+
+tests/test-format-additional.i: tests/test-format-additional.cpp.i
+.PHONY : tests/test-format-additional.i
+
+# target to preprocess a source file
+tests/test-format-additional.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_format.dir/build.make CMakeFiles/test_format.dir/tests/test-format-additional.cpp.i
+.PHONY : tests/test-format-additional.cpp.i
+
+tests/test-format-additional.s: tests/test-format-additional.cpp.s
+.PHONY : tests/test-format-additional.s
+
+# target to generate assembly for a file
+tests/test-format-additional.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/test_format.dir/build.make CMakeFiles/test_format.dir/tests/test-format-additional.cpp.s
+.PHONY : tests/test-format-additional.cpp.s
 
 tests/test-format-generated.o: tests/test-format-generated.cpp.o
 .PHONY : tests/test-format-generated.o
@@ -330,12 +402,21 @@ help:
 	@echo "... src/format_wrapper.o"
 	@echo "... src/format_wrapper.i"
 	@echo "... src/format_wrapper.s"
+	@echo "... tests/test-convert-additional.o"
+	@echo "... tests/test-convert-additional.i"
+	@echo "... tests/test-convert-additional.s"
 	@echo "... tests/test-convert-generated.o"
 	@echo "... tests/test-convert-generated.i"
 	@echo "... tests/test-convert-generated.s"
+	@echo "... tests/test-cwordparse-additional.o"
+	@echo "... tests/test-cwordparse-additional.i"
+	@echo "... tests/test-cwordparse-additional.s"
 	@echo "... tests/test-cwordparse-generated.o"
 	@echo "... tests/test-cwordparse-generated.i"
 	@echo "... tests/test-cwordparse-generated.s"
+	@echo "... tests/test-format-additional.o"
+	@echo "... tests/test-format-additional.i"
+	@echo "... tests/test-format-additional.s"
 	@echo "... tests/test-format-generated.o"
 	@echo "... tests/test-format-generated.i"
 	@echo "... tests/test-format-generated.s"

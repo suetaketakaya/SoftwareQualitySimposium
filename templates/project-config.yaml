@@ -1,0 +1,54 @@
+# =============================================================================
+# TRM Pipeline 設定ファイル
+# このファイルをコピーして対象プロジェクトの情報を記入してください
+# =============================================================================
+
+project:
+  name: ""                          # 例: "sakura-editor/sakura"
+  repository: ""                    # 例: "https://github.com/sakura-editor/sakura"
+  branch: "main"                    # 対象ブランチ
+  language: ""                      # "C++", "Python", "Java", "TypeScript", "Go", "Rust"
+  test_framework: ""                # "Google Test", "pytest", "JUnit", "Jest", "go test", "cargo test"
+
+# テスト対象の選定基準（変更可能）
+selection_criteria:
+  max_functions: 10                 # 選定する関数の上限数
+  prefer_pure_functions: true       # 純粋関数を優先するか
+  require_existing_tests: false     # 既存テストの存在を必須とするか
+  max_lines_per_function: 200       # 1関数あたりの最大行数
+  exclude_patterns:                 # 除外するファイル/関数パターン
+    - "test_*"
+    - "*_test.*"
+    - "vendor/*"
+    - "node_modules/*"
+
+# TRM生成の設定
+trm:
+  types:                            # 生成するテスト要求の種別
+    - BR    # 分岐網羅 (Branch Coverage)
+    - EC    # 同値クラス (Equivalence Class)
+    - BV    # 境界値 (Boundary Value)
+    - ER    # エラーパス (Error Path)
+    - DP    # 依存切替 (Dependency Path)
+  include_audit: true               # TRM網羅性監査を実施するか
+  output_format: "yaml"             # "yaml" or "json"
+
+# テスト生成の設定
+test_generation:
+  framework_specific:
+    google_test:
+      test_macro: "TEST"
+      assertion_prefix: "EXPECT"
+    pytest:
+      test_prefix: "test_"
+      use_parametrize: true
+    junit:
+      test_annotation: "@Test"
+      assertion_class: "Assertions"
+
+# 出力ディレクトリ
+output:
+  analysis: "analysis"
+  trm: "test-requirements"
+  tests: "generated-tests"
+  reports: "reports"
