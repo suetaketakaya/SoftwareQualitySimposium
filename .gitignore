@@ -8,20 +8,25 @@ Thumbs.db
 .idea/
 .vscode/
 
-### Python / Node (念のため)
+### Python / Node
 venv/
 .venv/
 env/
 node_modules/
 dist/
-build/
+
+### ビルド成果物
+**/build/
+*.o
+*.a
+*.dylib
 
 ### ログ・一時ファイル
 *.log
 *.out
 *.err
 
-### 機密情報（生成しない想定だが保険）
+### 機密情報
 .env
 .env.*
 
@@ -29,11 +34,5 @@ build/
 .cursor/
 .claude/settings.local.json
 
-### 解析対象リポジトリ（sakura 本体）は追跡しない
-sakura-src/
-
-### 生成物ディレクトリ
-analysis/
-generated-tests/
-experiments/
-
+### 対象リポジトリのクローン（gitサブモジュール or 手動クローン）
+*-src/

@@ -1,89 +1,83 @@
-# SQiP 2026 論文投稿プロジェクト
+# CLAUDE.md
 
-## プロジェクト概要
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-ソフトウェア品質シンポジウム2026（SQiP 2026）への論文投稿を目的としたマルチエージェント環境。
+## Overview
 
-**研究テーマ:**
-「公開コードベースを対象に、静的解析とLLMを組み合わせてホワイトボックステスト要求モデルを生成し、単体テスト生成・実行・評価までを半自動化する方法の提案と実証」
+GitHubリポジトリのURLを入力として、ホワイトボックステスト要求モデル（TRM）の自動生成とテストコード生成を行うパイプラインツール。
 
-**核心主張:**
-> LLMに直接テストを書かせるのではなく、静的解析で抽出したホワイトボックステスト要求を人間が確認可能な中間成果物として固定し、その要求に基づいてテスト生成・実行・評価を反復することで、単体テスト生成の説明可能性と再現性を高める。
+## Quick Start
 
-**実証対象:** https://github.com/sakura-editor/sakura
+```bash
+# 1. 対象リポジトリのセットアップ
+/project:setup https://github.com/owner/repo
 
-## スケジュール
+# 2. パイプライン一括実行
+/project:run-pipeline
+```
 
-| マイルストーン | 期限 |
+## Pipeline Commands
+
+| コマンド | 役割 |
 |---|---|
-| アブストラクト投稿締切 | 2026年4月14日(火) |
-| 採否通知 | 2026年6月下旬 |
-| 発表概要・顔写真提出 | 2026年7月3日(金) |
-| 最終原稿締切（A4 8ページ以内） | 2026年8月18日(火) |
-| プレゼンデータ提出 | 2026年9月3日(木) |
-| シンポジウム発表 | 2026年9月10日(木) or 11日(金) |
+| `/project:setup` | GitHubリンクから初期設定を生成 |
+| `/project:analyze` | リポジトリ解析・テスト対象関数の選定 |
+| `/project:generate-trm` | TRM（テスト要求モデル）をYAML形式で生成 |
+| `/project:audit-trm` | TRMの網羅性監査（漏れの特定・追加要求の導出） |
+| `/project:generate-tests` | TRMからテストコードを生成 |
+| `/project:run-pipeline` | 上記を順序立てて一括実行 |
 
-## 提出要件
+## TRM (Test Requirement Model)
 
-- **アブストラクト:** A4 2枚程度。構成は「1.ねらい / 2.実施概要 / 3.実施結果 / 4.結論」
-- **最終原稿:** A4 8ページ以内
-- **匿名査読:** 著者名・所属・個人特定情報は本文・ファイル名に含めない
-- **提出方法:** EasyChair または所定フォームをメール添付
-- **審査基準:** 有用性、信頼性、構成と読みやすさから総合的に判断
+テスト要求を5種別で構造化したYAML形式の中間成果物:
 
-## 申込区分
+| 種別 | 記号 | 定義 |
+|------|------|------|
+| 分岐網羅 | BR | if/else/switchの各パスを検証 |
+| 同値クラス | EC | 入力パラメータの同値分割を検証 |
+| 境界値 | BV | 同値クラス境界の上下限を検証 |
+| エラーパス | ER | 異常系・エラー処理を検証 |
+| 依存切替 | DP | 関数間の依存関係・差異を検証 |
 
-- **経験論文:** 比較対象あり、定量結果あり、再現可能な手順と図表が揃う場合
-- **経験発表:** 手法提案と試行結果中心、効果は見込みだが件数が少ない場合
-- 現時点では **経験発表** として草稿を作り、結果が揃ったら経験論文へ格上げ判断
+スキーマ定義: `templates/trm-schema.yaml`
 
-## ファイル構成
+## Directory Structure
 
 ```
 .
-├── CLAUDE.md                 # このファイル（プロジェクト全体指示）
-├── .claude/
-│   ├── settings.local.json
-│   └── commands/             # マルチエージェント用スラッシュコマンド
-│       ├── coordinator.md    # 統括エージェント
-│       ├── repo-analysis.md  # リポジトリ解析エージェント
-│       ├── test-requirement.md # テスト要求モデル設計エージェント
-│       ├── test-generation.md  # テスト生成エージェント
-│       ├── experiment-eval.md  # 実験評価エージェント
-│       ├── paper-writing.md    # 論文執筆エージェント
-│       ├── peer-review.md      # 査読対策エージェント
-│       └── run-all.md          # 全体ワークフロー実行
-├── knowledge/
-│   └── direction.md          # エージェント設計方針（元資料）
-├── report/
-│   └── toukou_form_template_2026.docx  # 提出テンプレート
-├── analysis/                 # リポジトリ解析結果
-├── test-requirements/        # テスト要求モデル
-├── generated-tests/          # 生成テストコード
-├── experiments/              # 実験結果
-└── drafts/                   # 論文草稿
+├── CLAUDE.md
+├── .claude/commands/           # パイプラインエージェント
+│   ├── setup.md               # 初期設定
+│   ├── analyze.md             # リポジトリ解析
+│   ├── generate-trm.md        # TRM生成
+│   ├── audit-trm.md           # TRM網羅性監査
+│   ├── generate-tests.md      # テストコード生成
+│   └── run-pipeline.md        # 一括実行
+├── templates/
+│   ├── project-config.yaml    # プロジェクト設定テンプレート
+│   ├── trm-schema.yaml        # TRM YAMLスキーマ
+│   └── commands/              # エージェント定義のマスター
+├── project-config.yaml        # (setup後に生成) 対象PJの設定
+├── analysis/                  # (実行後に生成) 解析結果
+├── test-requirements/         # (実行後に生成) TRM YAML
+├── generated-tests/           # (実行後に生成) テストコード
+└── reports/                   # (実行後に生成) レポート
 ```
 
-## エージェント利用方法
+## Supported Languages
 
-各エージェントは `/project:` プレフィックス付きのスラッシュコマンドで呼び出せます。
+| 言語 | テストFW | 対応状況 |
+|------|---------|---------|
+| C++ | Google Test / Catch2 | 実証済み (sakura-editor) |
+| Python | pytest | 対応 |
+| Java | JUnit | 対応 |
+| TypeScript | Jest / Vitest | 対応 |
+| Go | testing | 対応 |
+| Rust | cargo test | 対応 |
 
-| コマンド | 役割 | 説明 |
-|---|---|---|
-| `/project:coordinator` | 統括 | 全体進捗管理、エージェント間の調整 |
-| `/project:repo-analysis` | 解析 | sakura-editor のコード解析、実験候補選定 |
-| `/project:test-requirement` | 設計 | ホワイトボックステスト要求モデル定義 |
-| `/project:test-generation` | 生成 | テスト要求に基づくテストコード生成 |
-| `/project:experiment-eval` | 評価 | 実験結果の整理・論文用データ作成 |
-| `/project:paper-writing` | 執筆 | SQiP提出テンプレートに沿った論文執筆 |
-| `/project:peer-review` | 査読 | 査読者視点でのレビュー・改善提案 |
-| `/project:run-all` | 統合 | 全エージェントを順序立てて実行 |
+## Configuration
 
-## 共通制約
-
-- 匿名査読に違反しない（著者名・所属を書かない）
-- 提出テンプレートの構成に厳密に合わせる
-- 実証対象は sakura-editor/sakura
-- 誇張しない。結果未確定箇所は「現時点の計画値」「今後確定予定」と明記
-- 文章は日本語で、査読者が読みやすい形にする
-- 成果物は対応するディレクトリに保存する
+`project-config.yaml` で以下を制御:
+- `selection_criteria`: テスト対象の選定基準（純粋関数優先、最大行数、除外パターン等）
+- `trm.types`: 生成するテスト要求の種別（BR/EC/BV/ER/DPから選択）
+- `trm.include_audit`: TRM網羅性監査の実施有無

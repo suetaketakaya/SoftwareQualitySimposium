@@ -1,6 +1,0 @@
-/Users/suetaketakaya/SoftwareQualitySymposium/experiment-env/build/CMakeFiles/test_format.dir
-/Users/suetaketakaya/SoftwareQualitySymposium/experiment-env/build/CMakeFiles/test_cwordparse.dir
-/Users/suetaketakaya/SoftwareQualitySymposium/experiment-env/build/CMakeFiles/test_convert.dir
-/Users/suetaketakaya/SoftwareQualitySymposium/experiment-env/build/CMakeFiles/test.dir
-/Users/suetaketakaya/SoftwareQualitySymposium/experiment-env/build/CMakeFiles/edit_cache.dir
-/Users/suetaketakaya/SoftwareQualitySymposium/experiment-env/build/CMakeFiles/rebuild_cache.dir
