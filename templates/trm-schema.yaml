@@ -1,0 +1,74 @@
+# =============================================================================
+# TRM (Test Requirement Model) YAMLスキーマ定義
+# このスキーマに従ってテスト要求を記述する
+# =============================================================================
+
+schema_version: "2.0"
+
+# プロジェクト情報（project-config.yamlから転記）
+project:
+  name: ""
+  repository: ""
+  branch: ""
+  language: ""
+  test_framework: ""
+
+# テスト要求ID体系
+# BR-{TGT番号}{連番}: 分岐網羅
+# EC-{TGT番号}{連番}: 同値クラス
+# BV-{TGT番号}{連番}: 境界値
+# ER-{TGT番号}{連番}: エラーパス
+# DP-{TGT番号}{連番}: 依存切替
+
+targets:
+  # --- テンプレート ---
+  - id: "TGT-01"
+    file: ""                    # ソースファイルのパス
+    function_signature: ""      # 関数シグネチャ
+    responsibility: ""          # 関数の責務（1-2文）
+    code_lines: 0               # コード行数
+    preconditions: []           # 前提条件のリスト
+    constraints: []             # 制約条件のリスト
+
+    # 分岐条件一覧（ソースコードから抽出）
+    branch_conditions:
+      - id: "BC-01-01"
+        line_hint: ""           # ソースコード中の条件式
+        condition: ""           # 条件の説明
+        true_action: ""         # true時の動作
+        false_action: ""        # false時の動作
+
+    # 同値クラス一覧
+    equivalence_classes:
+      - id: "EQ-01-01"
+        parameter: ""           # 対象パラメータ名
+        class_name: ""          # クラス名
+        representative: ""      # 代表値
+        description: ""         # 説明
+
+    # 境界値一覧
+    boundary_values:
+      - id: "BND-01-01"
+        parameter: ""
+        boundary: ""            # 境界の説明
+        on_value: ""            # 境界上の値
+        off_value: ""           # 境界外の値
+
+    # 依存関係
+    dependencies:
+      calls: []                 # 呼び出す関数のリスト
+      called_by: []             # 呼び出される関数のリスト
+      globals: []               # 使用するグローバル変数
+    stub_strategy: ""           # スタブ化の方針
+
+    # テスト要求一覧
+    test_requirements:
+      - id: "BR-01"
+        type: "branch_coverage"     # branch_coverage / equivalence_class / boundary_value / error_path / dependency_path
+        description: ""             # 日本語での説明
+        priority: "high"            # high / medium / low
+        source_ref: ""              # 根拠（分岐条件ID or 同値クラスID）
+        expected_behavior: ""       # 期待される動作
+        test_data:                  # テストデータ案（任意）
+          input: ""
+          expected_output: ""
