@@ -47,6 +47,21 @@
 - フレームワーク規約の検出
 - マクロ/プリプロセッサの影響
 
+### カプセル化・メンバ設計解析（v3.1 追加）
+
+`oop_analysis.encapsulation.*` が有効な場合、以下を `encapsulation_analysis` セクションとして収集:
+
+- **メンバ構造**: 各fieldの宣言可視性、可変性宣言、コンストラクタ必須フラグ、外部からのアクセス箇所、変更メソッド一覧
+- **アクセサ解析**: getter/setter の存在、内部参照の漏洩（可変コレクション返却等）、入力検証の有無
+- **構築契約**: 各コンストラクタの必須field・任意field・完了時の不変条件
+- **カプセル化リスク**: public mutable field / 漏洩 getter / 外部変異 / 不変条件侵害 等の検出
+
+言語別の重点:
+- C++: `const` メンバ関数、`public` な非const変数、Rule of Five
+- Java: `public` field、`final` 宣言、可変Collection返却
+- Python: `_` prefix、`__` dunder、`@dataclass(frozen=True)`
+- TypeScript: `readonly`、`private`、`#field`
+
 ## 出力
 
 `{output.analysis}/repo-analysis.md` に以下の構成で保存:
@@ -68,3 +83,4 @@
 10. 状態依存分岐の一覧
 11. 検出されたコードパターンの一覧
 12. テスト影響のあるマクロ/プリプロセッサ条件の一覧
+13. **カプセル化解析（v3.1）**: メンバ構造表、アクセサ表、構築契約表、カプセル化リスク一覧

@@ -1,9 +1,10 @@
 # =============================================================================
-# TRM (Test Requirement Model) YAMLスキーマ定義 v3.0
-# OOP解析対応版: クラス継承・状態変数・コードパターンを含む
+# TRM (Test Requirement Model) YAMLスキーマ定義 v3.1
+# OOP解析対応版: クラス継承・状態変数・コードパターン・カプセル化
+# v3.1 追加: EN (Encapsulation) 種別 / SV の member_declaration / member_initialization サブタイプ
 # =============================================================================
 
-schema_version: "3.0"
+schema_version: "3.1"
 
 # プロジェクト情報（project-config.yamlから転記）
 project:
@@ -22,6 +23,7 @@ project:
 # CI-{TGT番号}{連番}: クラス継承 (Class Inheritance)
 # SV-{TGT番号}{連番}: 状態変数 (State Variable)
 # CP-{TGT番号}{連番}: コードパターン (Code Pattern)
+# EN-{TGT番号}{連番}: カプセル化・メンバ設計 (Encapsulation & Member Design) — v3.1
 
 targets:
   # --- テンプレート ---
@@ -102,7 +104,7 @@ targets:
     # OOP拡張: 状態変数解析 (SV)
     # -----------------------------------------------------------------
 
-    # インスタンス変数/フィールド情報
+    # インスタンス変数/フィールド情報（v3.1で構造的属性を拡張）
     state_variables:
       - id: "SVAR-01-01"
         name: ""                # 変数名
@@ -110,6 +112,11 @@ targets:
         visibility: ""          # public / protected / private
         initial_value: ""       # 初期値
         mutable: true           # 変更可能か
+        # --- v3.1 追加属性 ---
+        required_at_construction: false  # コンストラクタ引数で必須か
+        declared_immutable: false        # final/const/readonly 等の不変宣言
+        externally_mutated_by: []        # 外部クラスから変更されるメソッド名リスト
+        invariant_constraints: []        # このfieldに対するクラス不変条件
 
     # 状態遷移条件
     state_transitions:
@@ -144,6 +151,38 @@ targets:
         source_locations: []    # ソースコード上の該当箇所
         test_implications: ""   # テストへの影響（何をテストすべきか）
         language_specific: ""   # 言語固有の注意事項
+
+    # -----------------------------------------------------------------
+    # v3.1 拡張: カプセル化・メンバ設計 (EN)
+    # -----------------------------------------------------------------
+
+    # 検出されたアクセサ（getter/setter）
+    accessors:
+      - id: "ACC-01-01"
+        field_name: ""          # 対象field名
+        getter: ""              # getterメソッドのシグネチャ（存在する場合）
+        setter: ""              # setterメソッドのシグネチャ（存在する場合）
+        is_leaky_getter: false  # 可変な内部状態をそのまま返していないか
+        is_leaky_setter: false  # 外部からの任意変更を許していないか
+        returns_internal_ref: false  # 内部コレクション/オブジェクトの参照を返すか
+
+    # コンストラクタ構築契約
+    construction_contracts:
+      - id: "CC-01-01"
+        constructor_signature: ""  # 対象コンストラクタのシグネチャ
+        required_fields: []        # 初期化が必須なfield名リスト
+        optional_fields: []        # デフォルト値を持つfield名リスト
+        invariants_on_exit: []     # コンストラクタ完了時に満たすべき不変条件
+
+    # カプセル化違反の疑い
+    encapsulation_risks:
+      - id: "ER-01-01"            # Encapsulation Risk (ERと紛らわしい場合は ENRと表記)
+        field_name: ""             # 対象field
+        risk_type: ""              # public_mutable_field / leaky_getter /
+                                   # leaky_setter / external_mutation /
+                                   # invariant_breach
+        detection_site: ""         # ソースコード位置
+        description: ""            # 違反内容の説明
 
     # -----------------------------------------------------------------
     # テスト要求一覧（全種別統合）
@@ -183,10 +222,12 @@ targets:
         type: "state_variable"        # 状態変数テスト
         subtype: ""                   # initialization / mutation_sequence /
                                       # invariant_maintenance / state_dependent_behavior /
-                                      # lifecycle / cross_method_state
+                                      # lifecycle / cross_method_state /
+                                      # member_declaration_validity (v3.1) /
+                                      # member_initialization_requirement (v3.1)
         description: ""
         priority: "high"
-        source_ref: ""                # 状態遷移ID (ST-xx-xx) or 状態依存分岐ID (SDB-xx-xx)
+        source_ref: ""                # 状態遷移ID (ST-xx-xx) or 状態依存分岐ID (SDB-xx-xx) or SVAR-xx-xx
         target_variable: ""          # 対象の状態変数
         precondition_state: ""       # テスト前の状態
         expected_state: ""           # テスト後の期待される状態
@@ -210,3 +251,21 @@ targets:
           setup: ""
           scenario: ""               # テストシナリオの説明
           expected_output: ""
+
+      # v3.1 拡張: カプセル化・メンバ設計テスト要求
+      - id: "EN-01"
+        type: "encapsulation"         # カプセル化・メンバ設計テスト
+        subtype: ""                   # access_control_correctness / leaky_accessor /
+                                      # mutability_contract / construction_contract /
+                                      # invariant_surface
+        description: ""
+        priority: "high"
+        source_ref: ""                # アクセサID (ACC-xx-xx) / 構築契約ID (CC-xx-xx) /
+                                      # リスクID (ENR-xx-xx) / 状態変数ID (SVAR-xx-xx)
+        target_member: ""             # 対象のfield/アクセサ/コンストラクタ
+        expected_behavior: ""         # 期待される振る舞い（例: "private field は外部から読み書き不可"）
+        test_data:
+          setup: ""                   # テスト前の構築
+          access_attempt: ""          # 試行するアクセス（読み/書き/リフレクション等）
+          expected_access_result: ""  # allowed / denied / exception / frozen_snapshot
+          verification_method: ""     # 検証手段（直接テスト / リフレクション / 契約確認）

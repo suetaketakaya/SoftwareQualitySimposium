@@ -1,6 +1,6 @@
 # TRMパイプライン アーキテクチャ図
 
-> **目的**: v3.0 OOP拡張対応版のシステム構造を、エージェント・スキーマ・成果物の3層で可視化
+> **目的**: v3.1（OOP + EN 拡張）のシステム構造を、エージェント・スキーマ・成果物の3層で可視化
 > **関連**: `./operation-guide.md`（運用手順）、`/SoftwareQualitySymposium/CLAUDE.md`（コマンド一覧）
 > **描画形式**: Mermaid（GitHub/VSCode標準プレビュー対応）
 
@@ -332,6 +332,37 @@ classDiagram
         +subtype: CP_Subtype
         +pattern_name: string
     }
+    class EN_Requirement {
+        +type: "encapsulation"
+        +subtype: EN_Subtype
+        +target_member: string
+        +expected_access_result: string
+    }
+
+    class Accessor {
+        +id: ACC-NN-NN
+        +field_name: string
+        +getter: string
+        +setter: string
+        +is_leaky_getter: bool
+        +is_leaky_setter: bool
+    }
+
+    class ConstructionContract {
+        +id: CC-NN-NN
+        +constructor_signature: string
+        +required_fields: List~string~
+        +optional_fields: List~string~
+        +invariants_on_exit: List~string~
+    }
+
+    class EncapsulationRisk {
+        +id: ENR-NN-NN
+        +field_name: string
+        +risk_type: string
+        +severity: Severity
+        +description: string
+    }
 
     TRM "1" *-- "1" ProjectInfo
     TRM "1" *-- "*" Target
@@ -345,6 +376,9 @@ classDiagram
     Target "1" *-- "*" StateTransition
     Target "1" *-- "*" StateDependentBranch
     Target "1" *-- "*" CodePattern
+    Target "1" *-- "*" Accessor
+    Target "1" *-- "*" ConstructionContract
+    Target "1" *-- "*" EncapsulationRisk
     Target "1" *-- "*" TestRequirement
 
     TestRequirement <|-- BR_Requirement
@@ -355,6 +389,7 @@ classDiagram
     TestRequirement <|-- CI_Requirement
     TestRequirement <|-- SV_Requirement
     TestRequirement <|-- CP_Requirement
+    TestRequirement <|-- EN_Requirement
 
     BR_Requirement ..> BranchCondition : source_ref
     EC_Requirement ..> EquivalenceClass : source_ref
@@ -362,6 +397,9 @@ classDiagram
     CI_Requirement ..> InheritanceCondition : source_ref
     SV_Requirement ..> StateTransition : source_ref
     CP_Requirement ..> CodePattern : source_ref
+    EN_Requirement ..> Accessor : source_ref
+    EN_Requirement ..> ConstructionContract : source_ref
+    EN_Requirement ..> EncapsulationRisk : source_ref
 ```
 
 ### 3.1 サブタイプ一覧
@@ -369,8 +407,9 @@ classDiagram
 | 種別 | サブタイプ |
 |---|---|
 | **CI_Subtype** | polymorphic_dispatch / override_correctness / liskov_substitution / abstract_coverage / super_delegation / interface_contract |
-| **SV_Subtype** | initialization / mutation_sequence / invariant_maintenance / state_dependent_behavior / lifecycle / cross_method_state |
+| **SV_Subtype** | initialization / mutation_sequence / invariant_maintenance / state_dependent_behavior / lifecycle / cross_method_state / **member_declaration_validity** (v3.1) / **member_initialization_requirement** (v3.1) |
 | **CP_Subtype** | design_pattern_conformance / idiom_correctness / resource_lifecycle / concurrency_safety / framework_contract / macro_expansion |
+| **EN_Subtype** (v3.1) | access_control_correctness / leaky_accessor / mutability_contract / construction_contract / invariant_surface |
 
 ---
 

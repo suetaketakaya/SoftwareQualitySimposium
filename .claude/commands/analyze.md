@@ -89,6 +89,36 @@
    - 条件付きコンパイル（#ifdef/#ifndef）による分岐
    - マクロ展開がテストに与える影響
 
+### カプセル化・メンバ設計解析（v3.1 追加、`oop_analysis.encapsulation.*` 有効時）
+
+以下を `encapsulation_analysis` セクションとして収集する（`templates/oop-analysis-schema.yaml` 準拠）:
+
+1. **メンバ構造の属性化**
+   - 各fieldの宣言可視性（public/protected/private/package-private）
+   - 可変性宣言（mutable / const / final / readonly / frozen）
+   - コンストラクタで必須か（required_at_construction）
+   - 外部クラスからのアクセス箇所（read/write/reference）
+   - このfieldを変更する自クラスメソッド一覧
+
+2. **アクセサ（getter/setter）の分析**
+   - getter/setter の存在とシグネチャ
+   - getter が内部可変コレクションや可変オブジェクトの参照を返していないか（漏洩getter）
+   - setter が入力検証を行っているか、不変条件を保持するか
+
+3. **コンストラクタ構築契約**
+   - 必須field と 任意field の区別
+   - コンストラクタ完了時に満たすべき不変条件
+
+4. **カプセル化リスク**
+   - 検出された違反（public_mutable_field / leaky_getter / leaky_setter / external_mutation / invariant_breach / missing_validation / unintended_mutability）
+   - 検出位置と重大度（high/medium/low）
+
+**言語別の重点観点:**
+- C++: `const` メンバ関数の const正確性、`public` な非const メンバ変数、Rule of Five
+- Java: `public` field 禁忌、`final` 宣言、可変 Collection の返却防止
+- Python: `_` prefix の慣例、`__` dunder の使用、`@dataclass(frozen=True)` 整合性
+- TypeScript: `readonly` 宣言、`private` / `#field` の活用、public mutable field の露出
+
 ## 出力
 
 `{output.analysis}/repo-analysis.md` に以下の構成で保存:
@@ -110,3 +140,4 @@
 10. 状態依存分岐の一覧
 11. 検出されたコードパターンの一覧と該当箇所
 12. テスト影響のあるマクロ/プリプロセッサ条件の一覧
+13. **カプセル化解析（v3.1）**: メンバ構造表、アクセサ表、構築契約表、カプセル化リスク一覧

@@ -1,6 +1,6 @@
 # =============================================================================
-# TRM Pipeline 設定ファイル v3.0
-# OOP解析対応版
+# TRM Pipeline 設定ファイル v3.1
+# OOP解析対応版 + EN (Encapsulation & Member Design) 拡張
 # このファイルをコピーして対象プロジェクトの情報を記入してください
 # =============================================================================
 
@@ -38,6 +38,7 @@ trm:
     - CI    # クラス継承 (Class Inheritance)
     - SV    # 状態変数 (State Variable)
     - CP    # コードパターン (Code Pattern)
+    - EN    # カプセル化・メンバ設計 (Encapsulation & Member Design) — v3.1
   include_audit: true               # TRM網羅性監査を実施するか
   output_format: "yaml"             # "yaml" or "json"
 
@@ -144,6 +145,31 @@ oop_analysis:
           - "React"
           - "NestJS"
           - "Express"
+
+  # カプセル化・メンバ設計解析 (EN) — v3.1
+  encapsulation:
+    check_access_control: true        # public/protected/private の妥当性検証
+    detect_leaky_accessors: true      # getter/setter の内部露出検出
+    check_mutability_contract: true   # final/const/readonly 宣言の整合性
+    check_construction_contract: true # 必須field の初期化契約
+    check_invariant_surface: true     # public境界での不変条件維持
+    language_specific:
+      cpp:
+        check_const_member: true      # const メンバ関数のconst正確性
+        detect_public_mutable: true   # public な非constメンバ変数を警告
+        check_rule_of_five: true      # コピー/ムーブ管理の完全性
+      java:
+        detect_public_fields: true    # public field は getter/setter に置換すべき
+        check_final_fields: true      # 不変にすべきfieldがfinalか
+        detect_mutable_returns: true  # Collection等の可変参照返却を検出
+      python:
+        treat_underscore_as_private: true  # _ 始まりはprotected相当と扱う
+        detect_direct_dunder_access: true  # __name への直接アクセスを検出
+        check_dataclass_frozen: true       # @dataclass(frozen=True) 整合性
+      typescript:
+        check_readonly_modifier: true # readonly 宣言の整合性
+        detect_public_mutable: true   # public mutable field の露出検出
+        check_private_modifier: true  # private / #field の活用
 
 # テスト生成の設定
 test_generation:

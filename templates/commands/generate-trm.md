@@ -30,11 +30,52 @@
 | ER | 各エラー処理パスを1要求とする |
 | DP | 関数間の呼び出し関係、類似関数の差異、ラウンドトリップを1要求とする |
 | CI | クラス継承テスト: 多態性、オーバーライド正当性、リスコフ置換、抽象実装、super委譲、インターフェース契約 |
-| SV | 状態変数テスト: 初期化、変異シーケンス、不変条件、状態依存動作、ライフサイクル、メソッド間状態共有 |
+| SV | 状態変数テスト: 初期化、変異シーケンス、不変条件、状態依存動作、ライフサイクル、メソッド間状態共有、メンバ宣言妥当性(v3.1)、初期化必須性(v3.1) |
 | CP | コードパターンテスト: デザインパターン適合性、イディオム正当性、リソースライフサイクル、並行処理安全性、フレームワーク契約、マクロ展開 |
+| EN | カプセル化・メンバ設計テスト(v3.1): アクセス制御正当性、漏洩アクセサ、不変性契約、構築契約、不変条件サーフェス |
+
+### EN (Encapsulation) の導出方法
+
+`{output.analysis}/oop-analysis.md` の `encapsulation_analysis` セクションを参照し、以下の5サブタイプに分類して要求を生成する:
+
+1. **アクセス制御正当性（access_control_correctness）**
+   - 各fieldの `declared_visibility` が責務に合致しているかを検証
+   - public field で外部から直接書き込み可能になっていないか
+   - 各classごとに「外部から直接アクセス不可であるべきfield」1件につき1要求
+
+2. **漏洩アクセサ（leaky_accessor）**
+   - `accessors` の `getter_returns_mutable_view` / `returns_internal_ref` が true のものを対象
+   - getterが返したオブジェクトを外部で変更しても、元のfield値が守られることを検証
+   - 漏洩疑いのアクセサ1件につき1要求
+
+3. **不変性契約（mutability_contract）**
+   - `declared_immutable: true` の fieldが、ライフサイクル中に変更されていないことを検証
+   - 特にコンストラクタ以外のパスで書き込まれていないことを確認
+   - 不変宣言field 1件につき1要求
+
+4. **構築契約（construction_contract）**
+   - `construction_contracts.required_fields` の各fieldについて、コンストラクタ完了時に初期化されていることを検証
+   - 省略した場合に期待通りの例外が投げられるか、または実装契約違反として検出されるか
+   - コンストラクタ × 必須field の組合せ1件につき1要求
+
+5. **不変条件サーフェス（invariant_surface）**
+   - public境界の任意のメソッド呼び出し列の後でも、クラス不変条件が維持されることを検証
+   - `encapsulation_risks.invariant_breach` が検出されたケース1件につき1要求
+
+### SV 新サブタイプの導出方法（v3.1 追加）
+
+1. **メンバ宣言妥当性（member_declaration_validity）**
+   - `state_variables` の各fieldについて、型・可視性・可変性の宣言が実装契約と矛盾していないかを検証
+   - 例: mutable 宣言だが実際はコンストラクタ後に変更されない → immutable にすべき
+   - fieldごとに1要求
+
+2. **初期化必須性（member_initialization_requirement）**
+   - `required_at_construction: true` のfieldについて、初期化せずにクラスを構築できないことを検証
+   - コンストラクタ引数を省略した場合の挙動を確認
+   - 必須field ごとに1要求
 
 **各テスト要求に付与する属性:**
-- `id`: 一意のID（BR-01, EC-01, BV-01, ER-01, DP-01, CI-01, SV-01, CP-01 の形式）
+- `id`: 一意のID（BR-01, EC-01, BV-01, ER-01, DP-01, CI-01, SV-01, CP-01, EN-01 の形式）
 - `target`: 対象関数/メソッドのID
 - `type`: 種別
 - `subtype`: OOP種別の場合のサブタイプ

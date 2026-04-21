@@ -124,8 +124,46 @@
    - 条件付きコンパイルの各パスが正しく動作するか検証
    - マクロ展開後のコードの妥当性を検証
 
+#### EN（カプセル化・メンバ設計）の導出方法（v3.1 追加）
+
+1. **アクセス制御正当性（access_control_correctness）**
+   - 各fieldの宣言可視性（public/protected/private）が責務に合致しているかを検証
+   - public field で外部から直接書き換え可能になっていないかを確認
+   - 「外部から直接アクセス不可であるべきfield」1件につき1要求
+
+2. **漏洩アクセサ（leaky_accessor）**
+   - getter が内部可変コレクションや可変オブジェクトの参照をそのまま返していないか検証
+   - getter の戻り値を外部で変更しても field の値が保たれることを確認
+   - 漏洩疑いアクセサ1件につき1要求
+
+3. **不変性契約（mutability_contract）**
+   - final / const / readonly 宣言のfieldが、ライフサイクル中に変更されないことを検証
+   - コンストラクタ以外のパスで書き込まれていないかを確認
+   - 不変宣言field 1件につき1要求
+
+4. **構築契約（construction_contract）**
+   - 必須fieldがコンストラクタで確実に初期化されることを検証
+   - 必須引数を省略した場合の例外/コンパイルエラー/契約違反検出を確認
+   - コンストラクタ × 必須field の組合せ1件につき1要求
+
+5. **不変条件サーフェス（invariant_surface）**
+   - public境界の任意メソッド呼び出し列後でもクラス不変条件が保たれることを検証
+   - encapsulation_risks で invariant_breach と判定された箇所1件につき1要求
+
+#### SV 新サブタイプの導出方法（v3.1 追加）
+
+7. **メンバ宣言妥当性（member_declaration_validity）**
+   - 各fieldの型・可視性・可変性の宣言が実装契約と矛盾していないかを検証
+   - 例: mutable宣言だが実際はコンストラクタ後に変更されない → immutable にすべき
+   - fieldごとに1要求
+
+8. **初期化必須性（member_initialization_requirement）**
+   - `required_at_construction: true` のfieldについて、初期化せずにクラスを構築できないことを検証
+   - コンストラクタ引数を省略した場合の挙動を確認
+   - 必須field ごとに1要求
+
 **各テスト要求に付与する属性:**
-- `id`: 一意のID（BR-01, EC-01, BV-01, ER-01, DP-01, CI-01, SV-01, CP-01 の形式）
+- `id`: 一意のID（BR-01, EC-01, BV-01, ER-01, DP-01, CI-01, SV-01, CP-01, EN-01 の形式）
 - `target`: 対象関数/メソッドのID
 - `type`: 種別
 - `subtype`: OOP種別の場合のサブタイプ
