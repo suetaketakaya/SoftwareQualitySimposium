@@ -1,0 +1,55 @@
+# =============================================================================
+# TRM Pipeline 設定 — リバーシ合成サンプル（パイプライン再現実験）
+# 生成日: 2026-04-21
+# 目的: survey-design.md §5.3 の手書きTRMとパイプライン生成TRMの一致度検証
+# =============================================================================
+
+project:
+  name: "reversi-sample"
+  repository: "local://experiments/reversi"     # ローカル実験のため便宜的な指定
+  branch: "main"
+  language: "Python"
+  test_framework: "pytest"
+
+# テスト対象の選定基準
+selection_criteria:
+  max_functions: 4                  # reversi_move.py の主要4関数に絞る
+  prefer_pure_functions: true       # 本サンプルは純粋関数中心
+  require_existing_tests: false     # 比較用なので既存テストは参照しない
+  max_lines_per_function: 50
+  include_class_methods: false      # クラスは存在しない
+  include_inherited_methods: false
+  exclude_patterns:
+    - "test_*"                      # 検証テストは解析対象から除外
+    - "*_test.*"
+
+# TRM生成の設定
+trm:
+  types:
+    - BR    # 分岐網羅
+    - EC    # 同値クラス
+    - BV    # 境界値
+    - ER    # エラーパス
+    - DP    # 依存切替
+    # OOP拡張は本サンプルでは非該当（純粋関数のみ）
+  include_audit: true
+  output_format: "yaml"
+
+# OOP解析の設定
+oop_analysis:
+  enabled: false                    # 純粋関数のみのため無効化
+
+# テスト生成の設定（参考。今回は比較のみでコード生成はしない）
+test_generation:
+  framework_specific:
+    pytest:
+      test_prefix: "test_"
+      use_parametrize: true
+      use_fixtures: false
+
+# 出力ディレクトリ
+output:
+  analysis: "experiments/reversi/analysis"
+  trm: "experiments/reversi/test-requirements"
+  tests: "experiments/reversi/generated-tests"
+  reports: "experiments/reversi/reports"
