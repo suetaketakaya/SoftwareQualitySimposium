@@ -14,9 +14,11 @@ venv/
 env/
 node_modules/
 dist/
+__pycache__/
+*.pyc
 
 ### ビルド成果物
-**/build/
+experiment-env/build/
 *.o
 *.a
 *.dylib
@@ -34,5 +36,5 @@ dist/
 .cursor/
 .claude/settings.local.json
 
-### 対象リポジトリのクローン（gitサブモジュール or 手動クローン）
-*-src/
+### 解析対象リポジトリ（クローン）は追跡しない
+sakura-src/

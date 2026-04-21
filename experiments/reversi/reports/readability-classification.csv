@@ -1,0 +1,47 @@
+target_id,target_name,req_id,type,priority,level,description
+TGT-01,"is_on_board(x: int, y: int) -> bool",BR-01-01,branch_coverage,high,L1,全原子条件が真のとき True を返すことを検証する
+TGT-01,"is_on_board(x: int, y: int) -> bool",BR-01-02,branch_coverage,high,L2,x が負のとき False を返すこと（下限違反）
+TGT-01,"is_on_board(x: int, y: int) -> bool",BR-01-03,branch_coverage,high,L2,x が BOARD_SIZE 以上のとき False を返すこと（上限違反）
+TGT-01,"is_on_board(x: int, y: int) -> bool",BR-01-04,branch_coverage,high,L1,y が負のとき False を返すこと
+TGT-01,"is_on_board(x: int, y: int) -> bool",BR-01-05,branch_coverage,high,L1,y が BOARD_SIZE 以上のとき False を返すこと
+TGT-01,"is_on_board(x: int, y: int) -> bool",EC-01-01,equivalence_class,medium,L1,x が範囲内の代表値（3）で True
+TGT-01,"is_on_board(x: int, y: int) -> bool",BV-01-01,boundary_value,high,L2,x の下限境界 0 / -1 で判定が正しく切り替わること
+TGT-01,"is_on_board(x: int, y: int) -> bool",BV-01-02,boundary_value,high,L2,x の上限境界 7 / 8 で判定が正しく切り替わること
+TGT-01,"is_on_board(x: int, y: int) -> bool",BV-01-03,boundary_value,high,L2,y の下限境界 0 / -1 で判定が正しく切り替わること
+TGT-01,"is_on_board(x: int, y: int) -> bool",BV-01-04,boundary_value,high,L2,y の上限境界 7 / 8 で判定が正しく切り替わること
+TGT-02,"is_empty(board, x: int, y: int) -> bool",BR-02-01,branch_coverage,high,L1,空マス（値=0）で True を返すこと
+TGT-02,"is_empty(board, x: int, y: int) -> bool",BR-02-02,branch_coverage,high,L1,非空マス（値≠0）で False を返すこと
+TGT-02,"is_empty(board, x: int, y: int) -> bool",EC-02-01,equivalence_class,medium,L1,自分の石が置かれたマスは非空
+TGT-02,"is_empty(board, x: int, y: int) -> bool",EC-02-02,equivalence_class,medium,L1,相手の石が置かれたマスは非空
+TGT-02,"is_empty(board, x: int, y: int) -> bool",ER-02-01,error_path,low,L3,"前提違反（x, y が範囲外）で IndexError を発生させることを観察する"
+TGT-03,"count_flippable(board, x, y, dx, dy, me)",BR-03-01,branch_coverage,high,L1,me == 1 のとき opp = 2 になり、値 2 の石を数えること
+TGT-03,"count_flippable(board, x, y, dx, dy, me)",BR-03-02,branch_coverage,high,L1,me != 1 のとき opp = 1 になり、値 1 の石を数えること
+TGT-03,"count_flippable(board, x, y, dx, dy, me)",BR-03-03,branch_coverage,high,L2,盤面内かつ相手の石が続く間、ループが継続すること
+TGT-03,"count_flippable(board, x, y, dx, dy, me)",BR-03-04,branch_coverage,high,L1,盤端でループが終了すること
+TGT-03,"count_flippable(board, x, y, dx, dy, me)",BR-03-05,branch_coverage,high,L1,非相手マスでループが終了すること
+TGT-03,"count_flippable(board, x, y, dx, dy, me)",BR-03-06,branch_coverage,high,L1,相手石が 1 つもない場合（count == 0）で 0 を返すこと
+TGT-03,"count_flippable(board, x, y, dx, dy, me)",BR-03-07,branch_coverage,high,L1,相手石列が盤端で途切れた場合に 0 を返すこと
+TGT-03,"count_flippable(board, x, y, dx, dy, me)",BR-03-08,branch_coverage,high,L1,相手石列の後が自分の石でない場合に 0 を返すこと
+TGT-03,"count_flippable(board, x, y, dx, dy, me)",BR-03-09,branch_coverage,high,L1,相手石列の後が自分の石のとき count を返すこと
+TGT-03,"count_flippable(board, x, y, dx, dy, me)",EC-03-01,equivalence_class,medium,L1,me=1 と me=2 の両方で対称に動作すること
+TGT-03,"count_flippable(board, x, y, dx, dy, me)",EC-03-02,equivalence_class,medium,L2,8方向すべてで挟み判定が機能すること（軸4 + 対角4）
+TGT-03,"count_flippable(board, x, y, dx, dy, me)",BV-03-01,boundary_value,high,L1,連続相手石数 0/1 の境界で返り値が切り替わること
+TGT-03,"count_flippable(board, x, y, dx, dy, me)",BV-03-02,boundary_value,medium,L1,盤端で連続が途切れる境界（連続6と7）で正しく 0 を返すこと
+TGT-03,"count_flippable(board, x, y, dx, dy, me)",ER-03-01,error_path,medium,L2,"起点 (x, y) から方向先がすぐ盤外のとき 0 を返すこと"
+TGT-03,"count_flippable(board, x, y, dx, dy, me)",DP-03-01,dependency_path,low,L1,is_on_board が依存関数として正しく利用されること（スタブ化は不要）
+TGT-04,"is_valid_move(board, x, y, me) -> bool",BR-04-01,branch_coverage,high,L1,"範囲外の (x, y) で即座に False を返すこと"
+TGT-04,"is_valid_move(board, x, y, me) -> bool",BR-04-02,branch_coverage,high,L1,非空マスに対して False を返すこと
+TGT-04,"is_valid_move(board, x, y, me) -> bool",BR-04-03,branch_coverage,high,L2,空マスかつ1方向以上で挟める場合に True を返すこと
+TGT-04,"is_valid_move(board, x, y, me) -> bool",BR-04-04,branch_coverage,high,L2,空マスだが8方向すべて挟めない場合に False を返すこと
+TGT-04,"is_valid_move(board, x, y, me) -> bool",EC-04-01,equivalence_class,high,L2,対象マスの3状態（空/自分/相手）を網羅して判定が正しく切り替わること
+TGT-04,"is_valid_move(board, x, y, me) -> bool",EC-04-02,equivalence_class,medium,L1,"自分/相手（me=1, me=2）の両視点で対称に動作すること"
+TGT-04,"is_valid_move(board, x, y, me) -> bool",EC-04-03,equivalence_class,high,L2,挟める方向が 0 個と 1 個以上 の両条件を網羅すること
+TGT-04,"is_valid_move(board, x, y, me) -> bool",BV-04-01,boundary_value,high,L2,盤面の四隅（角）で正しく合法/非合法が判定されること
+TGT-04,"is_valid_move(board, x, y, me) -> bool",BV-04-02,boundary_value,high,L2,盤面の辺で正しく合法/非合法が判定されること
+TGT-04,"is_valid_move(board, x, y, me) -> bool",BV-04-03,boundary_value,medium,L2,"x の範囲外直前直後（-1, 0, 7, 8）で判定が切り替わること"
+TGT-04,"is_valid_move(board, x, y, me) -> bool",ER-04-01,error_path,high,L1,範囲外入力でクラッシュせず False を返すこと
+TGT-04,"is_valid_move(board, x, y, me) -> bool",ER-04-02,error_path,medium,L2,空盤面で全マスが False を返すこと（置ける場所がない）
+TGT-04,"is_valid_move(board, x, y, me) -> bool",ER-04-03,error_path,low,L1,満盤で全マスが False を返すこと（空マスがない）
+TGT-04,"is_valid_move(board, x, y, me) -> bool",DP-04-01,dependency_path,medium,L1,is_on_board が False を返した時点で以降の呼び出しをスキップすること（短絡評価）
+TGT-04,"is_valid_move(board, x, y, me) -> bool",DP-04-02,dependency_path,medium,L1,is_empty が False を返した時点で以降の呼び出しをスキップすること
+TGT-04,"is_valid_move(board, x, y, me) -> bool",DP-04-03,dependency_path,medium,L2,count_flippable が 0 を返した方向は is_valid_move の判定に寄与しないこと
