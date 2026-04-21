@@ -29,6 +29,8 @@ import yaml
 # ---------------------------------------------------------------------------
 
 # Level 3 のシグナル: 実装語彙・制御構造
+# v2 (2026-04-21): 50件手動検証を元にキーワード辞書を拡張
+# 検証結果: experiments/click/reports/readability-manual-verification.md
 L3_KEYWORDS = [
     # 制御構造・言語キーワード
     "NULL", "None", "null", "break", "else", "elif", "continue", "goto",
@@ -38,41 +40,72 @@ L3_KEYWORDS = [
     "int", "float", "bool", "str", "bytes", "char", "wchar", "void",
     "ClassVar", "TypeVar", "Optional", "Generic",
     "size_t", "uint32", "int32", "int64",
-    # OOP 内部
+    # 型ヒント・抽象型 (v2)
+    "Sequence", "Iterable", "Mapping", "Callable",
+    "dataclass", "Protocol", "TypedDict",
+    # OOP 内部・dunder
     "__init__", "__call__", "__repr__", "__str__", "__mro__",
+    "__name__", "__doc__", "__init_subclass__", "__slots__",
     "dunder", "super()", "override", "virtual", "abstract",
     "metaclass",
-    # 実装詳細
+    # Python 標準ライブラリ API (v2)
+    "casefold", "update_wrapper", "sys.maxsize",
+    "functools", "itertools",
+    # 実装詳細 (sakura)
     "offset", "pnAddressLength", "ECharKind", "CSYM", "UDEF", "CK_",
+    # 例外クラス
     "IndexError", "AttributeError", "TypeError", "ValueError",
-    "BadParameter", "RuntimeError", "StopIteration",
+    "RuntimeError", "StopIteration", "OverflowError",
+    "Exception",  # v2追加
+    # click 固有クラス名 (v2)
+    "BadParameter", "ClickException", "UsageError", "MissingParameter",
+    "FileError", "NoSuchOption", "BadOptionUsage",
+    "ParamType", "IntParamType", "FloatParamType",
+    "IntRange", "FloatRange", "Choice", "StringParamType",
+    # click 固有API (v2)
+    "ensure_object", "find_object", "get_current_context",
+    "ctx.invoke", "Context.meta",
+    "to_info_dict", "get_metavar", "get_missing_message",
+    "shell_complete", "normalize_choice",
+    # 特殊な実装語彙 (v2)
+    "identity", "Closure", "Decorator Factory",
+    "_number_class", "show_color", "fs_enc",
+    "fail", "param_type_name",
+    # MRO 関連
     "MRO", "ABC", "token_normalize_func",
     # コード構造
     "ビット演算", "ポインタ", "参照", "アドレス",
     "分岐条件", "条件式", "戻り値", "引数",
     "メソッド", "インスタンス", "クラス変数",
     "コンストラクタ", "デストラクタ", "public", "private", "protected",
-    "ClassVar", "readonly", "mutable", "immutable",
+    "readonly", "mutable", "immutable",
 ]
 
 # Level 2 のシグナル: ドメイン用語・テスト工学用語
+# v2 (2026-04-21): OOP用語・click ドメインを追加
 L2_KEYWORDS = [
     # テスト工学
     "境界値", "同値クラス", "同値分割", "網羅", "カバレッジ",
     "0パディング", "エスケープ", "null文字", "正規化",
-    "オーバーライド", "継承", "多態", "ポリモフィズム",
     "直前", "直後", "境界外", "上限", "下限",
+    # OOP 用語 (v2 拡充)
+    "オーバーライド", "継承", "多態", "ポリモフィズム",
+    "派生", "上書き", "Template Method",
+    "super() 呼び出し", "多重継承", "ダイヤモンド継承",
     # メール関連ドメイン
     "メールアドレス", "ドメイン", "ローカルパート", "ラベル",
     # バージョン関連
     "バージョン", "修飾子", "コンポーネント", "リリース",
     # 書式・文字処理
-    "書式指定子", "書式文字列", "リテラル", "デコード", "エンコード",
+    "書式指定子", "書式文字列", "リテラル", "デコード", "エンコード", "エンコーディング",
+    "フォールバック",
     "全角", "半角", "長音", "濁点", "カタカナ", "ひらがな",
-    # click ドメイン
-    "CLI", "コマンドライン", "オプション", "引数", "フラグ",
+    # click ドメイン (v2 拡充)
+    "CLI", "コマンドライン", "オプション", "フラグ",
     "選択肢", "候補", "列挙",
     "構築", "初期化", "インスタンス化",
+    "min_open", "max_open", "clamp", "open_bound",
+    "メタバー", "metavar",
     # リバーシ・盤面
     "盤面", "方向", "挟める", "合法手", "手番",
 ]

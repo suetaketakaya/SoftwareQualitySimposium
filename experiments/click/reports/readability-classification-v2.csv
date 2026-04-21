@@ -1,0 +1,174 @@
+target_id,target_name,req_id,type,priority,level,description
+TGT-01,ParamType,BR-01-01,branch_coverage,high,L3,__call__(None) が convert を呼ばずに None を返すこと
+TGT-01,ParamType,BR-01-02,branch_coverage,high,L3,__call__(非None値) が convert を呼び出すこと
+TGT-01,ParamType,BR-01-03,branch_coverage,medium,L3,to_info_dict で name 属性がある場合に self.name が使われること
+TGT-01,ParamType,BR-01-04,branch_coverage,medium,L3,to_info_dict で name 属性がない場合に param_type が利用されること
+TGT-01,ParamType,BR-01-05,branch_coverage,high,L3,fail メソッドが BadParameter を確実に投げること
+TGT-01,ParamType,EC-01-01,equivalence_class,medium,L3,convert の既定動作が identity（受け取った値をそのまま返す）であること
+TGT-01,ParamType,EC-01-02,equivalence_class,medium,L3,split_envvar_value が None splitter のとき空白分割になること
+TGT-01,ParamType,EC-01-03,equivalence_class,low,L3,shell_complete の既定が空リストを返すこと
+TGT-01,ParamType,ER-01-01,error_path,high,L3,fail 呼び出しで BadParameter が例外として伝播すること
+TGT-01,ParamType,ER-01-02,error_path,medium,L3,name 未設定のサブクラスで to_info_dict は AttributeError にならない（hasattr分岐で保護）
+TGT-01,ParamType,DP-01-01,dependency_path,medium,L3,"fail が BadParameter(ctx, param) を正しく構築して投げること"
+TGT-01,ParamType,CI-01-01,class_inheritance,high,L3,派生クラスのインスタンスに対して __call__ が派生の convert を呼ぶこと
+TGT-01,ParamType,CI-01-02,class_inheritance,medium,L3,すべての派生クラスが convert を有意に上書きしていること（identity返しの検出）
+TGT-01,ParamType,CI-01-03,class_inheritance,high,L2,派生クラスの name 属性がクラス特有の値に設定されていること
+TGT-01,ParamType,CI-01-04,class_inheritance,high,L3,"convert が Parameter=None, Context=None を許容すること（docstring契約）"
+TGT-01,ParamType,CP-01-01,code_pattern,medium,L2,Template Method パターン: 基底の既定動作と派生の上書きが共存できること
+TGT-01,ParamType,CP-01-02,code_pattern,medium,L3,ClassVar 宣言された属性をインスタンス単位で上書きした場合、他インスタンスに波及しないこと
+TGT-01,ParamType,EN-01-01,encapsulation,medium,L3,"name, is_composite, arity, envvar_list_splitter は派生で任意に上書きできる public class attribute であること"
+TGT-01,ParamType,EN-01-02,encapsulation,high,L3,name 未設定のサブクラスでも to_info_dict が例外を投げずに完了すること（hasattr 保護の契約）
+TGT-02,StringParamType,BR-02-01,branch_coverage,high,L3,bytes 入力時に argv encoding でデコードされること
+TGT-02,StringParamType,BR-02-02,branch_coverage,high,L3,非bytes入力時に str(value) が返されること
+TGT-02,StringParamType,BR-02-03,branch_coverage,high,L2,argv encoding 失敗時に fs encoding にフォールバックすること
+TGT-02,StringParamType,BR-02-04,branch_coverage,medium,L3,fs_enc == enc の場合に直接 utf-8 replace へ進むこと
+TGT-02,StringParamType,BR-02-05,branch_coverage,medium,L3,fs_enc デコードも失敗した場合に utf-8 replace で強制デコードされること
+TGT-02,StringParamType,BR-02-06,branch_coverage,high,L2,正常な argv encoding でのデコード成功時に即座に値が返されること
+TGT-02,StringParamType,BR-02-07,branch_coverage,low,L3,__repr__ が 'STRING' を返すこと
+TGT-02,StringParamType,BR-02-08,branch_coverage,high,L3,convert に None が渡らないこと（__call__経由）
+TGT-02,StringParamType,EC-02-01,equivalence_class,high,L3,bytes / str / int / float 各型の入力で期待通り変換されること
+TGT-02,StringParamType,EC-02-02,equivalence_class,medium,L3,ASCII 可能な bytes と UTF-8 特殊文字含む bytes の両方を扱えること
+TGT-02,StringParamType,EC-02-03,equivalence_class,medium,L1,argv encoding と fs encoding が同一の場合と異なる場合
+TGT-02,StringParamType,BV-02-01,boundary_value,medium,L3,空の bytes b'' と空文字列 '' でクラッシュしないこと
+TGT-02,StringParamType,ER-02-01,error_path,high,L3,全エンコーディングで失敗しても utf-8 replace で何らかの str を返すこと（例外にしない）
+TGT-02,StringParamType,CI-02-01,class_inheritance,high,L3,ParamType.convert と StringParamType.convert で bytes 入力時の結果が異なること
+TGT-02,StringParamType,CI-02-02,class_inheritance,medium,L3,ParamType 型の変数として StringParamType を使っても contract を破らないこと
+TGT-02,StringParamType,CP-02-01,code_pattern,medium,L2,多段エンコーディングフォールバックがどの順序でも完了すること
+TGT-02,StringParamType,EN-02-01,encapsulation,low,L3,name ClassVar は実行時に変更しても同クラスの他インスタンスへ波及しないこと
+TGT-03,Choice,BR-03-01,branch_coverage,high,L2,Enum 型 choice が choice.name で正規化されること
+TGT-03,Choice,BR-03-02,branch_coverage,high,L3,非Enum の choice が str(choice) で正規化されること
+TGT-03,Choice,BR-03-03,branch_coverage,medium,L3,ctx.token_normalize_func が設定されているとき適用されること
+TGT-03,Choice,BR-03-04,branch_coverage,medium,L3,ctx が None または token_normalize_func 未設定でスキップされること
+TGT-03,Choice,BR-03-05,branch_coverage,high,L3,case_sensitive=False のとき casefold が適用されること
+TGT-03,Choice,BR-03-06,branch_coverage,high,L3,case_sensitive=True のとき casefold が適用されないこと
+TGT-03,Choice,BR-03-07,branch_coverage,medium,L2,option + show_choices=False のメタバー分岐
+TGT-03,Choice,BR-03-08,branch_coverage,medium,L2,argument または show_choices=True のメタバー分岐
+TGT-03,Choice,BR-03-09,branch_coverage,medium,L1,required argument のとき {} 括弧
+TGT-03,Choice,BR-03-10,branch_coverage,medium,L1,非必須または option のとき [] 括弧
+TGT-03,Choice,BR-03-11,branch_coverage,high,L2,convert で正規化一致値がある場合に original が返されること
+TGT-03,Choice,BR-03-12,branch_coverage,high,L3,convert で一致値がない場合に fail が呼ばれること（BadParameter投下）
+TGT-03,Choice,EC-03-01,equivalence_class,high,L3,str choices / int choices / Enum choices / 混合choices で動作すること
+TGT-03,Choice,EC-03-02,equivalence_class,high,L2,case_sensitive True/False の両モードを網羅
+TGT-03,Choice,EC-03-03,equivalence_class,medium,L3,空 ctx / token_normalize_func あり ctx の両パターン
+TGT-03,Choice,EC-03-04,equivalence_class,medium,L1,option/argument × required True/False の4組合せ
+TGT-03,Choice,EC-03-05,equivalence_class,high,L3,invalid 入力（候補外の文字列、数値、None）での fail パス
+TGT-03,Choice,ER-03-01,error_path,high,L3,convert が候補外値で BadParameter を投げること
+TGT-03,Choice,ER-03-02,error_path,medium,L3,空の choices で Choice を構築した場合の挙動（要仕様確認、実装では convert が必ず失敗）
+TGT-03,Choice,ER-03-03,error_path,low,L3,__init__ に iterable でない引数を渡した場合 TypeError になること
+TGT-03,Choice,DP-03-01,dependency_path,medium,L3,to_info_dict が super().to_info_dict() を呼び出していることで基底のフィールドが含まれること
+TGT-03,Choice,DP-03-02,dependency_path,medium,L3,convert が _normalized_mapping と normalize_choice に依存していること
+TGT-03,Choice,CI-03-01,class_inheritance,high,L3,to_info_dict で super() 呼び出しの結果に choices/case_sensitive が追加されていること
+TGT-03,Choice,CI-03-02,class_inheritance,high,L3,convert のオーバーライドが ParamType.convert と異なる挙動を示すこと
+TGT-03,Choice,CI-03-03,class_inheritance,medium,L3,Generic[T] 型パラメータが choices の要素型として正しく機能すること
+TGT-03,Choice,CI-03-04,class_inheritance,medium,L3,"ParamType 型として Choice を扱えること（__call__, fail などのベース契約を満たす）"
+TGT-03,Choice,SV-03-01,state_variable,high,L3,__init__ 後に self.choices が tuple 型、self.case_sensitive が bool 型で格納されていること
+TGT-03,Choice,SV-03-02,state_variable,medium,L3,choices は Iterable を受け取るが内部では Sequence (tuple) として格納されるべき
+TGT-03,Choice,SV-03-03,state_variable,high,L3,choices なしでは Choice を構築できないこと（TypeError）
+TGT-03,Choice,SV-03-04,state_variable,high,L1,convert の呼び出しが self.choices を変更しないこと
+TGT-03,Choice,CP-03-01,code_pattern,low,L3,Generic[T] 経由の型推論が正しく効くこと
+TGT-03,Choice,CP-03-02,code_pattern,low,L1,gettext _() / ngettext が translation catalog に正しく依存していること
+TGT-03,Choice,EN-03-01,encapsulation,high,L3,"self.choices, self.case_sensitive は public だが、生存期間中の変更は使用上意図されていないこと"
+TGT-03,Choice,EN-03-02,encapsulation,medium,L3,self.choices が tuple 型であるため、要素参照経由の漏洩があっても tuple 自体の順序・長さは保たれること
+TGT-03,Choice,EN-03-03,encapsulation,high,L3,"Choice(choices=..., case_sensitive=...) で必須引数 choices なしに構築不可能なこと"
+TGT-03,Choice,EN-03-04,encapsulation,high,L3,convert / normalize_choice / shell_complete 等の public メソッドが不変条件（choices は tuple で要素 unique）を破壊しないこと
+TGT-04,_NumberParamTypeBase,BR-04-01,branch_coverage,high,L3,_number_class(value) が成功する値で数値が返ること
+TGT-04,_NumberParamTypeBase,BR-04-02,branch_coverage,high,L3,_number_class(value) が ValueError を投げたとき fail が呼ばれること
+TGT-04,_NumberParamTypeBase,EC-04-01,equivalence_class,high,L3,派生 IntParamType で int 変換、FloatParamType で float 変換が成立すること
+TGT-04,_NumberParamTypeBase,EC-04-02,equivalence_class,medium,L3,convert 可能な str/int/float/bool と変換不可能な str の両パターン
+TGT-04,_NumberParamTypeBase,ER-04-01,error_path,high,L3,_number_class 未設定のサブクラスで AttributeError が検出されること
+TGT-04,_NumberParamTypeBase,CI-04-01,class_inheritance,high,L3,"すべての派生クラス (IntParamType, FloatParamType) が _number_class を定義していること"
+TGT-04,_NumberParamTypeBase,CI-04-02,class_inheritance,high,L3,IntParamType と FloatParamType で convert 結果の型が期待通り異なること
+TGT-04,_NumberParamTypeBase,CP-04-01,code_pattern,medium,L3,Strategy パターン: _number_class の差し替えで振る舞いが変わること
+TGT-04,_NumberParamTypeBase,CP-04-02,code_pattern,medium,L3,ClassVar 宣言された _number_class が派生で実体を持つこと
+TGT-04,_NumberParamTypeBase,EN-04-01,encapsulation,medium,L3,_number_class は _ prefix による慣例的 protected。外部から参照されないこと（テストでは _number_class に直接アクセスする行為をアンチパターンとして検出）
+TGT-04,_NumberParamTypeBase,EN-04-02,encapsulation,high,L3,派生クラスが _number_class を必ず設定する契約。テストでは全派生クラスの __mro__ 上で _number_class が参照可能かを検証
+TGT-05,IntRange,BR-05-01,branch_coverage,high,L3,min=None のとき下限チェックをスキップして値を返すこと
+TGT-05,IntRange,BR-05-02,branch_coverage,high,L2,min 指定かつ min_open=False で value==min のとき合格（<=）
+TGT-05,IntRange,BR-05-03,branch_coverage,high,L3,min 指定かつ min_open=True で value==min のとき fail（<）
+TGT-05,IntRange,BR-05-04,branch_coverage,high,L3,max=None のとき上限チェックをスキップ
+TGT-05,IntRange,BR-05-05,branch_coverage,high,L2,max 指定かつ max_open=False で value==max が合格
+TGT-05,IntRange,BR-05-06,branch_coverage,high,L3,max 指定かつ max_open=True で value==max が fail
+TGT-05,IntRange,BR-05-07,branch_coverage,high,L2,"clamp=True かつ lt_min のとき _clamp(min,1,open) が呼ばれること"
+TGT-05,IntRange,BR-05-08,branch_coverage,high,L2,"clamp=True かつ gt_max のとき _clamp(max,-1,open) が呼ばれること"
+TGT-05,IntRange,BR-05-09,branch_coverage,high,L3,clamp=False で範囲外のとき fail が呼ばれること
+TGT-05,IntRange,BR-05-10,branch_coverage,high,L2,clamp=False で範囲内のとき値がそのまま返ること
+TGT-05,IntRange,EC-05-01,equivalence_class,high,L3,min/max のどちらか片方指定 / 両方指定 / 両方None の3パターン
+TGT-05,IntRange,EC-05-02,equivalence_class,medium,L2,min_open/max_open の4通り組合せ
+TGT-05,IntRange,EC-05-03,equivalence_class,high,L2,clamp True/False × 範囲内/下限違反/上限違反 の6パターン
+TGT-05,IntRange,EC-05-04,equivalence_class,high,L3,"入力 value の種別（int, int文字列, float文字列, 非数値）"
+TGT-05,IntRange,EC-05-05,equivalence_class,high,L3,IntRange での clamp 後の値が int 型を保つこと（FloatRange との差異）
+TGT-05,IntRange,BV-05-01,boundary_value,high,L2,"min_open=False で min, min-1, min+1 の3値"
+TGT-05,IntRange,BV-05-02,boundary_value,high,L2,"min_open=True で min, min-1, min+1 の3値"
+TGT-05,IntRange,BV-05-03,boundary_value,high,L2,"max_open=False で max, max-1, max+1 の3値"
+TGT-05,IntRange,BV-05-04,boundary_value,high,L2,"max_open=True で max, max-1, max+1 の3値"
+TGT-05,IntRange,BV-05-05,boundary_value,medium,L1,min == max の境界（単一許容値）
+TGT-05,IntRange,BV-05-06,boundary_value,high,L2,clamp + min_open=True の境界で min+1 に正しく丸まること
+TGT-05,IntRange,BV-05-07,boundary_value,high,L2,clamp + max_open=True の境界で max-1 に正しく丸まること
+TGT-05,IntRange,BV-05-08,boundary_value,high,L2,clamp + min_open=False で境界値 min に丸まること
+TGT-05,IntRange,BV-05-09,boundary_value,high,L2,clamp + max_open=False で境界値 max に丸まること
+TGT-05,IntRange,BV-05-10,boundary_value,low,L3,int の最大値 sys.maxsize 付近で overflow が発生しないこと
+TGT-05,IntRange,ER-05-01,error_path,high,L3,変換不可能な文字列で BadParameter を投げること（_number_class=int 経由）
+TGT-05,IntRange,ER-05-02,error_path,high,L3,範囲外値 (clamp=False) で BadParameter を投げること
+TGT-05,IntRange,DP-05-01,dependency_path,high,L3,super().convert() で _NumberParamTypeBase.convert が呼ばれ int 化されること
+TGT-05,IntRange,DP-05-02,dependency_path,high,L3,_clamp の実装は IntRange では NotImplementedError にならないこと
+TGT-05,IntRange,CI-05-01,class_inheritance,high,L3,IntRange が _NumberRangeBase._clamp を確実に実装していること
+TGT-05,IntRange,CI-05-02,class_inheritance,high,L3,convert 内の super().convert() 呼び出しが _NumberParamTypeBase.convert に到達すること
+TGT-05,IntRange,CI-05-03,class_inheritance,high,L3,"MRO 順序: IntRange.__mro__ が [_NumberRangeBase, IntParamType, _NumberParamTypeBase, ParamType, object] を含むこと"
+TGT-05,IntRange,CI-05-04,class_inheritance,high,L3,_clamp の IntRange 実装が int を返すこと（FloatRange との差別化）
+TGT-05,IntRange,CI-05-05,class_inheritance,medium,L3,IntRange を IntParamType として扱っても convert 契約が成立すること
+TGT-05,IntRange,CI-05-06,class_inheritance,medium,L3,"ParamType protocol (name, convert, fail) が IntRange から適切にアクセス可能"
+TGT-05,IntRange,SV-05-01,state_variable,high,L3,__init__ 引数が None 既定で field が全て格納されること
+TGT-05,IntRange,SV-05-02,state_variable,medium,L3,min/max は float | None 型宣言だが、IntRange 使用時は int | None が渡される想定（型ヒント整合性）
+TGT-05,IntRange,SV-05-03,state_variable,high,L2,convert の結果が self.min/max/min_open/max_open/clamp に依存すること
+TGT-05,IntRange,SV-05-04,state_variable,high,L1,convert の呼び出しが self.min/max 等を変更しないこと
+TGT-05,IntRange,SV-05-05,state_variable,high,L1,複数回 convert を呼んでも state は独立すること（副作用なし）
+TGT-05,IntRange,CP-05-01,code_pattern,medium,L1,Strategy パターンでの operator.le/lt 動的選択が正しく機能すること
+TGT-05,IntRange,CP-05-02,code_pattern,high,L3,ダイヤモンド継承下での MRO が意図通りに解決されていること
+TGT-05,IntRange,EN-05-01,encapsulation,high,L3,min/max/min_open/max_open/clamp は public 属性だが、構築後の変更は実装契約で想定されていない
+TGT-05,IntRange,EN-05-02,encapsulation,medium,L2,構築後に self.min を変更した場合、convert の挙動がその変更を即座に反映すること（冪等性の欠如として検出）
+TGT-05,IntRange,EN-05-03,encapsulation,medium,L3,IntRange() 引数なしで構築可能（全field に既定値）。この挙動を意図的に設計として固定する
+TGT-05,IntRange,EN-05-04,encapsulation,medium,L2,min > max を構築時に許容する設計の是非を検証要求として残す（ENR-05-03）
+TGT-05,IntRange,EN-05-05,encapsulation,high,L3,clamp=True + open_bound の組合せが IntRange では許容、FloatRange では TypeError を投げる差異を検証
+TGT-05,IntRange,EN-05-06,encapsulation,low,L3,min/max に可変オブジェクト（例: list）を誤って渡しても、type hint 違反として検出可能か（静的型チェックでの検知テスト）
+TGT-06,ClickException,BR-06-01,branch_coverage,high,L3,show() で file=None のとき stderr に出力されること
+TGT-06,ClickException,BR-06-02,branch_coverage,high,L1,show() で file 指定時にその file に出力されること
+TGT-06,ClickException,EC-06-01,equivalence_class,medium,L1,message が空文字列、通常文字列、マルチライン文字列の各パターンで動作
+TGT-06,ClickException,ER-06-01,error_path,high,L3,ClickException を raise/catch できること（例外プロトコル準拠）
+TGT-06,ClickException,CI-06-01,class_inheritance,high,L3,Exception 型として ClickException をキャッチ可能
+TGT-06,ClickException,CI-06-02,class_inheritance,medium,L3,派生 UsageError / FileError が format_message / show を上書きしているか（または継承しているか）
+TGT-06,ClickException,SV-06-01,state_variable,high,L3,__init__ 後に message / show_color がセットされていること
+TGT-06,ClickException,SV-06-02,state_variable,high,L3,message なしで ClickException を構築できないこと
+TGT-06,ClickException,CP-06-01,code_pattern,medium,L3,format_message / __str__ が Template Method として期待通り機能
+TGT-06,ClickException,EN-06-01,encapsulation,high,L3,message が必須引数で、欠如すると TypeError
+TGT-06,ClickException,EN-06-02,encapsulation,medium,L3,exit_code は ClassVar だが、派生で上書き可能（design intent）
+TGT-06,ClickException,EN-06-03,encapsulation,medium,L3,show_color はインスタンス生成時に決定され、後からの変更で show() の出力が変わってしまう（冪等性の欠如）
+TGT-07,"BadParameter, MissingParameter",BR-07-01,branch_coverage,high,L3,BadParameter.format_message で param_hint ありのメッセージ生成
+TGT-07,"BadParameter, MissingParameter",BR-07-02,branch_coverage,high,L3,param_hint なし + param ありで get_error_hint が呼ばれること
+TGT-07,"BadParameter, MissingParameter",BR-07-03,branch_coverage,high,L3,"param_hint, param とも None のとき 'Invalid value' フォールバック"
+TGT-07,"BadParameter, MissingParameter",BR-07-04,branch_coverage,medium,L3,MissingParameter で param_type=None かつ param!=None のとき param_type_name が利用されること
+TGT-07,"BadParameter, MissingParameter",EC-07-01,equivalence_class,high,L3,param_hint が str / list / None の3パターン
+TGT-07,"BadParameter, MissingParameter",ER-07-01,error_path,high,L3,BadParameter / MissingParameter が UsageError と ClickException の catch 句で捕捉可能
+TGT-07,"BadParameter, MissingParameter",DP-07-01,dependency_path,high,L3,MissingParameter.__init__ が BadParameter.__init__ を経由して UsageError.__init__ → ClickException.__init__ まで連鎖
+TGT-07,"BadParameter, MissingParameter",CI-07-01,class_inheritance,high,L3,ClickException として MissingParameter をキャッチでき、format_message が MissingParameter のものを返す
+TGT-07,"BadParameter, MissingParameter",CI-07-02,class_inheritance,high,L3,MissingParameter.__init__ の super() チェーンが全階層を正しく呼び出す
+TGT-07,"BadParameter, MissingParameter",CI-07-03,class_inheritance,high,L2,format_message の各階層上書きが意図通り差別化されている
+TGT-07,"BadParameter, MissingParameter",CI-07-04,class_inheritance,medium,L3,UsageError を期待する呼び出しで MissingParameter を渡しても契約が破れない
+TGT-07,"BadParameter, MissingParameter",SV-07-01,state_variable,high,L3,全階層の初期化後に message/ctx/cmd/param/param_hint/param_type が期待通り設定
+TGT-07,"BadParameter, MissingParameter",SV-07-02,state_variable,medium,L3,format_message が self.param / self.param_hint / self.ctx を参照
+TGT-07,"BadParameter, MissingParameter",CP-07-01,code_pattern,high,L3,多段 super() チェーンが循環/欠落なく機能
+TGT-07,"BadParameter, MissingParameter",EN-07-01,encapsulation,high,L3,BadParameter は message 必須、MissingParameter は全引数オプショナル
+TGT-07,"BadParameter, MissingParameter",EN-07-02,encapsulation,medium,L3,"MissingParameter(message=None) が内部で """" に置換される契約"
+TGT-07,"BadParameter, MissingParameter",EN-07-03,encapsulation,low,L3,self.ctx を介して外部が Context を変更可能（public field）
+TGT-08,make_pass_decorator(object_type: type[T],BR-08-01,branch_coverage,high,L3,ensure=True で ensure_object が呼ばれ、なければ新規生成される
+TGT-08,make_pass_decorator(object_type: type[T],BR-08-02,branch_coverage,high,L3,ensure=False で find_object が呼ばれ、なければ None
+TGT-08,make_pass_decorator(object_type: type[T],BR-08-03,branch_coverage,high,L3,obj が None のとき RuntimeError を投げる
+TGT-08,make_pass_decorator(object_type: type[T],BR-08-04,branch_coverage,high,L3,"obj が存在するとき ctx.invoke(f, obj, ...) が呼ばれ、戻り値が返る"
+TGT-08,make_pass_decorator(object_type: type[T],EC-08-01,equivalence_class,medium,L3,object_type が class / dataclass / Protocol の各パターン
+TGT-08,make_pass_decorator(object_type: type[T],EC-08-02,equivalence_class,high,L1,ensure True/False × obj 存在/非存在 の4組合せ
+TGT-08,make_pass_decorator(object_type: type[T],ER-08-01,error_path,medium,L3,context 外で呼び出したとき get_current_context が RuntimeError
+TGT-08,make_pass_decorator(object_type: type[T],ER-08-02,error_path,medium,L3,ensure=False かつ obj が None で RuntimeError メッセージに object_type.__name__ が含まれる
+TGT-08,make_pass_decorator(object_type: type[T],DP-08-01,dependency_path,high,L3,get_current_context → find_object/ensure_object → invoke の依存鎖が機能
+TGT-08,make_pass_decorator(object_type: type[T],CP-08-01,code_pattern,high,L3,Decorator Factory パターンが正しく機能し、異なる object_type で独立した decorator を返す
+TGT-08,make_pass_decorator(object_type: type[T],CP-08-02,code_pattern,medium,L3,"update_wrapper により元関数の __name__, __doc__ が new_func に転写される"
+TGT-08,make_pass_decorator(object_type: type[T],CP-08-03,code_pattern,high,L3,Closure で object_type / ensure を正しくキャプチャし、複数インスタンス間で独立動作
+TGT-08,make_pass_decorator(object_type: type[T],CP-08-04,code_pattern,medium,L3,Click の Context lifecycle（get_current_context の利用）の契約を守る
