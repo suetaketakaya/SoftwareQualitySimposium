@@ -74,14 +74,24 @@ cat experiments/click/project-config.yaml
 
 ## 進捗
 
-| フェーズ | 状態 | 担当エージェント |
-|---|---|---|
-| セットアップ | **完了** (2026-04-21) | `setup`（手動） |
-| リポジトリ解析 | 未実施 | `/project:analyze` |
-| TRM生成 | 未実施 | `/project:generate-trm` |
-| 網羅性監査 | 未実施 | `/project:audit-trm` |
-| テスト生成 | 未実施 | `/project:generate-tests` |
-| 評価 | 未実施 | `/project:experiment-eval` |
+| フェーズ | 状態 | 担当エージェント | 成果物 |
+|---|---|---|---|
+| セットアップ | **完了** (2026-04-21) | `setup`（手動） | `project-config.yaml`, `README.md` |
+| リポジトリ解析（types.py スコープ） | **完了** (2026-04-21) | `analyze` 相当 | `analysis/repo-analysis.md` |
+| TRM生成（types.py スコープ） | **完了** (2026-04-21) | `generate-trm` 相当 | `test-requirements/test-requirements.yaml` (131件) |
+| サマリ作成 | **完了** (2026-04-21) | 手動 | `reports/pipeline-summary.md` |
+| 網羅性監査 | 未実施 | `/project:audit-trm` | |
+| テスト生成 | 未実施 | `/project:generate-tests` | |
+| 実験評価 | 未実施 | `/project:experiment-eval` | |
+| types.py以外への拡張 | 未実施 | 同上 | decorators.py / exceptions.py |
+
+## 初回実施結果（2026-04-21）
+
+- **スコープ**: types.py の ParamType 階層 5クラス（全19クラス中）
+- **要求数**: 131件（BR37/EC18/BV11/ER9/DP5/CI18/SV9/CP9/**EN15**）
+- **v3.1 初実戦**: EN 15件を導出 — Choice の public mutable state、IntRange のダイヤモンド継承を含む
+- **sakura-editor 比較**: 同規模コード（~400行）で要求数 +32%。動的型Python + OOP 設計の意義を定量化
+- 詳細は `reports/pipeline-summary.md` 参照
 
 ## 留意点
 
