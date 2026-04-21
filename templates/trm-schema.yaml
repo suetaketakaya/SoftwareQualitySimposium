@@ -1,9 +1,9 @@
 # =============================================================================
-# TRM (Test Requirement Model) YAMLスキーマ定義
-# このスキーマに従ってテスト要求を記述する
+# TRM (Test Requirement Model) YAMLスキーマ定義 v3.0
+# OOP解析対応版: クラス継承・状態変数・コードパターンを含む
 # =============================================================================
 
-schema_version: "2.0"
+schema_version: "3.0"
 
 # プロジェクト情報（project-config.yamlから転記）
 project:
@@ -14,21 +14,30 @@ project:
   test_framework: ""
 
 # テスト要求ID体系
-# BR-{TGT番号}{連番}: 分岐網羅
-# EC-{TGT番号}{連番}: 同値クラス
-# BV-{TGT番号}{連番}: 境界値
-# ER-{TGT番号}{連番}: エラーパス
-# DP-{TGT番号}{連番}: 依存切替
+# BR-{TGT番号}{連番}: 分岐網羅 (Branch Coverage)
+# EC-{TGT番号}{連番}: 同値クラス (Equivalence Class)
+# BV-{TGT番号}{連番}: 境界値 (Boundary Value)
+# ER-{TGT番号}{連番}: エラーパス (Error Path)
+# DP-{TGT番号}{連番}: 依存切替 (Dependency Path)
+# CI-{TGT番号}{連番}: クラス継承 (Class Inheritance)
+# SV-{TGT番号}{連番}: 状態変数 (State Variable)
+# CP-{TGT番号}{連番}: コードパターン (Code Pattern)
 
 targets:
   # --- テンプレート ---
   - id: "TGT-01"
     file: ""                    # ソースファイルのパス
-    function_signature: ""      # 関数シグネチャ
+    header: ""                  # ヘッダファイルのパス（該当する場合）
+    function_signature: ""      # 関数/メソッドシグネチャ
+    class_name: ""              # 所属クラス名（フリー関数の場合は空）
     responsibility: ""          # 関数の責務（1-2文）
     code_lines: 0               # コード行数
     preconditions: []           # 前提条件のリスト
     constraints: []             # 制約条件のリスト
+
+    # -----------------------------------------------------------------
+    # 従来型テスト要求（関数レベル）
+    # -----------------------------------------------------------------
 
     # 分岐条件一覧（ソースコードから抽出）
     branch_conditions:
@@ -61,14 +70,143 @@ targets:
       globals: []               # 使用するグローバル変数
     stub_strategy: ""           # スタブ化の方針
 
-    # テスト要求一覧
+    # -----------------------------------------------------------------
+    # OOP拡張: クラス継承解析 (CI)
+    # -----------------------------------------------------------------
+
+    # クラス継承情報（対象がクラスメソッドの場合に記述）
+    class_hierarchy:
+      base_classes: []          # 直接の基底クラスのリスト
+      derived_classes: []       # 直接の派生クラスのリスト
+      interfaces: []            # 実装するインターフェース/抽象クラス
+      is_virtual: false         # virtualメソッドか
+      is_override: false        # overrideメソッドか
+      is_abstract: false        # 純粋仮想/abstractメソッドか
+      overrides:                # オーバーライド関係
+        - base_class: ""        # 基底クラス名
+          base_method: ""       # 基底メソッドのシグネチャ
+          override_behavior: "" # オーバーライドによる振る舞いの変化
+
+    # 継承関連テスト条件
+    inheritance_conditions:
+      - id: "IC-01-01"
+        type: ""                # polymorphic_dispatch / override_correctness /
+                                # liskov_substitution / abstract_implementation /
+                                # super_call_chain / diamond_resolution
+        base_class: ""          # 関連する基底クラス
+        derived_class: ""       # 関連する派生クラス
+        condition: ""           # テスト条件の説明
+        expected_behavior: ""   # 期待される動作
+
+    # -----------------------------------------------------------------
+    # OOP拡張: 状態変数解析 (SV)
+    # -----------------------------------------------------------------
+
+    # インスタンス変数/フィールド情報
+    state_variables:
+      - id: "SVAR-01-01"
+        name: ""                # 変数名
+        type: ""                # 型
+        visibility: ""          # public / protected / private
+        initial_value: ""       # 初期値
+        mutable: true           # 変更可能か
+
+    # 状態遷移条件
+    state_transitions:
+      - id: "ST-01-01"
+        variable: ""            # 対象変数名
+        from_state: ""          # 遷移元の状態/値
+        to_state: ""            # 遷移先の状態/値
+        trigger: ""             # 遷移のトリガー（メソッド呼び出し等）
+        guard_condition: ""     # ガード条件（遷移が発生する条件）
+
+    # 状態依存の分岐
+    state_dependent_branches:
+      - id: "SDB-01-01"
+        variable: ""            # 依存する状態変数
+        condition: ""           # 状態に依存する分岐条件
+        affected_method: ""     # 影響を受けるメソッド
+        behavior_when_true: ""  # 条件成立時の動作
+        behavior_when_false: "" # 条件不成立時の動作
+
+    # -----------------------------------------------------------------
+    # OOP拡張: コードパターン解析 (CP)
+    # -----------------------------------------------------------------
+
+    # 検出されたコードパターン
+    code_patterns:
+      - id: "CPAT-01-01"
+        category: ""            # design_pattern / language_idiom /
+                                # framework_convention / error_handling /
+                                # concurrency / resource_management
+        pattern_name: ""        # パターン名（例: "RAII", "Factory", "Observer"）
+        description: ""         # パターンの説明
+        source_locations: []    # ソースコード上の該当箇所
+        test_implications: ""   # テストへの影響（何をテストすべきか）
+        language_specific: ""   # 言語固有の注意事項
+
+    # -----------------------------------------------------------------
+    # テスト要求一覧（全種別統合）
+    # -----------------------------------------------------------------
+
     test_requirements:
+      # 従来型
       - id: "BR-01"
-        type: "branch_coverage"     # branch_coverage / equivalence_class / boundary_value / error_path / dependency_path
-        description: ""             # 日本語での説明
-        priority: "high"            # high / medium / low
-        source_ref: ""              # 根拠（分岐条件ID or 同値クラスID）
-        expected_behavior: ""       # 期待される動作
-        test_data:                  # テストデータ案（任意）
+        type: "branch_coverage"       # branch_coverage / equivalence_class / boundary_value / error_path / dependency_path
+        description: ""               # 日本語での説明
+        priority: "high"              # high / medium / low
+        source_ref: ""                # 根拠（分岐条件ID or 同値クラスID）
+        expected_behavior: ""         # 期待される動作
+        test_data:                    # テストデータ案（任意）
           input: ""
+          expected_output: ""
+
+      # OOP拡張: クラス継承テスト要求
+      - id: "CI-01"
+        type: "class_inheritance"     # クラス継承テスト
+        subtype: ""                   # polymorphic_dispatch / override_correctness /
+                                      # liskov_substitution / abstract_coverage /
+                                      # super_delegation / interface_contract
+        description: ""
+        priority: "high"
+        source_ref: ""                # 継承条件ID (IC-xx-xx)
+        base_class: ""               # 関連する基底クラス
+        derived_classes: []          # テスト対象の派生クラス群
+        expected_behavior: ""
+        test_data:
+          setup: ""                  # テストに必要なオブジェクト構築
+          input: ""
+          expected_output: ""
+
+      # OOP拡張: 状態変数テスト要求
+      - id: "SV-01"
+        type: "state_variable"        # 状態変数テスト
+        subtype: ""                   # initialization / mutation_sequence /
+                                      # invariant_maintenance / state_dependent_behavior /
+                                      # lifecycle / cross_method_state
+        description: ""
+        priority: "high"
+        source_ref: ""                # 状態遷移ID (ST-xx-xx) or 状態依存分岐ID (SDB-xx-xx)
+        target_variable: ""          # 対象の状態変数
+        precondition_state: ""       # テスト前の状態
+        expected_state: ""           # テスト後の期待される状態
+        test_data:
+          setup: ""                  # 初期状態の構築
+          operations: []             # 実行する操作のシーケンス
+          assertions: []             # 検証項目
+
+      # OOP拡張: コードパターンテスト要求
+      - id: "CP-01"
+        type: "code_pattern"          # コードパターンテスト
+        subtype: ""                   # design_pattern_conformance / idiom_correctness /
+                                      # resource_lifecycle / concurrency_safety /
+                                      # framework_contract / macro_expansion
+        description: ""
+        priority: "medium"
+        source_ref: ""                # パターンID (CPAT-xx-xx)
+        pattern_name: ""             # テスト対象のパターン名
+        expected_behavior: ""
+        test_data:
+          setup: ""
+          scenario: ""               # テストシナリオの説明
           expected_output: ""

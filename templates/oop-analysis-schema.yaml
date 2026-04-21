@@ -1,0 +1,138 @@
+# =============================================================================
+# OOP解析結果スキーマ定義
+# analyze エージェントの出力形式（YAML版）
+# =============================================================================
+
+schema_version: "1.0"
+
+project:
+  name: ""
+  repository: ""
+  language: ""
+
+# =============================================================================
+# クラス継承階層
+# =============================================================================
+
+class_hierarchy:
+  # 各クラスのエントリ
+  classes:
+    - name: ""                       # クラス名（完全修飾名）
+      file: ""                       # 定義ファイル
+      line: 0                        # 定義行番号
+      kind: ""                       # class / abstract_class / interface / struct / trait / mixin
+      base_classes:                  # 直接の基底クラス
+        - name: ""
+          inheritance_type: ""       # public / protected / private / virtual (C++)
+      derived_classes: []            # 直接の派生クラス名のリスト
+      interfaces: []                 # 実装するインターフェース名のリスト
+      depth: 0                       # 継承階層の深度（ルートから）
+
+  # 仮想メソッド一覧
+  virtual_methods:
+    - class_name: ""                 # 宣言クラス
+      method_signature: ""           # メソッドシグネチャ
+      is_pure_virtual: false         # 純粋仮想か
+      is_final: false                # finalか
+      overridden_by:                 # オーバーライドしている派生クラスのリスト
+        - class_name: ""
+          file: ""
+          line: 0
+          behavior_change: ""        # 基底との振る舞いの差異
+
+  # 多重継承/ダイヤモンド継承の検出
+  multiple_inheritance:
+    - class_name: ""
+      bases: []                      # 複数の基底クラス
+      diamond_detected: false        # ダイヤモンド継承か
+      common_ancestor: ""            # 共通祖先クラス名
+
+# =============================================================================
+# インスタンス変数/フィールド解析
+# =============================================================================
+
+state_analysis:
+  # クラスごとのフィールド情報
+  classes:
+    - name: ""
+      fields:
+        - name: ""                   # フィールド名
+          type: ""                   # 型
+          visibility: ""             # public / protected / private
+          is_mutable: true           # 変更可能か (const/final/readonly ではない)
+          initial_value: ""          # 初期値（判明している場合）
+          initialized_in: ""         # 初期化される場所（constructor / declaration / init_method）
+
+      # フィールドの変異マップ（どのメソッドがどのフィールドを変更するか）
+      mutation_map:
+        - method: ""                 # メソッド名
+          reads: []                  # 読み取るフィールドのリスト
+          writes: []                 # 書き込むフィールドのリスト
+          calls: []                  # 呼び出す他メソッドのリスト（間接的な変異の追跡用）
+
+      # 状態遷移の検出
+      state_transitions:
+        - field: ""                  # 対象フィールド
+          transitions:
+            - from: ""               # 遷移元の値/状態
+              to: ""                 # 遷移先の値/状態
+              trigger_method: ""     # トリガーとなるメソッド
+              guard: ""              # ガード条件
+
+      # クラス不変条件の推定
+      invariants:
+        - description: ""            # 不変条件の説明
+          involved_fields: []        # 関連するフィールド
+          verified_methods: []       # 不変条件を維持するメソッド
+          risk_methods: []           # 不変条件を破壊する可能性のあるメソッド
+
+# =============================================================================
+# コードパターン検出
+# =============================================================================
+
+code_patterns:
+  # デザインパターン
+  design_patterns:
+    - pattern: ""                    # パターン名 (Factory, Singleton, Observer, etc.)
+      confidence: ""                 # high / medium / low（検出の確信度）
+      participants:                  # パターンの参加者
+        - role: ""                   # パターン内での役割
+          class_name: ""
+          file: ""
+      test_implications:             # テストへの影響
+        - requirement_type: ""       # CI / SV / CP
+          description: ""
+
+  # 言語イディオム
+  language_idioms:
+    - idiom: ""                      # イディオム名
+      language: ""                   # 対象言語
+      locations:                     # 使用箇所
+        - file: ""
+          line: 0
+          context: ""                # 使用コンテキストの説明
+      test_implications:
+        - requirement_type: ""
+          description: ""
+
+  # フレームワーク規約
+  framework_conventions:
+    - framework: ""                  # フレームワーク名
+      convention: ""                 # 規約名
+      locations:
+        - file: ""
+          line: 0
+      test_implications:
+        - requirement_type: ""
+          description: ""
+
+  # マクロ/プリプロセッサの影響
+  preprocessor_effects:
+    - macro_name: ""                 # マクロ名
+      type: ""                       # conditional_compilation / function_macro / constant
+      condition: ""                  # 条件式（#ifdef等の場合）
+      affected_code:                 # 影響を受けるコード範囲
+        - file: ""
+          start_line: 0
+          end_line: 0
+      test_implications: ""          # テストへの影響の説明

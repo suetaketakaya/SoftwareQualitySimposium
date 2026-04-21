@@ -1,21 +1,24 @@
 # =============================================================================
-# TRM Pipeline 設定ファイル
+# TRM Pipeline 設定ファイル v3.0
+# OOP解析対応版
 # このファイルをコピーして対象プロジェクトの情報を記入してください
 # =============================================================================
 
 project:
-  name: ""                          # 例: "sakura-editor/sakura"
-  repository: ""                    # 例: "https://github.com/sakura-editor/sakura"
+  name: ""                          # 例: "owner/repo"
+  repository: ""                    # 例: "https://github.com/owner/repo"
   branch: "main"                    # 対象ブランチ
   language: ""                      # "C++", "Python", "Java", "TypeScript", "Go", "Rust"
   test_framework: ""                # "Google Test", "pytest", "JUnit", "Jest", "go test", "cargo test"
 
 # テスト対象の選定基準（変更可能）
 selection_criteria:
-  max_functions: 10                 # 選定する関数の上限数
+  max_functions: 10                 # 選定する関数/メソッドの上限数
   prefer_pure_functions: true       # 純粋関数を優先するか
   require_existing_tests: false     # 既存テストの存在を必須とするか
   max_lines_per_function: 200       # 1関数あたりの最大行数
+  include_class_methods: true       # クラスメソッドを選定対象に含めるか
+  include_inherited_methods: true   # オーバーライドされたメソッドを含めるか
   exclude_patterns:                 # 除外するファイル/関数パターン
     - "test_*"
     - "*_test.*"
@@ -25,26 +28,148 @@ selection_criteria:
 # TRM生成の設定
 trm:
   types:                            # 生成するテスト要求の種別
+    # 従来型（関数レベル）
     - BR    # 分岐網羅 (Branch Coverage)
     - EC    # 同値クラス (Equivalence Class)
     - BV    # 境界値 (Boundary Value)
     - ER    # エラーパス (Error Path)
     - DP    # 依存切替 (Dependency Path)
+    # OOP拡張
+    - CI    # クラス継承 (Class Inheritance)
+    - SV    # 状態変数 (State Variable)
+    - CP    # コードパターン (Code Pattern)
   include_audit: true               # TRM網羅性監査を実施するか
   output_format: "yaml"             # "yaml" or "json"
+
+# OOP解析の設定
+oop_analysis:
+  enabled: true                     # OOP解析を有効にするか（falseで従来型のみ）
+
+  # クラス継承解析 (CI)
+  class_inheritance:
+    max_hierarchy_depth: 5          # 追跡する継承階層の最大深度
+    analyze_virtual_dispatch: true  # 仮想メソッドディスパッチを解析するか
+    analyze_interfaces: true        # インターフェース実装を解析するか
+    check_liskov: true              # リスコフの置換原則の検証要求を生成するか
+    language_specific:
+      cpp:
+        track_virtual: true         # virtual/override/final キーワード追跡
+        track_multiple_inheritance: true
+        track_diamond: true         # ダイヤモンド継承の検出
+      java:
+        track_abstract: true
+        track_interfaces: true
+        track_default_methods: true # Java 8+ default methods
+      python:
+        track_mro: true             # Method Resolution Order
+        track_abc: true             # ABC (Abstract Base Class) 使用
+        track_mixins: true          # Mixin パターン
+      typescript:
+        track_interfaces: true
+        track_abstract: true
+        track_mixins: true
+
+  # 状態変数解析 (SV)
+  state_variables:
+    track_instance_fields: true     # インスタンスフィールドの追跡
+    track_class_fields: true        # クラス/static フィールドの追跡
+    track_state_transitions: true   # 状態遷移の追跡
+    track_invariants: true          # クラス不変条件の検証
+    max_mutation_depth: 3           # 追跡するメソッド呼び出しチェーンの深度
+    language_specific:
+      cpp:
+        track_const_correctness: true  # const メンバ関数の正当性
+        track_raii_state: true         # RAII パターンの状態管理
+        track_move_semantics: true     # ムーブ後の状態
+      java:
+        track_final_fields: true       # final フィールドの初期化
+        track_bean_properties: true    # getter/setter パターン
+        track_builder_state: true      # Builder パターンの状態
+      python:
+        track_init_fields: true        # __init__ でのフィールド初期化
+        track_property_decorators: true # @property の状態管理
+        track_slots: true              # __slots__ 定義のフィールド
+      typescript:
+        track_readonly: true           # readonly プロパティ
+        track_optional_fields: true    # optional (?) フィールド
+
+  # コードパターン解析 (CP)
+  code_patterns:
+    detect_design_patterns: true    # GoFデザインパターンの検出
+    detect_language_idioms: true    # 言語固有イディオムの検出
+    detect_framework_conventions: true # フレームワーク規約の検出
+    detect_error_patterns: true     # エラーハンドリングパターンの検出
+    detect_concurrency: true        # 並行処理パターンの検出
+    detect_resource_management: true # リソース管理パターンの検出
+    language_specific:
+      cpp:
+        patterns:
+          - "RAII"                  # Resource Acquisition Is Initialization
+          - "pimpl"                 # Pointer to Implementation
+          - "CRTP"                  # Curiously Recurring Template Pattern
+          - "SFINAE"               # Substitution Failure Is Not An Error
+          - "copy_swap"            # Copy-and-Swap Idiom
+          - "rule_of_five"         # Rule of 5 (destructor, copy/move ctor/assign)
+        macros:
+          track_conditional_compilation: true  # #ifdef/#ifndef の影響
+          track_macro_expansion: true          # マクロ展開のテスト影響
+      java:
+        patterns:
+          - "try_with_resources"
+          - "optional_chain"
+          - "stream_pipeline"
+          - "annotation_processor"
+          - "dependency_injection"
+        frameworks:
+          - "Spring"
+          - "Jakarta EE"
+      python:
+        patterns:
+          - "context_manager"      # with文 / __enter__ / __exit__
+          - "decorator"            # @デコレータ
+          - "generator"            # yield / yield from
+          - "descriptor"           # __get__ / __set__ / __delete__
+          - "metaclass"            # type / __metaclass__
+        frameworks:
+          - "Django"
+          - "FastAPI"
+          - "Flask"
+      typescript:
+        patterns:
+          - "discriminated_union"  # 判別共用体
+          - "type_guard"           # 型ガード関数
+          - "decorator"            # @デコレータ (experimental)
+          - "generic_constraint"   # ジェネリクス制約
+        frameworks:
+          - "React"
+          - "NestJS"
+          - "Express"
 
 # テスト生成の設定
 test_generation:
   framework_specific:
     google_test:
       test_macro: "TEST"
+      fixture_macro: "TEST_F"      # フィクスチャ使用（OOP用）
       assertion_prefix: "EXPECT"
     pytest:
       test_prefix: "test_"
       use_parametrize: true
+      use_fixtures: true           # pytest fixtures（状態管理用）
     junit:
       test_annotation: "@Test"
       assertion_class: "Assertions"
+      use_beforeeach: true         # @BeforeEach（状態セットアップ用）
+    jest:
+      test_function: "test"
+      describe_block: true
+      use_beforeeach: true
+    go_test:
+      test_prefix: "Test"
+      use_subtests: true           # t.Run() サブテスト
+    cargo_test:
+      test_attribute: "#[test]"
+      use_mod_tests: true
 
 # 出力ディレクトリ
 output:

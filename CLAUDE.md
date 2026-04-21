@@ -2,113 +2,134 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Project Overview
+## Overview
 
-SQiP 2026（ソフトウェア品質シンポジウム2026）への経験発表投稿プロジェクト。静的解析に基づくテスト要求モデル（TRM）の自動生成と、それを用いたLLM単体テスト生成の実証評価を行う。
+GitHubリポジトリのURLを入力として、ホワイトボックステスト要求モデル（TRM）の自動生成とテストコード生成を行うパイプラインツール。
 
-**実証対象:** sakura-editor/sakura (C++, OSS テキストエディタ)
-**対象関数:** 8関数、約385行（format.cpp / CWordParse.cpp / convert_util.cpp）
-**提出締切:** 2026年4月14日（EasyChair または メール添付）
+**v3.0**: OOP拡張対応 — クラス継承(CI)・状態変数(SV)・コードパターン(CP)の解析・テスト要求生成に対応。
 
-## Build & Test Commands
+## Quick Start
 
 ```bash
-# テスト環境のビルド（experiment-env/内で実行）
-cd experiment-env && rm -rf build && mkdir build && cd build
-cmake ..
-make -j4
+# 1. 対象リポジトリのセットアップ
+/project:setup https://github.com/owner/repo
 
-# 全テスト実行
-ctest --output-on-failure
-
-# 個別テスト実行
-./test_format           # Format系: 107テスト (103 PASS + 4 SKIP)
-./test_cwordparse       # CWordParse系: 88テスト (87 PASS + 1 SKIP)
-./test_convert          # Convert系: 53テスト (49 PASS + 4 SKIP)
-
-# フィルタ付き実行
-./test_format --gtest_filter='ParseVersion*'
-./test_format --gtest_filter='*_Additional*'
-
-# 簡易出力
-./test_format --gtest_brief=1
+# 2. パイプライン一括実行
+/project:run-pipeline
 ```
 
-**前提:** macOS + Apple clang + Google Test (Homebrew: `brew install googletest`)
-
-## Document Generation
-
-```bash
-# 図表生成（matplotlib, 日本語フォント: Hiragino Sans）
-python3 scripts/generate_figures.py       # fig1-5のPNG生成
-python3 scripts/generate_figures_v2.py    # 改善版fig1 + fig5
-
-# 提出用docx生成（python-docx, cairosvg不使用）
-python3 scripts/generate_submission_final.py   # → report/submission_final_2026.docx
-
-# プレゼン生成（python-pptx）
-python3 scripts/generate_presentation.py       # → report/presentation_2026.pptx
-```
-
-**重要:** docx生成スクリプトでは cairosvg を使わないこと（日本語が文字化けする）。matplotlib で直接PNGを生成し、そのパスを参照する。
-
-## Architecture
-
-### 3段階パイプライン
-
-```
-Step 1: リポジトリ解析     → analysis/repo-analysis.md
-Step 2: TRM生成           → test-requirements/test-requirements.yaml (99件)
-Step 3: テストコード生成   → experiment-env/tests/ (248件)
-                            ↓
-        網羅性監査         → analysis/trm-coverage-audit.md (追加64件特定)
-```
-
-### TRM（テスト要求モデル）スキーマ
-
-YAML形式。5種別のテスト要求をID付きで構造化:
-- **BR** (Branch Coverage): if/else/switchの各パス → 55件
-- **EC** (Equivalence Class): 入力の同値分割 → 27件
-- **BV** (Boundary Value): 同値クラス境界 → 11件
-- **ER** (Error Path): 異常系 → 3件
-- **DP** (Dependency Path): 関数間依存 → 3件
-
-### マルチエージェント（.claude/commands/）
+## Pipeline Commands
 
 | コマンド | 役割 |
 |---|---|
-| `/project:repo-analysis` | 対象リポジトリ解析・関数選定 |
-| `/project:test-requirement` | TRM YAML生成 |
-| `/project:test-generation` | TRMからテストコード生成 |
+| `/project:setup` | GitHubリンクから初期設定を生成 |
+| `/project:analyze` | リポジトリ解析・テスト対象関数の選定・OOP構造解析 |
+| `/project:generate-trm` | TRM（テスト要求モデル）をYAML形式で生成 |
+| `/project:audit-trm` | TRMの網羅性監査（漏れの特定・追加要求の導出） |
+| `/project:generate-tests` | TRMからテストコードを生成 |
+| `/project:run-pipeline` | 上記を順序立てて一括実行 |
+
+### 補助コマンド
+
+| コマンド | 役割 |
+|---|---|
+| `/project:repo-analysis` | リポジトリ解析（analyzeの別名） |
+| `/project:test-requirement` | TRM設計（generate-trmの設計寄り版） |
+| `/project:test-generation` | テスト生成（generate-testsの別名） |
 | `/project:experiment-eval` | 実験結果評価 |
-| `/project:paper-writing` | 論文執筆 |
-| `/project:peer-review` | 査読レビュー |
-| `/project:coordinator` | 進捗管理 |
-| `/project:run-all` | 全フェーズ一括実行 |
+| `/project:coordinator` | 進捗管理・整合性確認 |
+| `/project:run-all` | 全フェーズ一括実行（評価含む） |
 
-### experiment-env/ の構成
+## TRM (Test Requirement Model)
+
+テスト要求を構造化したYAML形式の中間成果物。
+
+### 従来型（関数レベル）— 5種別
+
+| 種別 | 記号 | 定義 |
+|------|------|------|
+| 分岐網羅 | BR | if/else/switchの各パスを検証 |
+| 同値クラス | EC | 入力パラメータの同値分割を検証 |
+| 境界値 | BV | 同値クラス境界の上下限を検証 |
+| エラーパス | ER | 異常系・エラー処理を検証 |
+| 依存切替 | DP | 関数間の依存関係・差異を検証 |
+
+### OOP拡張 — 3種別（v3.0追加）
+
+| 種別 | 記号 | 定義 | サブタイプ |
+|------|------|------|-----------|
+| クラス継承 | CI | 継承階層・多態性・オーバーライドを検証 | polymorphic_dispatch / override_correctness / liskov_substitution / abstract_coverage / super_delegation / interface_contract |
+| 状態変数 | SV | インスタンス変数の状態遷移・不変条件を検証 | initialization / mutation_sequence / invariant_maintenance / state_dependent_behavior / lifecycle / cross_method_state |
+| コードパターン | CP | デザインパターン・言語イディオム・FW規約を検証 | design_pattern_conformance / idiom_correctness / resource_lifecycle / concurrency_safety / framework_contract / macro_expansion |
+
+スキーマ定義: `templates/trm-schema.yaml` (v3.0)
+OOP解析スキーマ: `templates/oop-analysis-schema.yaml`
+
+## Directory Structure
 
 ```
-experiment-env/
-├── compat/                    # macOS用互換レイヤー
-│   ├── windows_compat.h       # SYSTEMTIME, BOOL等のWindows型定義
-│   ├── sakura_compat.h        # ECharKind enum, CWordParse等のsakura固有型
-│   └── StdAfx.h               # プリコンパイル済みヘッダのシム
-├── src/                       # sakura-editorから抽出した対象関数
-│   ├── format_wrapper.cpp     # GetDateTimeFormat, ParseVersion, CompareVersion
-│   ├── cwordparse_wrapper.cpp # IsMailAddress, WhatKindOfTwoChars, WhatKindOfTwoChars4KW
-│   └── convert_wrapper.cpp    # Convert_ZeneisuToHaneisu, Convert_HaneisuToZeneisu
-├── tests/
-│   ├── test-format-generated.cpp       # TRMベース生成テスト (61件)
-│   ├── test-format-additional.cpp      # 網羅性監査後の追加テスト (46件)
-│   ├── test-cwordparse-generated.cpp   # TRMベース生成テスト (53件)
-│   ├── test-cwordparse-additional.cpp  # 追加テスト (35件)
-│   ├── test-convert-generated.cpp      # TRMベース生成テスト (31件)
-│   └── test-convert-additional.cpp     # 追加テスト (22件)
-└── CMakeLists.txt
+.
+├── CLAUDE.md
+├── .claude/commands/           # パイプラインエージェント（実行用）
+│   ├── setup.md               # 初期設定
+│   ├── analyze.md             # リポジトリ解析 + OOP解析
+│   ├── generate-trm.md        # TRM生成（8種別対応）
+│   ├── audit-trm.md           # TRM網羅性監査（OOP含む）
+│   ├── generate-tests.md      # テストコード生成（OOP対応）
+│   ├── run-pipeline.md        # 一括実行
+│   ├── run-all.md             # 全フェーズ実行
+│   ├── coordinator.md         # 進捗管理
+│   ├── repo-analysis.md       # リポジトリ解析（汎用）
+│   ├── test-requirement.md    # TRM設計
+│   ├── test-generation.md     # テスト生成
+│   ├── experiment-eval.md     # 実験評価
+│   ├── paper-writing.md       # 論文執筆
+│   └── peer-review.md         # 査読レビュー
+├── templates/
+│   ├── project-config.yaml    # プロジェクト設定テンプレート（v3.0: OOP設定含む）
+│   ├── trm-schema.yaml        # TRM YAMLスキーマ（v3.0: CI/SV/CP含む）
+│   ├── oop-analysis-schema.yaml # OOP解析結果スキーマ
+│   └── commands/              # エージェント定義のマスター
+├── project-config.yaml        # (setup後に生成) 対象PJの設定
+├── analysis/                  # (実行後に生成) 解析結果
+│   ├── repo-analysis.md       #   関数選定結果
+│   └── oop-analysis.md        #   OOP構造解析結果
+├── test-requirements/         # (実行後に生成) TRM YAML
+├── generated-tests/           # (実行後に生成) テストコード
+│   ├── test-*-generated.*     #   従来型テスト
+│   ├── test-*-oop.*           #   OOP拡張テスト (CI/SV/CP)
+│   └── test-*-additional.*    #   監査後追加テスト
+└── reports/                   # (実行後に生成) レポート
 ```
 
-### テスト実行結果（248件）
+## Supported Languages
+
+| 言語 | テストFW | OOP対応 |
+|------|---------|---------|
+| C++ | Google Test / Catch2 | virtual/override, 多重継承, RAII, CRTP |
+| Python | pytest | ABC, MRO, Mixin, デコレータ, コンテキストマネージャ |
+| Java | JUnit | インターフェース, abstract, try-with-resources, DI |
+| TypeScript | Jest / Vitest | interface, abstract, 判別共用体, 型ガード |
+| Go | testing | インターフェース, 埋め込み構造体 |
+| Rust | cargo test | トレイト, ジェネリクス, ライフタイム |
+
+## Configuration
+
+`project-config.yaml` で以下を制御:
+- `selection_criteria`: テスト対象の選定基準（純粋関数優先、最大行数、除外パターン等）
+- `trm.types`: 生成するテスト要求の種別（BR/EC/BV/ER/DP/CI/SV/CPから選択）
+- `trm.include_audit`: TRM網羅性監査の実施有無
+- `oop_analysis.enabled`: OOP解析の有効/無効
+- `oop_analysis.class_inheritance`: クラス継承解析の詳細設定
+- `oop_analysis.state_variables`: 状態変数解析の詳細設定
+- `oop_analysis.code_patterns`: コードパターン解析の詳細設定
+
+## sakura-editor実証実験の成果物
+
+`experiment-env/` にsakura-editor/sakuraを対象とした実証実験の成果物が残っています。
+詳細は `experiments/` および `drafts/` を参照してください。
+
+### テスト実行結果（248件 — 従来型TRMのみ）
 
 | スイート | PASS | SKIP | 合計 |
 |---|---|---|---|
@@ -117,11 +138,7 @@ experiment-env/
 | Convert | 49 | 4 | 53 |
 | **合計** | **239** | **9** | **248** |
 
-SKIP 9件はNULLポインタ入力・INT_MINポインタ演算等で、実装にガードがない潜在バグとして記録。
-
 ## Key Constraints
 
-- **匿名査読:** 著者名・所属・個人特定情報を本文・ファイル名に含めない
-- **日本語:** 論文・発表資料は日本語で記述
-- **参考文献:** 17件（URL付き）。literature-review.mdに39件の調査済み文献
-- **テスト期待値:** 実際のsakura-editor実装から導出すること。LLMの推論だけで期待値を決めない（初回12件のFAILはLLMの期待値推論誤りだった）
+- **テスト期待値:** 実際の実装から導出すること。LLMの推論だけで期待値を決めない
+- **OOP解析:** `oop_analysis.enabled: false` に設定すれば従来型（BR/EC/BV/ER/DP）のみで動作する
