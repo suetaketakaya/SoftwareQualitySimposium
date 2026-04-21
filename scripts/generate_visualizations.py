@@ -86,8 +86,38 @@ def target_name(target: dict) -> str:
     return target.get("id", "Unknown")
 
 
+def infer_type_from_id(req_id: str) -> str:
+    """ID prefix から種別を推定 (v1.0 スキーマ用フォールバック)
+
+    v3.1 スキーマは test_requirements の各項目に type フィールドを持つが、
+    v1.0 (旧 sakura TRM) では type が欠落しているため ID prefix で判別する。
+    """
+    prefix_map = {
+        "BR": "branch_coverage",
+        "EC": "equivalence_class",
+        "BV": "boundary_value",
+        "ER": "error_path",
+        "DP": "dependency_path",
+        "CI": "class_inheritance",
+        "SV": "state_variable",
+        "CP": "code_pattern",
+        "EN": "encapsulation",
+    }
+    prefix = req_id.split("-")[0] if "-" in req_id else ""
+    return prefix_map.get(prefix, "other")
+
+
+def req_type(req: dict) -> str:
+    """要求の種別を取得: v3.1 の type フィールド優先、無ければ ID prefix から推定"""
+    t = req.get("type")
+    if t:
+        return t
+    return infer_type_from_id(req.get("id", ""))
+
+
 def count_by_type(target: dict) -> Counter:
-    return Counter(req.get("type", "other") for req in target.get("test_requirements", []))
+    """種別別カウント (v1.0/v3.1 両対応)"""
+    return Counter(req_type(req) for req in target.get("test_requirements", []))
 
 
 # ---------------------------------------------------------------------------
@@ -99,7 +129,7 @@ def generate_sunburst(target: dict) -> str:
     reqs = target.get("test_requirements", [])
     groups: dict[str, list[dict]] = defaultdict(list)
     for req in reqs:
-        groups[req.get("type", "other")].append(req)
+        groups[req_type(req)].append(req)
 
     lines = ["```mermaid", "mindmap", f"  root(({name}))"]
     for rtype, rlist in groups.items():
