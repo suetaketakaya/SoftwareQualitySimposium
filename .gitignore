@@ -14,6 +14,8 @@ venv/
 env/
 node_modules/
 dist/
+__pycache__/
+*.pyc
 
 ### ビルド成果物
 experiment-env/build/
