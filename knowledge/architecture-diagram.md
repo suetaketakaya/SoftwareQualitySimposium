@@ -24,6 +24,7 @@ flowchart LR
         AuditTRM[audit-trm]
         GenerateTests[generate-tests]
         ExperimentEval[experiment-eval]
+        Visualize[generate_visualizations.py]
     end
     subgraph "Schema Templates"
         ProjectConfigSchema[project-config.yaml<br/>テンプレート]
@@ -39,6 +40,7 @@ flowchart LR
         TraceMatrix[generated-tests/<br/>traceability-matrix.md]
         EvalReport[experiments/<br/>evaluation-report.md]
         Summary[reports/pipeline-summary.md]
+        VizOutput[visualizations-auto/<br/>Sunburst/Sankey/Chord/Heatmap]
     end
 
     RunPipeline --> Analyze --> GenerateTRM --> AuditTRM --> GenerateTests --> Summary
@@ -53,6 +55,8 @@ flowchart LR
     AuditTRM -.追記.-> TRMYaml
     GenerateTests --> TestsGen
     GenerateTests --> TraceMatrix
+    TRMYaml --> Visualize
+    Visualize --> VizOutput
     ExperimentEval --> EvalReport
 
     ProjectConfigSchema -.参照.-> Config
