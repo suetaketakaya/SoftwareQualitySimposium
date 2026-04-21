@@ -239,19 +239,22 @@ SEVERITY_NUM = {"high": 3, "medium": 2, "low": 1}
 
 
 def draw_heatmap(ax, target: dict, title: str):
+    """Heatmap 描画。
+
+    v3.1 OOP データ（state_variables + encapsulation_risks）があれば
+    フィールド × リスク種別の交差表を表示。
+    無い場合は「要求種別 × 優先度」の代替マトリクスを表示（常に非空）。
+    """
     svars = target.get("state_variables") or []
     risks = target.get("encapsulation_risks") or []
 
-    if not svars or not risks:
-        ax.text(0.5, 0.5,
-                "state_variables または encapsulation_risks が空\n"
-                "（手続き型・関数型対象では該当なし）",
-                ha="center", va="center", fontsize=12,
-                transform=ax.transAxes)
-        ax.set_axis_off()
-        ax.set_title(f"Heatmap: {title}\n— 複合影響マトリクス —", fontsize=13)
-        return
+    if svars and risks:
+        _draw_heatmap_oop(ax, svars, risks, title)
+    else:
+        _draw_heatmap_type_priority(ax, target, title)
 
+
+def _draw_heatmap_oop(ax, svars, risks, title):
     risk_by_field = defaultdict(list)
     for r in risks:
         risk_by_field[r.get("field_name", "")].append(r)
@@ -269,13 +272,11 @@ def draw_heatmap(ax, target: dict, title: str):
                 matrix[i][j] = SEVERITY_NUM.get(severity, 1)
                 annot[i][j] = severity[0].upper()
 
-    # カラーマップ
     from matplotlib.colors import ListedColormap
     cmap = ListedColormap(["#ffffff", "#7cb342", "#f9a825", "#d32f2f"])
 
-    im = ax.imshow(matrix, cmap=cmap, aspect="auto", vmin=0, vmax=3)
+    ax.imshow(matrix, cmap=cmap, aspect="auto", vmin=0, vmax=3)
 
-    # セルに重大度文字
     for i in range(len(field_names)):
         for j in range(len(RISK_TYPES)):
             if annot[i][j]:
@@ -289,15 +290,76 @@ def draw_heatmap(ax, target: dict, title: str):
     ax.set_xticklabels(RISK_TYPES, rotation=35, ha="right", fontsize=8)
     ax.set_yticks(np.arange(len(field_names)))
     ax.set_yticklabels(field_names, fontsize=10)
-    ax.set_title(f"Heatmap: {title}\n— フィールド × リスク種別 —", fontsize=13, pad=15)
+    ax.set_title(f"Heatmap: {title}\n— フィールド × リスク種別 (OOP) —",
+                 fontsize=13, pad=15)
 
-    # 凡例
     patches = [
         mpatches.Patch(color="#d32f2f", label="H: high"),
         mpatches.Patch(color="#f9a825", label="M: medium"),
         mpatches.Patch(color="#7cb342", label="L: low"),
     ]
-    ax.legend(handles=patches, loc="center left", bbox_to_anchor=(1.01, 0.5), fontsize=9)
+    ax.legend(handles=patches, loc="center left", bbox_to_anchor=(1.01, 0.5),
+              fontsize=9)
+
+
+def _draw_heatmap_type_priority(ax, target, title):
+    """OOP データが無い対象向けの代替: 種別 × 優先度"""
+    reqs = target.get("test_requirements", [])
+    if not reqs:
+        ax.text(0.5, 0.5, "要求がないため描画不可", ha="center", va="center")
+        ax.set_axis_off()
+        return
+
+    by_type_priority = defaultdict(lambda: Counter())
+    for req in reqs:
+        t = req_type(req)
+        p = req.get("priority", "medium")
+        by_type_priority[t][p] += 1
+
+    types = sorted(by_type_priority.keys(), key=lambda x: -sum(by_type_priority[x].values()))
+    type_labels = [TYPE_LABEL_JA.get(t, t) for t in types]
+    priorities = ["high", "medium", "low"]
+    priority_colors = ["#d32f2f", "#f9a825", "#7cb342"]
+
+    matrix = np.zeros((len(types), len(priorities)))
+    for i, t in enumerate(types):
+        for j, p in enumerate(priorities):
+            matrix[i][j] = by_type_priority[t].get(p, 0)
+
+    max_val = matrix.max() if matrix.max() > 0 else 1
+
+    from matplotlib.colors import LinearSegmentedColormap
+    cmap = LinearSegmentedColormap.from_list(
+        "count", ["#ffffff", "#ffe0b2", "#ff9800", "#e65100"])
+
+    ax.imshow(matrix, cmap=cmap, aspect="auto", vmin=0, vmax=max_val)
+
+    for i in range(len(types)):
+        for j in range(len(priorities)):
+            v = int(matrix[i][j])
+            if v > 0:
+                color = "white" if v > max_val * 0.5 else "#333"
+                ax.text(j, i, str(v), ha="center", va="center",
+                        color=color, fontsize=12, weight="bold")
+            else:
+                ax.text(j, i, "—", ha="center", va="center",
+                        color="#bbbbbb", fontsize=11)
+
+    ax.set_xticks(np.arange(len(priorities)))
+    ax.set_xticklabels(["high", "medium", "low"], fontsize=10)
+    for xtick, color in zip(ax.get_xticklabels(), priority_colors):
+        xtick.set_color(color)
+        xtick.set_weight("bold")
+    ax.set_yticks(np.arange(len(types)))
+    ax.set_yticklabels(type_labels, fontsize=9)
+    ax.set_title(f"Heatmap: {title}\n— 要求種別 × 優先度 (手続き型代替表示) —",
+                 fontsize=13, pad=15)
+
+    # サマリ情報
+    totals = {p: sum(by_type_priority[t].get(p, 0) for t in types) for p in priorities}
+    summary = f"計: high={totals['high']}, medium={totals['medium']}, low={totals['low']}"
+    ax.text(0.5, -0.22, summary, ha="center", va="top", fontsize=9,
+            transform=ax.transAxes, color="#555")
 
 
 # ---------------------------------------------------------------------------
@@ -305,18 +367,126 @@ def draw_heatmap(ax, target: dict, title: str):
 # ---------------------------------------------------------------------------
 
 def draw_chord(ax, target: dict, title: str):
+    """Chord 描画。
+
+    v3.1 OOP データ (state_variables + encapsulation_risks) があれば
+    フィールドとリスクを円環配置。無い場合は依存関係
+    (calls / called_by) のグラフを代替表示。
+    """
     svars = target.get("state_variables") or []
     risks = target.get("encapsulation_risks") or []
 
-    if not svars or not risks:
+    if svars and risks:
+        _draw_chord_oop(ax, svars, risks, title)
+    else:
+        _draw_chord_dependencies(ax, target, title)
+
+
+def _draw_chord_dependencies(ax, target, title):
+    """OOPデータが無い対象向けの代替: 依存関係グラフ"""
+    deps = target.get("dependencies")
+    # sakura v1.0 TRM では dependencies がリストか空の場合あり
+    if isinstance(deps, dict):
+        calls = deps.get("calls") or []
+        called_by = deps.get("called_by") or []
+        globals_ = deps.get("globals") or []
+    elif isinstance(deps, list) and deps:
+        # リスト形式: 各要素が {name, type, description} の辞書
+        calls = deps
+        called_by = []
+        globals_ = []
+    else:
+        calls = []
+        called_by = []
+        globals_ = []
+
+    if not (calls or called_by or globals_):
+        # 最終フォールバック: 要求数を対象単独ノードで表示
         ax.text(0.5, 0.5,
-                "state_variables または encapsulation_risks が空\n"
-                "（手続き型・関数型対象では該当なし）",
+                f"{target_name(target)}\n"
+                f"独立関数 (外部依存なし)\n"
+                f"要求数: {len(target.get('test_requirements', []))}",
                 ha="center", va="center", fontsize=12,
-                transform=ax.transAxes)
+                transform=ax.transAxes,
+                bbox=dict(boxstyle="round,pad=0.5", facecolor="#e3f2fd",
+                          edgecolor="#1976d2"))
         ax.set_axis_off()
-        ax.set_title(f"Chord: {title}\n— 状態変数とリスクの相互関係 —", fontsize=13)
+        ax.set_title(f"Chord: {title}\n— 依存関係 (手続き型代替) —",
+                     fontsize=13, pad=15)
         return
+
+    # 関数ノード名を取得
+    def _name(d):
+        if isinstance(d, dict):
+            return d.get("name", str(d))
+        return str(d)
+
+    calls_names = [_name(c) for c in calls]
+    called_by_names = [_name(c) for c in called_by]
+    global_names = [_name(g) for g in globals_]
+
+    # 中央に対象、左に calls、右に called_by、下に globals を配置
+    center_name = target_name(target)
+    ax.scatter(0, 0, s=2000, c="#1976d2", edgecolors="white",
+               linewidth=2, zorder=3)
+    ax.text(0, 0, center_name, ha="center", va="center", fontsize=9,
+            color="white", weight="bold", zorder=4)
+
+    # calls (左上半円)
+    if calls_names:
+        for i, name in enumerate(calls_names):
+            angle = 150 + (i * 60 / max(len(calls_names), 1))
+            x = 1.2 * np.cos(np.deg2rad(angle))
+            y = 1.2 * np.sin(np.deg2rad(angle))
+            ax.scatter(x, y, s=600, c="#66bb6a", edgecolors="white",
+                       linewidth=1.5, zorder=3)
+            ax.text(x, y, name[:15], ha="center", va="center", fontsize=7,
+                    color="white", weight="bold", zorder=4)
+            ax.annotate("", xy=(0, 0), xytext=(x, y),
+                        arrowprops=dict(arrowstyle="->",
+                                        color="#66bb6a",
+                                        lw=1.5, alpha=0.7))
+        ax.text(-1.5, 1.4, "calls (呼び出す関数)", fontsize=9, color="#388e3c",
+                weight="bold")
+
+    # called_by (右下半円)
+    if called_by_names:
+        for i, name in enumerate(called_by_names):
+            angle = -30 - (i * 60 / max(len(called_by_names), 1))
+            x = 1.2 * np.cos(np.deg2rad(angle))
+            y = 1.2 * np.sin(np.deg2rad(angle))
+            ax.scatter(x, y, s=600, c="#ff7043", edgecolors="white",
+                       linewidth=1.5, zorder=3)
+            ax.text(x, y, name[:15], ha="center", va="center", fontsize=7,
+                    color="white", weight="bold", zorder=4)
+            ax.annotate("", xy=(x, y), xytext=(0, 0),
+                        arrowprops=dict(arrowstyle="->",
+                                        color="#ff7043",
+                                        lw=1.5, alpha=0.7))
+        ax.text(0.8, -1.4, "called_by (呼ばれる元)", fontsize=9, color="#e64a19",
+                weight="bold")
+
+    # globals (下)
+    if global_names:
+        for i, name in enumerate(global_names[:4]):
+            x = -1.0 + i * 0.7
+            y = -1.0
+            ax.scatter(x, y, s=400, c="#ba68c8", edgecolors="white",
+                       linewidth=1.5, zorder=3, marker="s")
+            ax.text(x, y - 0.2, name[:12], ha="center", va="top", fontsize=7,
+                    color="#4a148c")
+        ax.text(-1.5, -1.4, "globals", fontsize=9, color="#6a1b9a",
+                weight="bold")
+
+    ax.set_xlim(-2.0, 2.0)
+    ax.set_ylim(-1.8, 1.8)
+    ax.set_aspect("equal")
+    ax.set_axis_off()
+    ax.set_title(f"Chord: {title}\n— 依存関係マップ (手続き型代替) —",
+                 fontsize=13, pad=15)
+
+
+def _draw_chord_oop(ax, svars, risks, title):
 
     # 左右に分けて配置: 左=state_variables, 右=risks(個別)
     n_left = len(svars)

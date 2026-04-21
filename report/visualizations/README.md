@@ -49,16 +49,32 @@ python scripts/generate_visualization_showcase_pdf.py \
 - **TrueType フォント埋込** (`pdf.fonttype = 42`) で Hiragino Sans を PDF 内に埋め込む
 - 再生成時も同じ環境（Hiragino Sans 利用可能）であれば文字化けなし
 
-## 対象条件
+## 対象条件とフォールバック仕様
 
-| 可視化 | 必要なTRMセクション | 対応 |
+各可視化は対象の性質に応じて適切な描画を自動選択:
+
+| 可視化 | OOP対象 (v3.1) | 手続き型・関数型 (v1.0 含む) |
 |---|---|---|
-| Sunburst | test_requirements (種別フィールド or ID prefix) | v1.0 / v3.1 両対応 |
-| Sankey | 同上 + priority | v1.0 / v3.1 両対応 |
-| Heatmap | **state_variables + encapsulation_risks** | v3.1 (OOPクラス) のみ |
-| Chord | 同上 | v3.1 (OOPクラス) のみ |
+| Sunburst | 要求の種別階層 | 同左 (種別は ID prefix で推定) |
+| Sankey | 種別×優先度の流量 | 同左 |
+| **Heatmap** | **フィールド × リスク種別** (state×risk) | **要求種別 × 優先度** (代替表示) |
+| **Chord** | **状態変数 ↔ リスク** (線種=重大度) | **依存関係マップ** (calls/called_by/globals) |
 
-手続き型・関数型対象では Heatmap / Chord は「該当なし」と明示表示する設計（欺瞞を避ける）。
+### Heatmap のフォールバック内容
+
+OOPでない対象では `要求種別 × 優先度` のマトリクスを表示:
+- 行: BR/EC/BV/ER/DP 等の要求種別
+- 列: high / medium / low
+- セル: 件数（カラー濃度で表現）
+
+### Chord のフォールバック内容
+
+OOPでない対象では `依存関係マップ` を表示:
+- 中央: 対象関数名（青ノード）
+- 左上: `calls` (呼び出す関数、緑ノード、矢印→対象)
+- 右下: `called_by` (呼ばれる元、オレンジ、矢印←対象)
+- 下: `globals` (グローバル変数、紫角ノード)
+- 依存が全く無い場合のみ「独立関数」表示
 
 ## 論文への貼り付け
 
