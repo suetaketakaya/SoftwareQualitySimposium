@@ -1266,3 +1266,450 @@ targets:
         subtype: "leaky_accessor"
         description: "min/max に可変オブジェクト（例: list）を誤って渡しても、type hint 違反として検出可能か（静的型チェックでの検知テスト）"
         priority: "low"
+
+  # ===========================================================================
+  # TGT-06: ClickException (exceptions.py 基底)
+  # ===========================================================================
+  - id: "TGT-06"
+    file: "src/click/exceptions.py"
+    function_signature: "class ClickException(Exception)"
+    class_name: "ClickException"
+    responsibility: "Click が処理してユーザーに表示する例外の基底"
+    code_lines: 28
+
+    branch_conditions:
+      - id: "BC-06-01"
+        line_hint: "if file is None"
+        condition: "show 内 file が None"
+        true_action: "get_text_stderr を使用"
+        false_action: "引数の file を使用"
+
+    class_hierarchy:
+      base_classes: ["Exception"]
+      derived_classes: ["UsageError", "FileError"]
+      is_abstract: false
+
+    state_variables:
+      - id: "SVAR-06-01"
+        name: "exit_code"
+        type: "ClassVar[int]"
+        visibility: "public"
+        initial_value: "1"
+        mutable: true
+        required_at_construction: false
+        invariant_constraints: ["派生クラスで上書きする前提"]
+      - id: "SVAR-06-02"
+        name: "show_color"
+        type: "bool | None"
+        visibility: "public"
+        initial_value: "resolve_color_default() の戻り値"
+        mutable: true
+        required_at_construction: false
+      - id: "SVAR-06-03"
+        name: "message"
+        type: "str"
+        visibility: "public"
+        initial_value: "コンストラクタ引数"
+        mutable: true
+        required_at_construction: true
+
+    accessors: []
+    construction_contracts:
+      - id: "CC-06-01"
+        constructor_signature: "ClickException(message: str)"
+        required_fields: ["message"]
+        optional_fields: []
+        invariants_on_exit: ["self.message がセット済み", "self.show_color が bool | None"]
+
+    encapsulation_risks:
+      - id: "ENR-06-01"
+        field_name: "exit_code"
+        risk_type: "public_mutable_field"
+        severity: "low"
+        description: "派生での上書きは慣例だが、インスタンス単位で変更されると予想外動作"
+
+    code_patterns:
+      - id: "CPAT-06-01"
+        category: "design_pattern"
+        pattern_name: "Template Method (format_message)"
+        description: "基底で format_message を定義、派生で上書き"
+
+    dependencies:
+      calls: ["resolve_color_default", "get_text_stderr", "echo"]
+
+    test_requirements:
+      - id: "BR-06-01"
+        type: "branch_coverage"
+        description: "show() で file=None のとき stderr に出力されること"
+        priority: "high"
+        source_ref: "BC-06-01 true"
+      - id: "BR-06-02"
+        type: "branch_coverage"
+        description: "show() で file 指定時にその file に出力されること"
+        priority: "high"
+        source_ref: "BC-06-01 false"
+      - id: "EC-06-01"
+        type: "equivalence_class"
+        description: "message が空文字列、通常文字列、マルチライン文字列の各パターンで動作"
+        priority: "medium"
+      - id: "ER-06-01"
+        type: "error_path"
+        description: "ClickException を raise/catch できること（例外プロトコル準拠）"
+        priority: "high"
+      - id: "CI-06-01"
+        type: "class_inheritance"
+        subtype: "polymorphic_dispatch"
+        description: "Exception 型として ClickException をキャッチ可能"
+        priority: "high"
+        base_class: "Exception"
+      - id: "CI-06-02"
+        type: "class_inheritance"
+        subtype: "abstract_coverage"
+        description: "派生 UsageError / FileError が format_message / show を上書きしているか（または継承しているか）"
+        priority: "medium"
+      - id: "SV-06-01"
+        type: "state_variable"
+        subtype: "initialization"
+        description: "__init__ 後に message / show_color がセットされていること"
+        priority: "high"
+      - id: "SV-06-02"
+        type: "state_variable"
+        subtype: "member_initialization_requirement"
+        description: "message なしで ClickException を構築できないこと"
+        priority: "high"
+        source_ref: "SVAR-06-03"
+      - id: "CP-06-01"
+        type: "code_pattern"
+        subtype: "design_pattern_conformance"
+        description: "format_message / __str__ が Template Method として期待通り機能"
+        priority: "medium"
+      - id: "EN-06-01"
+        type: "encapsulation"
+        subtype: "construction_contract"
+        description: "message が必須引数で、欠如すると TypeError"
+        priority: "high"
+        source_ref: "CC-06-01"
+      - id: "EN-06-02"
+        type: "encapsulation"
+        subtype: "access_control_correctness"
+        description: "exit_code は ClassVar だが、派生で上書き可能（design intent）"
+        priority: "medium"
+        source_ref: "SVAR-06-01"
+      - id: "EN-06-03"
+        type: "encapsulation"
+        subtype: "mutability_contract"
+        description: "show_color はインスタンス生成時に決定され、後からの変更で show() の出力が変わってしまう（冪等性の欠如）"
+        priority: "medium"
+        source_ref: "SVAR-06-02"
+
+  # ===========================================================================
+  # TGT-07: BadParameter + MissingParameter (深い継承 + 状態拡張)
+  # ===========================================================================
+  - id: "TGT-07"
+    file: "src/click/exceptions.py"
+    function_signature: "class BadParameter(UsageError); class MissingParameter(BadParameter)"
+    class_name: "BadParameter, MissingParameter"
+    responsibility: "パラメータ不正を表す例外。3段継承 (ClickException → UsageError → BadParameter → MissingParameter)"
+    code_lines: 95
+
+    branch_conditions:
+      - id: "BC-07-01"
+        line_hint: "if self.param_hint is not None"
+        condition: "BadParameter.format_message 第1条件"
+        true_action: "param_hint を使用"
+        false_action: "次のelif へ"
+      - id: "BC-07-02"
+        line_hint: "elif self.param is not None"
+        condition: "BadParameter.format_message 第2条件"
+        true_action: "self.param.get_error_hint"
+        false_action: "Invalid value fallback"
+      - id: "BC-07-03"
+        line_hint: "MissingParameter.format_message の param_type 解決"
+        condition: "param_type is None and self.param is not None"
+        true_action: "param.param_type_name 利用"
+        false_action: "そのまま"
+
+    class_hierarchy:
+      base_classes: ["UsageError (→ ClickException → Exception)"]
+      derived_classes: ["MissingParameter"]
+      is_override: true
+      overrides:
+        - base_class: "UsageError"
+          base_method: "__init__"
+          override_behavior: "param, param_hint を追加引数として保持"
+        - base_class: "ClickException"
+          base_method: "format_message"
+          override_behavior: "Invalid value メッセージ生成"
+
+    inheritance_conditions:
+      - id: "IC-07-01"
+        type: "super_delegation"
+        base_class: "UsageError"
+        derived_class: "BadParameter"
+        condition: "__init__ で super().__init__(message, ctx) を呼ぶ"
+        expected_behavior: "message, ctx, cmd の継承された初期化が完了する"
+      - id: "IC-07-02"
+        type: "super_delegation"
+        base_class: "BadParameter"
+        derived_class: "MissingParameter"
+        condition: "__init__ で super().__init__(message or \"\", ctx, param, param_hint) を呼ぶ"
+        expected_behavior: "message が None の場合に空文字列にフォールバック"
+
+    state_variables:
+      - id: "SVAR-07-01"
+        name: "ctx"
+        type: "Context | None"
+        visibility: "public"
+        initial_value: "引数"
+        mutable: true
+        required_at_construction: false
+      - id: "SVAR-07-02"
+        name: "cmd"
+        type: "Command | None"
+        visibility: "public"
+        initial_value: "ctx.command or None"
+        mutable: true
+        required_at_construction: false
+      - id: "SVAR-07-03"
+        name: "param"
+        type: "Parameter | None"
+        visibility: "public"
+        initial_value: "引数 (default None)"
+        mutable: true
+      - id: "SVAR-07-04"
+        name: "param_hint"
+        type: "Sequence[str] | str | None"
+        visibility: "public"
+        initial_value: "引数 (default None)"
+        mutable: true
+      - id: "SVAR-07-05"
+        name: "param_type"
+        type: "str | None (MissingParameter のみ)"
+        visibility: "public"
+        initial_value: "引数 (default None)"
+        mutable: true
+
+    accessors: []
+    construction_contracts:
+      - id: "CC-07-01"
+        constructor_signature: "BadParameter(message, ctx=None, param=None, param_hint=None)"
+        required_fields: ["message"]
+        optional_fields: ["ctx", "param", "param_hint"]
+        invariants_on_exit: ["self.message / ctx / param / param_hint がセット", "cmd は ctx.command or None"]
+      - id: "CC-07-02"
+        constructor_signature: "MissingParameter(message=None, ctx=None, param=None, param_hint=None, param_type=None)"
+        required_fields: []
+        optional_fields: ["message", "ctx", "param", "param_hint", "param_type"]
+        invariants_on_exit: ["message が None なら \"\" で初期化"]
+
+    encapsulation_risks:
+      - id: "ENR-07-01"
+        field_name: "ctx"
+        risk_type: "leaky_getter"
+        severity: "medium"
+        description: "self.ctx は Context の内部参照を保持。外部で ctx を変更すると例外の show() 出力が変わる"
+
+    code_patterns:
+      - id: "CPAT-07-01"
+        category: "design_pattern"
+        pattern_name: "Template Method (format_message オーバーライド)"
+      - id: "CPAT-07-02"
+        category: "language_idiom"
+        pattern_name: "3段継承 + super() チェーン"
+
+    dependencies:
+      calls: ["super().__init__", "self.param.get_error_hint", "_join_param_hints"]
+
+    test_requirements:
+      - id: "BR-07-01"
+        type: "branch_coverage"
+        description: "BadParameter.format_message で param_hint ありのメッセージ生成"
+        priority: "high"
+        source_ref: "BC-07-01 true"
+      - id: "BR-07-02"
+        type: "branch_coverage"
+        description: "param_hint なし + param ありで get_error_hint が呼ばれること"
+        priority: "high"
+        source_ref: "BC-07-02 true"
+      - id: "BR-07-03"
+        type: "branch_coverage"
+        description: "param_hint, param とも None のとき 'Invalid value' フォールバック"
+        priority: "high"
+        source_ref: "BC-07-02 false"
+      - id: "BR-07-04"
+        type: "branch_coverage"
+        description: "MissingParameter で param_type=None かつ param!=None のとき param_type_name が利用されること"
+        priority: "medium"
+        source_ref: "BC-07-03 true"
+      - id: "EC-07-01"
+        type: "equivalence_class"
+        description: "param_hint が str / list / None の3パターン"
+        priority: "high"
+      - id: "ER-07-01"
+        type: "error_path"
+        description: "BadParameter / MissingParameter が UsageError と ClickException の catch 句で捕捉可能"
+        priority: "high"
+      - id: "DP-07-01"
+        type: "dependency_path"
+        description: "MissingParameter.__init__ が BadParameter.__init__ を経由して UsageError.__init__ → ClickException.__init__ まで連鎖"
+        priority: "high"
+        source_ref: "IC-07-01, IC-07-02"
+      - id: "CI-07-01"
+        type: "class_inheritance"
+        subtype: "polymorphic_dispatch"
+        description: "ClickException として MissingParameter をキャッチでき、format_message が MissingParameter のものを返す"
+        priority: "high"
+      - id: "CI-07-02"
+        type: "class_inheritance"
+        subtype: "super_delegation"
+        description: "MissingParameter.__init__ の super() チェーンが全階層を正しく呼び出す"
+        priority: "high"
+        source_ref: "IC-07-02"
+      - id: "CI-07-03"
+        type: "class_inheritance"
+        subtype: "override_correctness"
+        description: "format_message の各階層上書きが意図通り差別化されている"
+        priority: "high"
+      - id: "CI-07-04"
+        type: "class_inheritance"
+        subtype: "liskov_substitution"
+        description: "UsageError を期待する呼び出しで MissingParameter を渡しても契約が破れない"
+        priority: "medium"
+      - id: "SV-07-01"
+        type: "state_variable"
+        subtype: "initialization"
+        description: "全階層の初期化後に message/ctx/cmd/param/param_hint/param_type が期待通り設定"
+        priority: "high"
+      - id: "SV-07-02"
+        type: "state_variable"
+        subtype: "cross_method_state"
+        description: "format_message が self.param / self.param_hint / self.ctx を参照"
+        priority: "medium"
+      - id: "CP-07-01"
+        type: "code_pattern"
+        subtype: "idiom_correctness"
+        description: "多段 super() チェーンが循環/欠落なく機能"
+        priority: "high"
+      - id: "EN-07-01"
+        type: "encapsulation"
+        subtype: "construction_contract"
+        description: "BadParameter は message 必須、MissingParameter は全引数オプショナル"
+        priority: "high"
+        source_ref: "CC-07-01, CC-07-02"
+      - id: "EN-07-02"
+        type: "encapsulation"
+        subtype: "invariant_surface"
+        description: "MissingParameter(message=None) が内部で \"\" に置換される契約"
+        priority: "medium"
+      - id: "EN-07-03"
+        type: "encapsulation"
+        subtype: "leaky_accessor"
+        description: "self.ctx を介して外部が Context を変更可能（public field）"
+        priority: "low"
+        source_ref: "ENR-07-01"
+
+  # ===========================================================================
+  # TGT-08: make_pass_decorator (decorators.py / デコレータパターン)
+  # ===========================================================================
+  - id: "TGT-08"
+    file: "src/click/decorators.py"
+    function_signature: "make_pass_decorator(object_type: type[T], ensure: bool = False)"
+    class_name: ""
+    responsibility: "指定した型のオブジェクトをContextから探し、デコレート対象関数の第1引数として渡すデコレータを生成する"
+    code_lines: 47
+
+    branch_conditions:
+      - id: "BC-08-01"
+        line_hint: "if ensure"
+        condition: "ensure フラグが True"
+        true_action: "ctx.ensure_object (なければ生成)"
+        false_action: "ctx.find_object (なければ None)"
+      - id: "BC-08-02"
+        line_hint: "if obj is None"
+        condition: "対象型のオブジェクトが見つからない"
+        true_action: "RuntimeError を投げる"
+        false_action: "ctx.invoke(f, obj, ...)"
+
+    dependencies:
+      calls: ["get_current_context", "ctx.ensure_object", "ctx.find_object", "ctx.invoke", "update_wrapper"]
+
+    code_patterns:
+      - id: "CPAT-08-01"
+        category: "design_pattern"
+        pattern_name: "Decorator Factory"
+        description: "高階関数で decorator を生成して返す"
+        source_locations: ["decorators.py:51-97"]
+      - id: "CPAT-08-02"
+        category: "language_idiom"
+        pattern_name: "functools.update_wrapper"
+        description: "デコレータ結果関数に元関数のメタデータ（名前・docstring）を転写"
+      - id: "CPAT-08-03"
+        category: "design_pattern"
+        pattern_name: "Closure で object_type をキャプチャ"
+
+    test_requirements:
+      - id: "BR-08-01"
+        type: "branch_coverage"
+        description: "ensure=True で ensure_object が呼ばれ、なければ新規生成される"
+        priority: "high"
+        source_ref: "BC-08-01 true"
+      - id: "BR-08-02"
+        type: "branch_coverage"
+        description: "ensure=False で find_object が呼ばれ、なければ None"
+        priority: "high"
+        source_ref: "BC-08-01 false"
+      - id: "BR-08-03"
+        type: "branch_coverage"
+        description: "obj が None のとき RuntimeError を投げる"
+        priority: "high"
+        source_ref: "BC-08-02 true"
+      - id: "BR-08-04"
+        type: "branch_coverage"
+        description: "obj が存在するとき ctx.invoke(f, obj, ...) が呼ばれ、戻り値が返る"
+        priority: "high"
+        source_ref: "BC-08-02 false"
+      - id: "EC-08-01"
+        type: "equivalence_class"
+        description: "object_type が class / dataclass / Protocol の各パターン"
+        priority: "medium"
+      - id: "EC-08-02"
+        type: "equivalence_class"
+        description: "ensure True/False × obj 存在/非存在 の4組合せ"
+        priority: "high"
+      - id: "ER-08-01"
+        type: "error_path"
+        description: "context 外で呼び出したとき get_current_context が RuntimeError"
+        priority: "medium"
+      - id: "ER-08-02"
+        type: "error_path"
+        description: "ensure=False かつ obj が None で RuntimeError メッセージに object_type.__name__ が含まれる"
+        priority: "medium"
+        source_ref: "BC-08-02 true"
+      - id: "DP-08-01"
+        type: "dependency_path"
+        description: "get_current_context → find_object/ensure_object → invoke の依存鎖が機能"
+        priority: "high"
+      - id: "CP-08-01"
+        type: "code_pattern"
+        subtype: "design_pattern_conformance"
+        description: "Decorator Factory パターンが正しく機能し、異なる object_type で独立した decorator を返す"
+        priority: "high"
+        pattern_name: "Decorator Factory"
+      - id: "CP-08-02"
+        type: "code_pattern"
+        subtype: "idiom_correctness"
+        description: "update_wrapper により元関数の __name__, __doc__ が new_func に転写される"
+        priority: "medium"
+        pattern_name: "functools.update_wrapper"
+      - id: "CP-08-03"
+        type: "code_pattern"
+        subtype: "idiom_correctness"
+        description: "Closure で object_type / ensure を正しくキャプチャし、複数インスタンス間で独立動作"
+        priority: "high"
+        pattern_name: "Closure capture"
+      - id: "CP-08-04"
+        type: "code_pattern"
+        subtype: "framework_contract"
+        description: "Click の Context lifecycle（get_current_context の利用）の契約を守る"
+        priority: "medium"
+        pattern_name: "Click Context convention"
