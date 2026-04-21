@@ -1,0 +1,105 @@
+# =============================================================================
+# TRM Pipeline 設定 — pallets/click 実験用
+# 生成日: 2026-04-21
+# 参考: knowledge/candidate-repositories.md §7 B. 第2実証
+# =============================================================================
+
+project:
+  name: "pallets/click"
+  repository: "https://github.com/pallets/click"
+  branch: "main"
+  language: "Python"
+  test_framework: "pytest"
+
+# テスト対象の選定基準
+selection_criteria:
+  max_functions: 12                 # 型変換メソッド群を一通り拾える上限
+  prefer_pure_functions: false      # ParamType はインスタンスメソッド。純粋関数優先を外す
+  require_existing_tests: true      # tests/ の既存テストとの比較を行う
+  max_lines_per_function: 120       # click/types.py の convert は条件分岐が深いが収まる範囲
+  include_class_methods: true
+  include_inherited_methods: true
+  exclude_patterns:
+    - "tests/*"                     # 既存テストは比較対象として保持、解析対象からは除外
+    - "docs/*"
+    - "examples/*"
+    - "src/click/_winconsole.py"    # Windows固有、環境依存が大きい
+    - "src/click/shell_completion.py" # IO重めで単体テスト化が難しい
+    - "src/click/_compat.py"        # Python互換レイヤー、解析対象外
+  target_focus:                     # 解析の重点モジュール（拡張フィールド、参考情報）
+    - "src/click/types.py"          # ParamType階層: CI/SVの検証に最適
+    - "src/click/decorators.py"     # デコレータ: CPの検証対象
+    - "src/click/exceptions.py"     # 例外階層: CIの補足検証
+
+# TRM生成の設定
+trm:
+  types:
+    - BR    # 分岐網羅
+    - EC    # 同値クラス
+    - BV    # 境界値
+    - ER    # エラーパス
+    - DP    # 依存切替
+    - CI    # クラス継承 ← ParamType階層で重要
+    - SV    # 状態変数 ← ParamType.envvar_list_splitter 等の状態持ち
+    - CP    # コードパターン ← デコレータ・context manager
+  include_audit: true
+  output_format: "yaml"
+
+# OOP解析の設定
+oop_analysis:
+  enabled: true
+
+  class_inheritance:
+    max_hierarchy_depth: 5
+    analyze_virtual_dispatch: true
+    analyze_interfaces: true
+    check_liskov: true
+    language_specific:
+      python:
+        track_mro: true             # ParamType のMROは重要
+        track_abc: true             # ParamType の抽象性
+        track_mixins: true
+
+  state_variables:
+    track_instance_fields: true
+    track_class_fields: true
+    track_state_transitions: true
+    track_invariants: true
+    max_mutation_depth: 3
+    language_specific:
+      python:
+        track_init_fields: true
+        track_property_decorators: true
+        track_slots: true
+
+  code_patterns:
+    detect_design_patterns: true
+    detect_language_idioms: true
+    detect_framework_conventions: true
+    detect_error_patterns: true
+    detect_concurrency: false       # click は並行処理軽めなので省略
+    detect_resource_management: true
+    language_specific:
+      python:
+        patterns:
+          - "context_manager"       # with文: click.Context が該当
+          - "decorator"             # @click.command, @click.option 等
+          - "generator"             # オプション解析で利用
+          - "descriptor"            # 利用は少ないが検出試行
+        frameworks:
+          - "click"                 # click自体がフレームワークだが、内部利用パターンを検出
+
+# テスト生成の設定
+test_generation:
+  framework_specific:
+    pytest:
+      test_prefix: "test_"
+      use_parametrize: true
+      use_fixtures: true
+
+# 出力ディレクトリ（experiments/click/ 配下に配置）
+output:
+  analysis: "experiments/click/analysis"
+  trm: "experiments/click/test-requirements"
+  tests: "experiments/click/generated-tests"
+  reports: "experiments/click/reports"
