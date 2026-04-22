@@ -1,6 +1,12 @@
-# create_survey_form.gs — 利用ガイド
+# create_survey_form.gs — 利用ガイド (v2: フル画像版)
 
 `scripts/create_survey_form.gs` は、非エンジニア向けTRM可読性アンケートを Google Forms として自動生成する Google Apps Script です。
+
+**v2 更新点**:
+- 画像5枚を埋め込み可能にした（`SURVEY_IMAGES` オブジェクトで一元管理）
+- 新セクション「題材C: 評価ダッシュボードの理解」追加（Q26-Q29）
+- 補足資料として可読率比較グラフを埋込
+- 既存 Q22-25 は Q30-33 に繰り下げ、**最終 33問 / 約 18分** 構成
 
 ## 使い方
 
@@ -11,18 +17,33 @@
 3. 左ペインの `コード.gs` を削除し、代わりに `scripts/create_survey_form.gs` の内容を貼り付け
 4. プロジェクト名を任意で設定（例: "TRM可読性アンケート生成"）
 
-### 2. 画像の埋め込み（任意、パターン3用）
+### 2. 画像5枚の Googleドライブ登録（フル版必須）
 
-パターン3（階層＋図解）で盤面ケースの図を表示する場合:
+`report/survey-images/` 配下の5枚をアップロードして `SURVEY_IMAGES` に ID を設定:
 
-1. 盤面図を画像として用意（PNG/JPEG）
-2. Googleドライブにアップロードし、共有設定を「リンクを知っている全員」に
-3. 共有URLから ID を抽出（例: `https://drive.google.com/file/d/XXXXXX/view` → ID は `XXXXXX`）
-4. スクリプト冒頭の `PATTERN_3_IMAGE_URL` を以下のように設定:
+| 画像ファイル | 設定キー | 使用箇所 |
+|---|---|---|
+| 01-reversi-code.png | `reversi_code` | 題材A 導入（Q7前） |
+| 02-reversi-diorama.png | `reversi_diorama` | 題材A パターン3（Q13前） |
+| 03-sakura-diorama.png | `sakura_diorama` | 題材B（Q19前） |
+| 04-click-dashboard.png | `click_dashboard` | 題材C（Q26前） |
+| 05-readability-comparison.png | `readability_comparison` | Q29後の補足資料 |
+
+**手順**:
+1. 各 PNG を Googleドライブにアップロード
+2. 各ファイルで「共有」→「リンクを知っている全員」に設定
+3. 共有URL（`https://drive.google.com/file/d/XXXXXX/view`）から `XXXXXX` の ID を抽出
+4. スクリプト冒頭の `SURVEY_IMAGES` に各 ID を設定:
    ```javascript
-   const PATTERN_3_IMAGE_URL = "https://drive.google.com/uc?id=XXXXXX";
+   const SURVEY_IMAGES = {
+     reversi_code:           "XXXXXXXX",
+     reversi_diorama:        "YYYYYYYY",
+     sakura_diorama:         "ZZZZZZZZ",
+     click_dashboard:        "AAAAAAAA",
+     readability_comparison: "BBBBBBBB",
+   };
    ```
-5. 未設定の場合、画像なしで Form が作成されます（手動で後から挿入可）
+5. 未設定の画像は挿入がスキップされる（Form は生成される）
 
 ### 3. 実行
 
@@ -48,18 +69,22 @@
 
 質問文を変更したい場合は、対応する `addSection_X_*` 関数内を編集してください。
 
-## Form構造（自動生成される内容）
+## Form構造（自動生成される内容・v2 フル版）
 
 ```
-[0] 同意                  (1問)
-[1] 属性質問              (5問: 職種/経験年数/コード頻度/単体テスト認知/立場)
-[2] 前提知識確認          (1問)
-[3] 題材A: リバーシ       (12問: コード理解 → 3パターン評価 → 比較 → 自由記述)
-[4] 題材B: sakura-editor  (3問: 理解度/変化/形式選好)
-[5] 総合評価              (4問: 有用性/利用意向/自由記述/連絡先)
+[0] 同意                    (1問)
+[1] 属性質問                (5問)
+[2] 前提知識確認            (1問)
+[3] 題材A: リバーシ         (12問: コード + 3パターン + 比較 + 自由記述)
+    └ 画像: reversi_code, reversi_diorama
+[4] 題材B: sakura-editor    (3問)
+    └ 画像: sakura_diorama
+[5] 題材C: ダッシュボード   (4問: NEW Q26-Q29)
+    └ 画像: click_dashboard, readability_comparison
+[6] 総合評価                (4問: Q30-Q33)
 ```
 
-計: 約25問、想定回答時間 12〜15分（`knowledge/survey-design.md` §1 の設計に準拠）
+計: **33問**、想定回答時間 15〜18分
 
 ## トラブルシュート
 

@@ -4,13 +4,45 @@
  * 使い方:
  *  1. https://script.google.com で新規プロジェクトを作成
  *  2. 本ファイルの内容をコードエディタに貼り付け
- *  3. リバーシサンプルコードを SAMPLE_REVERSI_CODE に埋め込む（既に埋め込み済み）
- *  4. パターン3で利用する画像URLを PATTERN_3_IMAGE_URL に設定（Googleドライブ共有URL等）
+ *  3. report/survey-images/ 配下の5枚のPNGをGoogleドライブにアップロード
+ *  4. 各画像の共有リンクから ID を抽出し、下記 SURVEY_IMAGES に設定
  *  5. 関数 `createSurveyForm` を実行
  *  6. ログに表示される公開URLをアンケート配布に利用
  *
- * 参考: knowledge/survey-design.md
+ * 参考: knowledge/survey-design.md, knowledge/survey-deployment-plan.md
  */
+
+// -----------------------------------------------------------------------------
+// 画像URLの管理 (Googleドライブ共有URLを設定)
+// -----------------------------------------------------------------------------
+// 各画像を Googleドライブにアップロード→共有設定「リンクを知っている全員」
+// 共有URL "https://drive.google.com/file/d/XXXXX/view" から XXXXX 部分をID
+// 下記に設定。未設定の画像は省略される（画像なしで進行）。
+
+const SURVEY_IMAGES = {
+  reversi_code:              "",  // 01-reversi-code.png のGoogleドライブID
+  reversi_diorama:           "",  // 02-reversi-diorama.png
+  sakura_diorama:            "",  // 03-sakura-diorama.png
+  click_dashboard:           "",  // 04-click-dashboard.png
+  readability_comparison:    "",  // 05-readability-comparison.png
+};
+
+function getImageUrl(key) {
+  const id = SURVEY_IMAGES[key];
+  if (!id) return "";
+  return "https://drive.google.com/uc?id=" + id;
+}
+
+function tryAddImage(form, key, title) {
+  const url = getImageUrl(key);
+  if (!url) return;
+  try {
+    const blob = UrlFetchApp.fetch(url).getBlob();
+    form.addImageItem().setImage(blob).setTitle(title);
+  } catch (e) {
+    Logger.log("Image fetch failed for " + key + ": " + e);
+  }
+}
 
 // -----------------------------------------------------------------------------
 // 題材: リバーシサンプルコード（experiments/reversi/reversi_move.py から転記）
@@ -49,8 +81,7 @@ def is_valid_move(board, x, y, me):
             return True
     return False`;
 
-// パターン3（階層＋図解）で表示する盤面図のURL。未設定でもForm生成は成立
-const PATTERN_3_IMAGE_URL = "";  // 例: "https://drive.google.com/uc?id=XXXXXXXX"
+// (旧 PATTERN_3_IMAGE_URL は SURVEY_IMAGES.reversi_diorama に移行済み)
 
 // -----------------------------------------------------------------------------
 // メイン
@@ -75,7 +106,8 @@ function createSurveyForm() {
   addSection_2_PriorKnowledge(form);
   addSection_3_Reversi(form);
   addSection_4_Sakura(form);
-  addSection_5_Overall(form);
+  addSection_5_Dashboard(form);  // 新設: 題材C click IntRange ダッシュボード解釈
+  addSection_6_Overall(form);
 
   const publicUrl = form.getPublishedUrl();
   const editUrl = form.getEditUrl();
@@ -251,28 +283,17 @@ function addSection_3_Reversi(form) {
     .setBounds(1, 5)
     .setLabels("全く伝わらない", "よく伝わる");
 
-  // A-4: パターン3（視覚化併用）
-  const p3 = form.addPageBreakItem()
-    .setTitle("題材A パターン3: 階層＋図解");
+  // A-4: パターン3（機能分類ジオラマ）
+  form.addPageBreakItem()
+    .setTitle("題材A パターン3: 機能分類ジオラマ")
+    .setHelpText(
+      "パターン2の階層化に加えて、「目的・対象 / 機能分類 / テスト観点」の" +
+      "3層構造を立体的に可視化した図です。\n" +
+      "テスト要求が どの層で どう連結するか を一枚で伝える試みです。"
+    );
 
-  let p3Help = "パターン2の階層に加えて、盤面のケースを図にしたものです。";
-  if (PATTERN_3_IMAGE_URL) {
-    p3Help += "\n\n図: " + PATTERN_3_IMAGE_URL;
-  } else {
-    p3Help += "\n\n(運用時には盤面図をここに挿入します)";
-  }
-  p3.setHelpText(p3Help);
-
-  if (PATTERN_3_IMAGE_URL) {
-    try {
-      const image = UrlFetchApp.fetch(PATTERN_3_IMAGE_URL).getBlob();
-      form.addImageItem()
-        .setImage(image)
-        .setTitle("盤面ケース図解");
-    } catch (e) {
-      Logger.log("Warning: 画像取得に失敗しました: " + e);
-    }
-  }
+  tryAddImage(form, "reversi_diorama",
+              "リバーシ is_valid_move の機能分類ジオラマ");
 
   form.addScaleItem()
     .setTitle("Q13. パターン3（階層＋図解）は、何を確認しようとしているか理解できましたか？")
@@ -334,8 +355,8 @@ function addSection_4_Sakura(form) {
     .setHelpText(
       "次に、実際のオープンソースのテキストエディタ「サクラエディタ」で、" +
       "メールアドレスかどうかを判定する処理の一部を題材にします。" +
-      "業務で使われる実コードに、これまで見ていただいた形式をそのまま適用できるか確認します。\n\n" +
-      "テスト要求（最も好評だった形式で提示）:\n\n" +
+      "業務で使われる実コードに、これまで見ていただいた機能分類ジオラマを適用した図をご覧ください。\n\n" +
+      "テスト要求の代表例:\n\n" +
       "TR-B1: 先頭がドット（.）の場合は無効と判定する\n" +
       "TR-B2: @ が見つからない場合は無効と判定する\n" +
       "TR-B3: ドメイン部にドットが1つもない場合は無効と判定する\n" +
@@ -343,6 +364,9 @@ function addSection_4_Sakura(form) {
       "TR-B5: 空文字列を渡してもクラッシュせず無効と判定する\n" +
       "TR-B6: @ だけの文字列は無効と判定する"
     );
+
+  tryAddImage(form, "sakura_diorama",
+              "sakura-editor IsMailAddress の機能分類ジオラマ");
 
   form.addScaleItem()
     .setTitle("Q19. 実コードの題材Bの内容は、どの程度理解できましたか？")
@@ -368,30 +392,89 @@ function addSection_4_Sakura(form) {
 }
 
 // -----------------------------------------------------------------------------
-// [5] 総合評価
+// [5] 題材C: 評価ダッシュボード解釈（新設）
 // -----------------------------------------------------------------------------
 
-function addSection_5_Overall(form) {
+function addSection_5_Dashboard(form) {
+  form.addPageBreakItem()
+    .setTitle("題材C: 評価ダッシュボードの理解")
+    .setHelpText(
+      "最後の題材として、Python の CLI ライブラリ pallets/click の " +
+      "数値範囲チェック機能（IntRange）の機能分類ジオラマに、" +
+      "下部3パネルの評価ダッシュボードを加えた図を提示します。\n\n" +
+      "下部パネルの意味:\n" +
+      "・左: 既存テストと本ツールが追加検出した観点の量の比較\n" +
+      "・中央: テスト要求の読みやすさ（L1+L2が「わかりやすい」割合）\n" +
+      "・右: 新機能（v3.1）で見つかった観点の件数"
+    );
+
+  tryAddImage(form, "click_dashboard",
+              "pallets/click IntRange: ジオラマ + 評価ダッシュボード");
+
+  form.addScaleItem()
+    .setTitle("Q26. ダッシュボード上部の機能分類ジオラマから、" +
+              "この関数が「数値の範囲をチェックするもの」であることは伝わりましたか？")
+    .setRequired(true)
+    .setBounds(1, 5)
+    .setLabels("全く伝わらない", "よく伝わる");
+
+  form.addScaleItem()
+    .setTitle("Q27. 左下パネル「既存テスト10件 vs TRM追加163件」から、" +
+              "「このツールが既存テストを補完している」という印象は伝わりますか？")
+    .setRequired(true)
+    .setBounds(1, 5)
+    .setLabels("全く伝わらない", "強く伝わる");
+
+  form.addParagraphTextItem()
+    .setTitle("Q28. 中央パネル「可読率 24.3%」は何を意味すると思いますか？" +
+              "（正解を問うのではなく、読み取り方の傾向を調査します）")
+    .setRequired(false);
+
+  form.addScaleItem()
+    .setTitle("Q29. 右下パネル「v3.1 追加 93件・EN高リスク3件」から、" +
+              "「新機能が実際に設計上の問題を見つけている」という印象は伝わりますか？")
+    .setRequired(true)
+    .setBounds(1, 5)
+    .setLabels("全く伝わらない", "強く伝わる");
+
+  // 補足: 可読率3対象比較
+  form.addSectionHeaderItem()
+    .setTitle("補足資料: 3対象の可読性レベル分布")
+    .setHelpText(
+      "参考までに、題材A(リバーシ)、題材B(sakura)、題材C(click) の" +
+      "3対象で、テスト要求の読みやすさがどう違うかを示した図です。"
+    );
+
+  tryAddImage(form, "readability_comparison",
+              "3対象の可読性レベル分布比較（補足資料）");
+}
+
+
+// -----------------------------------------------------------------------------
+// [6] 総合評価
+// -----------------------------------------------------------------------------
+
+function addSection_6_Overall(form) {
   form.addPageBreakItem().setTitle("最後に — 全体について");
 
   form.addScaleItem()
-    .setTitle("Q22. テスト要求を非エンジニアが読めることは、現場にとって役に立つと思いますか？")
+    .setTitle("Q30. テスト要求を非エンジニアが読めることは、現場にとって役に立つと思いますか？")
     .setRequired(true)
     .setBounds(1, 5)
     .setLabels("全く思わない", "強く思う");
 
   form.addScaleItem()
-    .setTitle("Q23. あなたの現場で使いたいと思いますか？")
+    .setTitle("Q31. あなたの現場で使いたいと思いますか？")
     .setRequired(true)
     .setBounds(1, 5)
     .setLabels("全く思わない", "ぜひ使いたい");
 
   form.addParagraphTextItem()
-    .setTitle("Q24. この仕組みに期待すること、不安なこと、改善してほしいことを自由にお書きください")
+    .setTitle("Q32. この仕組みに期待すること、不安なこと、改善してほしいことを自由にお書きください")
     .setRequired(false);
 
   form.addMultipleChoiceItem()
-    .setTitle("Q25. 後日、結果報告や続きのインタビューにご協力いただけますか？（任意）")
+    .setTitle("Q33. 後日、結果報告や続きのインタビューにご協力いただけますか？（任意）")
     .setRequired(false)
     .setChoiceValues([
       "はい（連絡可）",
@@ -399,7 +482,7 @@ function addSection_5_Overall(form) {
     ]);
 
   form.addTextItem()
-    .setTitle("Q25-補足. ご協力可の方は連絡先メールアドレスをご記入ください（任意）")
+    .setTitle("Q33-補足. ご協力可の方は連絡先メールアドレスをご記入ください（任意）")
     .setRequired(false);
 
   form.addPageBreakItem().setTitle("ご協力ありがとうございました");
