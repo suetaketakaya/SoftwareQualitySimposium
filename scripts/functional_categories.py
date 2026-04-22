@@ -62,21 +62,21 @@ FUNCTIONAL_CATEGORIES = {
     # -----------------------------------------------------------
     "is_valid_move": {
         "project": "リバーシ",
-        "purpose": "石を置けるかを判定",
+        "purpose": "指定マスに石を置けるかを判定する",
         "inputs": [
-            {"icon": "🗺️", "label": "盤面の状態"},
-            {"icon": "📍", "label": "置く座標 (x, y)"},
-            {"icon": "⚫", "label": "自分の色"},
+            {"icon": "🗺️", "label": "盤面の状態\n(8×8マス)"},
+            {"icon": "📍", "label": "置く座標\n(x, y)"},
+            {"icon": "⚫", "label": "自分の色\n(黒 or 白)"},
         ],
         "functional": [
-            {"icon": "🗺️", "label": "盤面範囲チェック"},
-            {"icon": "⬜", "label": "マス状態の確認"},
-            {"icon": "🎯", "label": "挟み判定"},
+            {"icon": "🗺️", "label": "盤面範囲チェック\n(x,yが 0〜7 以内か)"},
+            {"icon": "⬜", "label": "マス状態の確認\n(空マスか、石が置かれているか)"},
+            {"icon": "🎯", "label": "挟み判定\n(8方向に相手石を挟めるか)"},
         ],
         "perspectives": [
-            {"icon": "🟢", "label": "正常系\n(置ける)"},
-            {"icon": "🔴", "label": "異常系\n(置けない)"},
-            {"icon": "🟡", "label": "境界値\n(角・辺)"},
+            {"icon": "🟢", "label": "正常系\n置ける位置"},
+            {"icon": "🔴", "label": "異常系\n置けない位置"},
+            {"icon": "🟡", "label": "境界値\n盤の角・辺"},
         ],
     },
 
@@ -139,22 +139,22 @@ FUNCTIONAL_CATEGORIES = {
     # -----------------------------------------------------------
     "BOOL IsMailAddress": {
         "project": "sakura-editor",
-        "purpose": "文字列がメールアドレス形式かを判定",
+        "purpose": "文字列がメールアドレス形式かを判定する",
         "inputs": [
             {"icon": "📝", "label": "テキスト文字列"},
-            {"icon": "📍", "label": "検索開始位置"},
-            {"icon": "📏", "label": "長さ出力先"},
+            {"icon": "📍", "label": "検索開始位置\n(offset)"},
+            {"icon": "📏", "label": "長さ出力先\n(NULL可)"},
         ],
         "functional": [
-            {"icon": "📋", "label": "メール形式妥当性"},
-            {"icon": "🔍", "label": "位置指定での抽出"},
-            {"icon": "🛡️", "label": "安全性確保"},
+            {"icon": "📋", "label": "メール形式の検証\n(先頭文字・@記号・ドット)"},
+            {"icon": "🔍", "label": "位置指定での抽出\n(offset以降を解析)"},
+            {"icon": "🛡️", "label": "クラッシュ防止\n(空文字・NULLポインタ許容)"},
         ],
         "perspectives": [
-            {"icon": "🟢", "label": "正常系\n判定"},
-            {"icon": "🔴", "label": "異常系\n判定"},
-            {"icon": "🟡", "label": "境界値\n処理"},
-            {"icon": "⚠️", "label": "エラー\n処理"},
+            {"icon": "🟢", "label": "正常系\n有効メール"},
+            {"icon": "🔴", "label": "異常系\n不正形式"},
+            {"icon": "🟡", "label": "境界値\n最短長・コード境界"},
+            {"icon": "⚠️", "label": "エラー処理\n空文字・NULL"},
         ],
     },
 
@@ -285,47 +285,47 @@ FUNCTIONAL_CATEGORIES = {
     # -----------------------------------------------------------
     "IntRange": {
         "project": "pallets/click",
-        "purpose": "CLI入力された数値を範囲制約で検証",
+        "purpose": "CLI入力された数値を範囲制約で検証する",
         "inputs": [
-            {"icon": "📝", "label": "入力値"},
-            {"icon": "⚙️", "label": "下限値"},
-            {"icon": "⚙️", "label": "上限値"},
-            {"icon": "🚩", "label": "境界含む\n(open)"},
-            {"icon": "🔧", "label": "丸めモード\n(clamp)"},
+            {"icon": "📝", "label": "入力値\n(数値 or 文字列)"},
+            {"icon": "⚙️", "label": "下限値 min"},
+            {"icon": "⚙️", "label": "上限値 max"},
+            {"icon": "🚩", "label": "境界を含むか\n(open フラグ)"},
+            {"icon": "🔧", "label": "範囲外を丸めるか\n(clamp フラグ)"},
         ],
         "functional": [
-            {"icon": "🔢", "label": "数値変換"},
-            {"icon": "📐", "label": "範囲妥当性"},
-            {"icon": "🎛️", "label": "境界モード"},
-            {"icon": "🔧", "label": "範囲外処理"},
+            {"icon": "🔢", "label": "数値変換\n(文字列→整数)"},
+            {"icon": "📐", "label": "範囲内判定\n(min ≤ 値 ≤ max)"},
+            {"icon": "🎛️", "label": "境界モード選択\n(< か ≤ かを切替)"},
+            {"icon": "🔧", "label": "範囲外の扱い\n(エラー or 境界値に丸め)"},
         ],
         "perspectives": [
-            {"icon": "🟢", "label": "正常系\n(受理)"},
-            {"icon": "🔴", "label": "異常系\n(拒否)"},
-            {"icon": "🟡", "label": "境界値"},
-            {"icon": "⚠️", "label": "エラー\n処理"},
-            {"icon": "⚙️", "label": "設定\n組合せ"},
+            {"icon": "🟢", "label": "正常系\n範囲内で受理"},
+            {"icon": "🔴", "label": "異常系\n範囲外を拒否"},
+            {"icon": "🟡", "label": "境界値\n境界上/外の扱い"},
+            {"icon": "⚠️", "label": "エラー処理\n変換不可・無効値"},
+            {"icon": "⚙️", "label": "設定組合せ\nopen×clamp の4通り"},
         ],
     },
 
     "Choice": {
         "project": "pallets/click",
-        "purpose": "候補値の集合に対する入力検証",
+        "purpose": "候補値の集合に対する入力を検証する",
         "inputs": [
             {"icon": "📝", "label": "入力文字列"},
-            {"icon": "📋", "label": "選択肢リスト"},
-            {"icon": "🚩", "label": "大小文字区別"},
+            {"icon": "📋", "label": "選択肢リスト\n(choices)"},
+            {"icon": "🚩", "label": "大小文字区別\n(case_sensitive)"},
         ],
         "functional": [
-            {"icon": "🔄", "label": "値の正規化"},
-            {"icon": "🔍", "label": "候補との照合"},
-            {"icon": "📢", "label": "メッセージ生成"},
+            {"icon": "🔄", "label": "値の正規化\n(大小変換・関数適用)"},
+            {"icon": "🔍", "label": "候補との照合\n(選択肢に一致するか)"},
+            {"icon": "📢", "label": "エラーメッセージ生成\n(候補外のとき)"},
         ],
         "perspectives": [
-            {"icon": "🟢", "label": "正常系\n(一致)"},
-            {"icon": "🔴", "label": "異常系\n(候補外)"},
-            {"icon": "⚠️", "label": "エラー\n処理"},
-            {"icon": "⚙️", "label": "設定\n組合せ"},
+            {"icon": "🟢", "label": "正常系\n候補と一致"},
+            {"icon": "🔴", "label": "異常系\n候補外の入力"},
+            {"icon": "⚠️", "label": "エラー処理\n候補外の明示"},
+            {"icon": "⚙️", "label": "設定組合せ\n大小区別の有無"},
         ],
     },
 
@@ -444,20 +444,31 @@ FUNCTIONAL_CATEGORIES = {
 
 EXECUTION_RESULTS = {
     "sakura-editor/sakura": {
+        # 実行結果 (§6.1)
         "total": 248,
         "pass": 239,
         "fail": 0,
         "skip": 9,
-        "initial_pass_rate": 91.7,  # 初回PASS率
-        "final_pass_rate": 100.0,   # 修正後PASS率
-        "readability_rate": 65.7,   # 可読率(L1+L2)
+        "initial_pass_rate": 91.7,
+        "final_pass_rate": 100.0,
+        # 可読率 (§6.5)
+        "readability_rate": 65.7,
+        "readability_l1_pct": 38.4,
+        "readability_l2_pct": 27.3,
+        "readability_l3_pct": 34.3,
+        # GAP (§6.3) — sakuraは既存テスト比較未実施（本稿の新規論点はclick）
+        "existing_test_covered": None,
+        "trm_added_by_method": None,
+        "gap_rate": None,
+        # v3.1 OOP拡張効果 (§6.7)
+        "v30_count": 99,         # 従来5種別
+        "v31_added": 0,           # sakura本体は手続き型のためEN 0
+        "v31_added_rate": 0.0,
+        "en_risk_high": 0,
+        "en_risk_medium": 0,
+        "en_risk_low": 0,
         "status": "実行完了",
-        "note": "初回 91.7% → 修正後 100% PASS",
-        "suites": [
-            ("Format",     103, 4, 107),
-            ("CWordParse", 87,  1, 88),
-            ("Convert",    49,  4, 53),
-        ],
+        "note": "初回91.7% → 修正後100% PASS",
     },
     "reversi-sample": {
         "total": 9,
@@ -467,23 +478,44 @@ EXECUTION_RESULTS = {
         "initial_pass_rate": 100.0,
         "final_pass_rate": 100.0,
         "readability_rate": 97.8,
+        "readability_l1_pct": 58.7,
+        "readability_l2_pct": 39.1,
+        "readability_l3_pct": 2.2,
+        # reversiは手書きTRMとの比較あり
+        "existing_test_covered": 9,  # 手書き9要求
+        "trm_added_by_method": 36,   # パイプライン45 - 手書き9
+        "gap_rate": 80.0,
+        "v30_count": 45,
+        "v31_added": 0,
+        "v31_added_rate": 0.0,
+        "en_risk_high": 0,
+        "en_risk_medium": 0,
+        "en_risk_low": 0,
         "status": "実行完了",
-        "note": "全件 PASS、survey 題材として完成",
-        "suites": [
-            ("reversi_move", 9, 0, 9),
-        ],
+        "note": "手書き9要求を100%包含、36件を追加検出",
     },
     "pallets/click": {
         "total": None,
         "pass": None,
         "fail": None,
         "skip": None,
-        "initial_pass_rate": None,
-        "final_pass_rate": None,
-        "readability_rate": 24.3,  # 自動分類のみ
+        "readability_rate": 24.3,
+        "readability_l1_pct": 7.5,
+        "readability_l2_pct": 16.8,
+        "readability_l3_pct": 75.7,
+        # click GAP (§6.3)
+        "existing_test_covered": 10,
+        "trm_added_by_method": 163,
+        "gap_rate": 86.7,
+        # v3.1 OOP拡張 (§6.7)
+        "v30_count": 80,          # 従来5種別
+        "v31_added": 93,          # CI+SV+CP+EN
+        "v31_added_rate": 53.8,
+        "en_risk_high": 3,
+        "en_risk_medium": 4,
+        "en_risk_low": 2,
         "status": "未実行",
-        "note": "TRM (173要求) 生成済、テスト実装は次段階",
-        "suites": [],
+        "note": "TRM 173要求 / EN 21件 / 既存テストGAP 86.7%",
     },
 }
 

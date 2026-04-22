@@ -719,185 +719,250 @@ def draw_diorama(ax, target: dict, project_name: str):
 # Dashboard panels (ジオラマ下部3パネル)
 # ---------------------------------------------------------------------------
 
-def draw_priority_donut(ax, target: dict):
-    """評価の傾き: 要求の優先度分布をドーナツで表示"""
-    reqs = target.get("test_requirements", [])
-    if not reqs:
-        ax.text(0.5, 0.5, "要求なし", ha="center", va="center",
+def draw_gap_comparison(ax, target: dict, project_name: str):
+    """既存テスト補完効果: 既存カバー vs TRMで追加 の対比バー (§6.3 GAP率対応)"""
+    results = get_execution_results(project_name)
+    existing = results.get("existing_test_covered")
+    added = results.get("trm_added_by_method")
+    gap_rate = results.get("gap_rate")
+
+    ax.set_title("① 既存テスト補完効果 (§6.3)\n本手法が追加検出した観点",
+                 fontsize=11, weight="bold", pad=8)
+
+    if existing is None or added is None:
+        ax.text(0.5, 0.55, "既存テスト比較なし",
+                ha="center", va="center", fontsize=11,
+                transform=ax.transAxes)
+        ax.text(0.5, 0.40,
+                "(sakura既存実証では既存テストが整備されていたため\n"
+                "本分析は click を第2実証として実施)",
+                ha="center", va="center", fontsize=8, color="#666",
                 transform=ax.transAxes)
         ax.set_axis_off()
         return
 
-    counts = Counter(req.get("priority", "medium") for req in reqs)
-    order = ["high", "medium", "low"]
-    values = [counts.get(p, 0) for p in order]
-    colors = ["#d32f2f", "#f9a825", "#7cb342"]
-    labels = [f"{p}\n{v}件" for p, v in zip(order, values) if v > 0]
-    vals = [v for v in values if v > 0]
-    cols = [c for c, v in zip(colors, values) if v > 0]
+    # 対比バー
+    ax.barh([1], [existing], color="#78909c", edgecolor="white",
+            linewidth=2, height=0.55,
+            label=f"既存テスト: {existing}件")
+    ax.barh([0], [added], color="#43a047", edgecolor="white",
+            linewidth=2, height=0.55,
+            label=f"TRMで追加: {added}件")
 
-    if not vals:
-        ax.text(0.5, 0.5, "優先度情報なし", ha="center", va="center",
-                transform=ax.transAxes)
-        ax.set_axis_off()
-        return
+    ax.text(existing / 2 if existing > 0 else 0, 1,
+            f"既存 {existing}件",
+            ha="center", va="center", fontsize=10, color="white", weight="bold")
+    ax.text(added / 2, 0, f"TRM追加 {added}件",
+            ha="center", va="center", fontsize=11, color="white", weight="bold")
 
-    wedges, texts = ax.pie(
-        vals, colors=cols, labels=labels,
-        startangle=90, counterclock=False,
-        wedgeprops=dict(width=0.35, edgecolor="white", linewidth=2),
-        textprops=dict(fontsize=10, weight="bold"),
-    )
-    total = sum(values)
-    high_rate = values[0] / total * 100 if total else 0
-    ax.text(0, 0, f"計{total}件\nhigh比率\n{high_rate:.0f}%",
-            ha="center", va="center", fontsize=10, weight="bold")
-    ax.set_title("① 評価の傾き\n(優先度分布)", fontsize=12, weight="bold", pad=8)
-
-
-def draw_volume_bars(ax, target: dict):
-    """テストボリューム: 要求を種別別に横積みで表示"""
-    reqs = target.get("test_requirements", [])
-    if not reqs:
-        ax.text(0.5, 0.5, "要求なし", ha="center", va="center",
-                transform=ax.transAxes)
-        ax.set_axis_off()
-        return
-
-    by_type_priority = defaultdict(lambda: Counter())
-    for req in reqs:
-        t = req_type(req)
-        p = req.get("priority", "medium")
-        by_type_priority[t][p] += 1
-
-    types = sorted(by_type_priority.keys(),
-                   key=lambda x: -sum(by_type_priority[x].values()))
-    type_labels = [TYPE_LABEL_JA.get(t, t) for t in types]
-    priorities = ["high", "medium", "low"]
-    priority_colors = {"high": "#d32f2f", "medium": "#f9a825", "low": "#7cb342"}
-
-    y = np.arange(len(types))
-    left = np.zeros(len(types))
-    for p in priorities:
-        vals = [by_type_priority[t].get(p, 0) for t in types]
-        ax.barh(y, vals, left=left, label=f"{p}",
-                color=priority_colors[p], edgecolor="white", linewidth=0.8,
-                height=0.7)
-        for i, (v, l_start) in enumerate(zip(vals, left)):
-            if v > 0:
-                ax.text(l_start + v/2, i, str(v), ha="center", va="center",
-                        fontsize=8, color="white", weight="bold")
-        left += np.array(vals)
-
-    # 総数を右端に
-    totals = [sum(by_type_priority[t].values()) for t in types]
-    max_total = max(totals) if totals else 1
-    for i, total in enumerate(totals):
-        ax.text(total + max_total * 0.05, i, f"計{total}", va="center",
-                fontsize=8, weight="bold")
-
-    ax.set_yticks(y)
-    ax.set_yticklabels(type_labels, fontsize=8)
-    ax.set_xlabel("要求件数", fontsize=9)
-    ax.set_title(f"② テストボリューム\n(計{sum(totals)}件・種別×優先度)",
-                 fontsize=12, weight="bold", pad=8)
-    ax.legend(loc="lower right", fontsize=7, framealpha=0.9)
+    max_v = max(existing, added, 1)
+    ax.set_xlim(0, max_v * 1.12)
+    ax.set_ylim(-0.5, 1.5)
+    ax.set_yticks([1, 0])
+    ax.set_yticklabels(["既存", "TRM"], fontsize=10, weight="bold")
+    ax.set_xlabel("観点数", fontsize=9)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     ax.grid(axis="x", alpha=0.3)
-    ax.invert_yaxis()
-    ax.set_xlim(0, max_total * 1.25)
+
+    if gap_rate is not None:
+        ax.text(0.5, -0.25, f"GAP率: {gap_rate:.1f}%  (本手法が補う観点の割合)",
+                ha="center", va="center", fontsize=10, weight="bold",
+                color="#1b5e20", transform=ax.transAxes)
 
 
-def draw_execution_status(ax, project_name: str):
-    """実行結果: PASS/FAIL/SKIP の状況"""
+def draw_readability_distribution(ax, target: dict, project_name: str):
+    """非エンジニア可読性: L1/L2/L3 分布と可読率 (§6.5 対応)"""
     results = get_execution_results(project_name)
-    total = results.get("total")
+    l1_pct = results.get("readability_l1_pct") or 0
+    l2_pct = results.get("readability_l2_pct") or 0
+    l3_pct = results.get("readability_l3_pct") or 0
+    readable = results.get("readability_rate") or (l1_pct + l2_pct)
 
-    if total is None:
-        ax.text(0.5, 0.7, "⏸", ha="center", va="center", fontsize=60,
-                color="#9e9e9e", transform=ax.transAxes)
-        ax.text(0.5, 0.35, results.get("status", "未実行"),
-                ha="center", va="center", fontsize=14, weight="bold",
-                color="#555", transform=ax.transAxes)
-        ax.text(0.5, 0.22, results.get("note", ""),
-                ha="center", va="center", fontsize=9,
-                color="#666", transform=ax.transAxes, wrap=True)
-        ax.text(0.5, 0.08, "TRM から次段階でテスト生成・実行予定",
-                ha="center", va="center", fontsize=8, style="italic",
-                color="#888", transform=ax.transAxes)
+    ax.set_title("② 非エンジニア可読性 (§6.5)\nTRM description の3レベル分類",
+                 fontsize=11, weight="bold", pad=8)
+
+    if l1_pct + l2_pct + l3_pct == 0:
+        ax.text(0.5, 0.5, "可読率情報なし",
+                ha="center", va="center", transform=ax.transAxes)
         ax.set_axis_off()
-        ax.set_title("③ 実行結果\n(PASS/FAIL/SKIP)",
-                     fontsize=12, weight="bold", pad=8)
         return
 
-    passed = results.get("pass", 0)
-    failed = results.get("fail", 0)
-    skipped = results.get("skip", 0)
-    final_rate = results.get("final_pass_rate", 0)
-    initial_rate = results.get("initial_pass_rate")
+    # 1本の横積みバー
+    ax.barh([0], [l1_pct], color="#4caf50", edgecolor="white", linewidth=1.5,
+            label=f"L1 {l1_pct:.1f}%")
+    ax.barh([0], [l2_pct], left=[l1_pct], color="#fbc02d",
+            edgecolor="white", linewidth=1.5, label=f"L2 {l2_pct:.1f}%")
+    ax.barh([0], [l3_pct], left=[l1_pct + l2_pct], color="#e53935",
+            edgecolor="white", linewidth=1.5, label=f"L3 {l3_pct:.1f}%")
 
-    # 横積みバー（1本）
-    ax.barh([0], [passed], color="#4caf50", edgecolor="white", linewidth=1.5,
-            label=f"PASS {passed}")
-    ax.barh([0], [failed], left=[passed], color="#f44336", edgecolor="white",
-            linewidth=1.5, label=f"FAIL {failed}")
-    ax.barh([0], [skipped], left=[passed + failed], color="#bdbdbd",
-            edgecolor="white", linewidth=1.5, label=f"SKIP {skipped}")
+    if l1_pct > 5:
+        ax.text(l1_pct / 2, 0, f"L1\n{l1_pct:.0f}%",
+                ha="center", va="center", color="white",
+                fontsize=9, weight="bold")
+    if l2_pct > 5:
+        ax.text(l1_pct + l2_pct / 2, 0, f"L2\n{l2_pct:.0f}%",
+                ha="center", va="center", color="white",
+                fontsize=9, weight="bold")
+    if l3_pct > 5:
+        ax.text(l1_pct + l2_pct + l3_pct / 2, 0, f"L3\n{l3_pct:.0f}%",
+                ha="center", va="center", color="white",
+                fontsize=9, weight="bold")
 
-    # 中央にラベル
-    if passed > 0:
-        ax.text(passed / 2, 0, f"✅ {passed}", ha="center", va="center",
-                color="white", fontsize=11, weight="bold")
-    if failed > 0:
-        ax.text(passed + failed / 2, 0, f"❌ {failed}", ha="center", va="center",
-                color="white", fontsize=10, weight="bold")
-    if skipped > 0:
-        ax.text(passed + failed + skipped / 2, 0, f"⏸ {skipped}",
-                ha="center", va="center", color="white", fontsize=10,
-                weight="bold")
-
-    ax.set_xlim(0, total * 1.05)
+    ax.set_xlim(0, 100)
+    ax.set_ylim(-0.5, 0.5)
     ax.set_yticks([])
-    ax.set_xlabel(f"テストケース数 (計 {total})", fontsize=9)
+    ax.set_xticks([0, 25, 50, 75, 100])
+    ax.set_xticklabels(["0%", "25%", "50%", "75%", "100%"], fontsize=8)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
     ax.spines["left"].set_visible(False)
 
-    # 下部にPASS率サマリ
-    status_lines = []
-    if initial_rate is not None and initial_rate != final_rate:
-        status_lines.append(
-            f"初回 PASS: {initial_rate:.1f}% → 修正後: {final_rate:.1f}%")
+    # 可読率サマリ
+    ax.text(0.5, -0.55,
+            f"可読率 (L1+L2): {readable:.1f}%",
+            ha="center", va="center", fontsize=13, weight="bold",
+            color="#1b5e20", transform=ax.transAxes)
+    ax.text(0.5, -0.95,
+            "L1=コード知識不要 / L2=ドメイン用語 / L3=実装用語必要",
+            ha="center", va="center", fontsize=8, color="#666",
+            transform=ax.transAxes, style="italic")
+
+
+def draw_v31_oop_effect(ax, target: dict, project_name: str):
+    """v3.1 OOP拡張効果: 従来5種別 vs v3.1拡張 + EN検出リスク (§6.7 対応)"""
+    results = get_execution_results(project_name)
+    v30 = results.get("v30_count") or 0
+    v31_added = results.get("v31_added") or 0
+    v31_rate = results.get("v31_added_rate") or 0.0
+    high = results.get("en_risk_high") or 0
+    medium = results.get("en_risk_medium") or 0
+    low = results.get("en_risk_low") or 0
+
+    ax.set_title("③ v3.1 OOP拡張効果 (§6.7)\n新種別EN等が検出した構造観点",
+                 fontsize=11, weight="bold", pad=8)
+
+    if v30 == 0:
+        ax.text(0.5, 0.5, "拡張効果情報なし",
+                ha="center", va="center", transform=ax.transAxes)
+        ax.set_axis_off()
+        return
+
+    # 上段: 従来5種別 vs v3.1拡張 の積み上げ
+    ax.barh([1], [v30], color="#78909c", edgecolor="white", linewidth=2,
+            height=0.45, label=f"v3.0 従来5種別")
+    if v31_added > 0:
+        ax.barh([1], [v31_added], left=[v30], color="#ff6f00",
+                edgecolor="white", linewidth=2, height=0.45,
+                label=f"v3.1 追加 (CI/SV/CP/EN)")
+
+    ax.text(v30 / 2, 1, f"従来 {v30}件",
+            ha="center", va="center", fontsize=10, color="white",
+            weight="bold")
+    if v31_added > 0:
+        ax.text(v30 + v31_added / 2, 1, f"+{v31_added}",
+                ha="center", va="center", fontsize=10, color="white",
+                weight="bold")
+
+    # 下段: EN検出リスク (high/medium/low)
+    total_risks = high + medium + low
+    if total_risks > 0:
+        ax.barh([0], [high], color="#d32f2f", edgecolor="white",
+                linewidth=1.5, height=0.45)
+        ax.barh([0], [medium], left=[high], color="#f9a825",
+                edgecolor="white", linewidth=1.5, height=0.45)
+        ax.barh([0], [low], left=[high + medium], color="#7cb342",
+                edgecolor="white", linewidth=1.5, height=0.45)
+        if high > 0:
+            ax.text(high / 2, 0, f"H {high}",
+                    ha="center", va="center", fontsize=9,
+                    color="white", weight="bold")
+        if medium > 0:
+            ax.text(high + medium / 2, 0, f"M {medium}",
+                    ha="center", va="center", fontsize=9,
+                    color="white", weight="bold")
+        if low > 0:
+            ax.text(high + medium + low / 2, 0, f"L {low}",
+                    ha="center", va="center", fontsize=9,
+                    color="white", weight="bold")
     else:
-        status_lines.append(f"PASS率: {final_rate:.1f}%")
+        ax.text(0.02, 0, "EN検出リスク: 0件 (手続き型・関数型)",
+                va="center", fontsize=9, color="#666", style="italic")
 
-    readability = results.get("readability_rate")
-    if readability is not None:
-        status_lines.append(f"可読率: {readability:.1f}% (L1+L2)")
+    ax.set_ylim(-0.5, 1.5)
+    max_v = max(v30 + v31_added, total_risks, 10) * 1.15
+    ax.set_xlim(0, max_v)
+    ax.set_yticks([1, 0])
+    ax.set_yticklabels(["総要求", "ENリスク"], fontsize=9, weight="bold")
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.grid(axis="x", alpha=0.3)
 
-    status_text = " / ".join(status_lines)
-    ax.text(0.5, -0.6, status_text, ha="center", va="center",
-            fontsize=10, weight="bold", color="#333",
-            transform=ax.transAxes)
-    ax.text(0.5, -0.95, results.get("note", ""), ha="center", va="center",
-            fontsize=8, color="#666", transform=ax.transAxes, style="italic")
-
-    ax.set_title(f"③ 実行結果\n({results.get('status', '')})",
-                 fontsize=12, weight="bold", pad=8)
+    # サマリ
+    ax.text(0.5, -0.25,
+            f"v3.1 追加率: +{v31_rate:.1f}%"
+            + (f"  EN高リスク: {high}件" if total_risks > 0 else ""),
+            ha="center", va="center", fontsize=10, weight="bold",
+            color="#e65100", transform=ax.transAxes)
 
 
 # ---------------------------------------------------------------------------
 # Page生成
 # ---------------------------------------------------------------------------
 
+def _page_message(target: dict, project_name: str, page: int) -> str:
+    """各ページに掲げる「このページで示すこと」主張タイトル"""
+    name = target_name(target)
+    reqs = target.get("test_requirements", [])
+    results = get_execution_results(project_name)
+    v31_added = results.get("v31_added") or 0
+    gap = results.get("gap_rate")
+    readable = results.get("readability_rate")
+
+    if page == 1:
+        return (f"このページで示すこと: {name} の TRM 要求 {len(reqs)} 件を "
+                f"Sunburst / Sankey / Heatmap / Chord の4種で俯瞰")
+    else:
+        parts = [f"このページで示すこと: {name} の機能分類を非エンジニア向けに3層で表現し、"]
+        if gap is not None:
+            parts.append(f"GAP率 {gap:.1f}% ")
+        if readable is not None:
+            parts.append(f"/ 可読率 {readable:.1f}% ")
+        if v31_added > 0:
+            parts.append(f"/ v3.1 追加 {v31_added}件")
+        return "".join(parts)
+
+
+def _save_rasterized(pdf: PdfPages, fig, dpi: int = 180):
+    """figをPNGにラスタ化してからPDFに埋込 (日本語・絵文字フォント問題を回避)"""
+    import io
+    from PIL import Image
+    buf = io.BytesIO()
+    fig.savefig(buf, format="png", dpi=dpi, bbox_inches="tight")
+    plt.close(fig)
+    buf.seek(0)
+    img = Image.open(buf)
+
+    wrap_fig = plt.figure(figsize=(14, 10))
+    wrap_ax = wrap_fig.add_subplot(111)
+    wrap_ax.imshow(np.array(img))
+    wrap_ax.set_axis_off()
+    wrap_fig.subplots_adjust(0, 0, 1, 1)
+    pdf.savefig(wrap_fig, bbox_inches="tight")
+    plt.close(wrap_fig)
+
+
 def make_target_page(pdf: PdfPages, target: dict, project_name: str):
-    """対象ごとに2ページ生成: (1) 4種の2x2図 + (2) ジオラマフルページ"""
+    """対象ごとに2ページ生成: (1) 4種の2x2図 + (2) ジオラマ+ダッシュボード"""
     name = target_name(target)
     target_label = f"{project_name} / {name}"
 
     # ページ1: 4種の2x2
-    fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+    fig = plt.figure(figsize=(14, 10))
+    gs = fig.add_gridspec(2, 2, hspace=0.45, wspace=0.35,
+                          left=0.05, right=0.97, top=0.88, bottom=0.05)
+    axes = [[fig.add_subplot(gs[0, 0]), fig.add_subplot(gs[0, 1])],
+            [fig.add_subplot(gs[1, 0]), fig.add_subplot(gs[1, 1])]]
     draw_sunburst(axes[0][0], target, target_label)
     draw_sankey(axes[0][1], target, target_label)
     draw_heatmap(axes[1][0], target, target_label)
@@ -905,9 +970,13 @@ def make_target_page(pdf: PdfPages, target: dict, project_name: str):
 
     fig.suptitle(f"【4種の可視化レイヤ】{target_label}",
                  fontsize=15, weight="bold", y=0.99)
-    plt.tight_layout()
-    pdf.savefig(fig, bbox_inches="tight")
-    plt.close(fig)
+    # 主張タイトル帯
+    fig.text(0.5, 0.94, _page_message(target, project_name, page=1),
+             ha="center", va="center", fontsize=10, weight="bold",
+             color="white",
+             bbox=dict(boxstyle="round,pad=0.5", facecolor="#1976d2",
+                       edgecolor="none"))
+    _save_rasterized(pdf, fig)
 
     # ページ2: ジオラマ + ダッシュボード3パネル
     # 3Dジオラマ部分を先にPNGにラスタ化
@@ -937,22 +1006,27 @@ def make_target_page(pdf: PdfPages, target: dict, project_name: str):
     ax_top.imshow(np.array(img))
     ax_top.set_axis_off()
 
-    # 下部: 3ダッシュボード
-    ax_priority = fig2.add_subplot(gs[1, 0])
-    draw_priority_donut(ax_priority, target)
+    # 下部: 3ダッシュボード (論文主張駆動: §6.3 / §6.5 / §6.7)
+    ax_gap = fig2.add_subplot(gs[1, 0])
+    draw_gap_comparison(ax_gap, target, project_name)
 
-    ax_volume = fig2.add_subplot(gs[1, 1])
-    draw_volume_bars(ax_volume, target)
+    ax_readability = fig2.add_subplot(gs[1, 1])
+    draw_readability_distribution(ax_readability, target, project_name)
 
-    ax_exec = fig2.add_subplot(gs[1, 2])
-    draw_execution_status(ax_exec, project_name)
+    ax_v31 = fig2.add_subplot(gs[1, 2])
+    draw_v31_oop_effect(ax_v31, target, project_name)
 
     fig2.suptitle(
-        f"【機能分類ジオラマ + 評価ダッシュボード】{target_label}",
+        f"【機能分類ジオラマ + 論文主張ダッシュボード】{target_label}",
         fontsize=14, weight="bold", y=0.98,
     )
-    pdf.savefig(fig2, bbox_inches="tight")
-    plt.close(fig2)
+    # 主張タイトル帯
+    fig2.text(0.5, 0.945, _page_message(target, project_name, page=2),
+              ha="center", va="center", fontsize=10, weight="bold",
+              color="white",
+              bbox=dict(boxstyle="round,pad=0.5", facecolor="#ff6f00",
+                        edgecolor="none"))
+    _save_rasterized(pdf, fig2)
 
 
 def make_title_page(pdf: PdfPages, project_name: str, targets: list[dict]):
