@@ -44,7 +44,8 @@ import sys
 sys.path.insert(0, str(Path(__file__).parent))
 from functional_categories import (
     FUNCTIONAL_CATEGORIES, RISK_TYPE_JA, VARIABLE_ROLE_JA,
-    get_categories, default_categories,
+    EXECUTION_RESULTS, get_categories, default_categories,
+    get_execution_results,
 )
 
 
@@ -715,6 +716,178 @@ def draw_diorama(ax, target: dict, project_name: str):
 
 
 # ---------------------------------------------------------------------------
+# Dashboard panels (ジオラマ下部3パネル)
+# ---------------------------------------------------------------------------
+
+def draw_priority_donut(ax, target: dict):
+    """評価の傾き: 要求の優先度分布をドーナツで表示"""
+    reqs = target.get("test_requirements", [])
+    if not reqs:
+        ax.text(0.5, 0.5, "要求なし", ha="center", va="center",
+                transform=ax.transAxes)
+        ax.set_axis_off()
+        return
+
+    counts = Counter(req.get("priority", "medium") for req in reqs)
+    order = ["high", "medium", "low"]
+    values = [counts.get(p, 0) for p in order]
+    colors = ["#d32f2f", "#f9a825", "#7cb342"]
+    labels = [f"{p}\n{v}件" for p, v in zip(order, values) if v > 0]
+    vals = [v for v in values if v > 0]
+    cols = [c for c, v in zip(colors, values) if v > 0]
+
+    if not vals:
+        ax.text(0.5, 0.5, "優先度情報なし", ha="center", va="center",
+                transform=ax.transAxes)
+        ax.set_axis_off()
+        return
+
+    wedges, texts = ax.pie(
+        vals, colors=cols, labels=labels,
+        startangle=90, counterclock=False,
+        wedgeprops=dict(width=0.35, edgecolor="white", linewidth=2),
+        textprops=dict(fontsize=10, weight="bold"),
+    )
+    total = sum(values)
+    high_rate = values[0] / total * 100 if total else 0
+    ax.text(0, 0, f"計{total}件\nhigh比率\n{high_rate:.0f}%",
+            ha="center", va="center", fontsize=10, weight="bold")
+    ax.set_title("① 評価の傾き\n(優先度分布)", fontsize=12, weight="bold", pad=8)
+
+
+def draw_volume_bars(ax, target: dict):
+    """テストボリューム: 要求を種別別に横積みで表示"""
+    reqs = target.get("test_requirements", [])
+    if not reqs:
+        ax.text(0.5, 0.5, "要求なし", ha="center", va="center",
+                transform=ax.transAxes)
+        ax.set_axis_off()
+        return
+
+    by_type_priority = defaultdict(lambda: Counter())
+    for req in reqs:
+        t = req_type(req)
+        p = req.get("priority", "medium")
+        by_type_priority[t][p] += 1
+
+    types = sorted(by_type_priority.keys(),
+                   key=lambda x: -sum(by_type_priority[x].values()))
+    type_labels = [TYPE_LABEL_JA.get(t, t) for t in types]
+    priorities = ["high", "medium", "low"]
+    priority_colors = {"high": "#d32f2f", "medium": "#f9a825", "low": "#7cb342"}
+
+    y = np.arange(len(types))
+    left = np.zeros(len(types))
+    for p in priorities:
+        vals = [by_type_priority[t].get(p, 0) for t in types]
+        ax.barh(y, vals, left=left, label=f"{p}",
+                color=priority_colors[p], edgecolor="white", linewidth=0.8,
+                height=0.7)
+        for i, (v, l_start) in enumerate(zip(vals, left)):
+            if v > 0:
+                ax.text(l_start + v/2, i, str(v), ha="center", va="center",
+                        fontsize=8, color="white", weight="bold")
+        left += np.array(vals)
+
+    # 総数を右端に
+    totals = [sum(by_type_priority[t].values()) for t in types]
+    max_total = max(totals) if totals else 1
+    for i, total in enumerate(totals):
+        ax.text(total + max_total * 0.05, i, f"計{total}", va="center",
+                fontsize=8, weight="bold")
+
+    ax.set_yticks(y)
+    ax.set_yticklabels(type_labels, fontsize=8)
+    ax.set_xlabel("要求件数", fontsize=9)
+    ax.set_title(f"② テストボリューム\n(計{sum(totals)}件・種別×優先度)",
+                 fontsize=12, weight="bold", pad=8)
+    ax.legend(loc="lower right", fontsize=7, framealpha=0.9)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.grid(axis="x", alpha=0.3)
+    ax.invert_yaxis()
+    ax.set_xlim(0, max_total * 1.25)
+
+
+def draw_execution_status(ax, project_name: str):
+    """実行結果: PASS/FAIL/SKIP の状況"""
+    results = get_execution_results(project_name)
+    total = results.get("total")
+
+    if total is None:
+        ax.text(0.5, 0.7, "⏸", ha="center", va="center", fontsize=60,
+                color="#9e9e9e", transform=ax.transAxes)
+        ax.text(0.5, 0.35, results.get("status", "未実行"),
+                ha="center", va="center", fontsize=14, weight="bold",
+                color="#555", transform=ax.transAxes)
+        ax.text(0.5, 0.22, results.get("note", ""),
+                ha="center", va="center", fontsize=9,
+                color="#666", transform=ax.transAxes, wrap=True)
+        ax.text(0.5, 0.08, "TRM から次段階でテスト生成・実行予定",
+                ha="center", va="center", fontsize=8, style="italic",
+                color="#888", transform=ax.transAxes)
+        ax.set_axis_off()
+        ax.set_title("③ 実行結果\n(PASS/FAIL/SKIP)",
+                     fontsize=12, weight="bold", pad=8)
+        return
+
+    passed = results.get("pass", 0)
+    failed = results.get("fail", 0)
+    skipped = results.get("skip", 0)
+    final_rate = results.get("final_pass_rate", 0)
+    initial_rate = results.get("initial_pass_rate")
+
+    # 横積みバー（1本）
+    ax.barh([0], [passed], color="#4caf50", edgecolor="white", linewidth=1.5,
+            label=f"PASS {passed}")
+    ax.barh([0], [failed], left=[passed], color="#f44336", edgecolor="white",
+            linewidth=1.5, label=f"FAIL {failed}")
+    ax.barh([0], [skipped], left=[passed + failed], color="#bdbdbd",
+            edgecolor="white", linewidth=1.5, label=f"SKIP {skipped}")
+
+    # 中央にラベル
+    if passed > 0:
+        ax.text(passed / 2, 0, f"✅ {passed}", ha="center", va="center",
+                color="white", fontsize=11, weight="bold")
+    if failed > 0:
+        ax.text(passed + failed / 2, 0, f"❌ {failed}", ha="center", va="center",
+                color="white", fontsize=10, weight="bold")
+    if skipped > 0:
+        ax.text(passed + failed + skipped / 2, 0, f"⏸ {skipped}",
+                ha="center", va="center", color="white", fontsize=10,
+                weight="bold")
+
+    ax.set_xlim(0, total * 1.05)
+    ax.set_yticks([])
+    ax.set_xlabel(f"テストケース数 (計 {total})", fontsize=9)
+    ax.spines["top"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.spines["left"].set_visible(False)
+
+    # 下部にPASS率サマリ
+    status_lines = []
+    if initial_rate is not None and initial_rate != final_rate:
+        status_lines.append(
+            f"初回 PASS: {initial_rate:.1f}% → 修正後: {final_rate:.1f}%")
+    else:
+        status_lines.append(f"PASS率: {final_rate:.1f}%")
+
+    readability = results.get("readability_rate")
+    if readability is not None:
+        status_lines.append(f"可読率: {readability:.1f}% (L1+L2)")
+
+    status_text = " / ".join(status_lines)
+    ax.text(0.5, -0.6, status_text, ha="center", va="center",
+            fontsize=10, weight="bold", color="#333",
+            transform=ax.transAxes)
+    ax.text(0.5, -0.95, results.get("note", ""), ha="center", va="center",
+            fontsize=8, color="#666", transform=ax.transAxes, style="italic")
+
+    ax.set_title(f"③ 実行結果\n({results.get('status', '')})",
+                 fontsize=12, weight="bold", pad=8)
+
+
+# ---------------------------------------------------------------------------
 # Page生成
 # ---------------------------------------------------------------------------
 
@@ -736,30 +909,50 @@ def make_target_page(pdf: PdfPages, target: dict, project_name: str):
     pdf.savefig(fig, bbox_inches="tight")
     plt.close(fig)
 
-    # ページ2: ジオラマ（Aggで高解像度PNGに出してからPDFに埋込）
+    # ページ2: ジオラマ + ダッシュボード3パネル
+    # 3Dジオラマ部分を先にPNGにラスタ化
     import io
     from PIL import Image
-    diorama_fig = plt.figure(figsize=(14, 10))
+    diorama_fig = plt.figure(figsize=(14, 7.5))
     ax3d = diorama_fig.add_subplot(111, projection="3d")
     draw_diorama(ax3d, target, project_name)
-    diorama_fig.suptitle("【機能分類ジオラマ】非エンジニア向け構造図",
-                         fontsize=15, weight="bold", y=0.98)
     plt.tight_layout()
-    # PNGバイトとして取得
     buf = io.BytesIO()
-    diorama_fig.savefig(buf, format="png", dpi=200, bbox_inches="tight")
+    diorama_fig.savefig(buf, format="png", dpi=180, bbox_inches="tight")
     plt.close(diorama_fig)
     buf.seek(0)
     img = Image.open(buf)
 
-    # 新しい figure に PNG を image として配置
-    img_fig = plt.figure(figsize=(14, 10))
-    img_ax = img_fig.add_subplot(111)
-    img_ax.imshow(np.array(img))
-    img_ax.set_axis_off()
-    img_fig.subplots_adjust(0, 0, 1, 1)
-    pdf.savefig(img_fig, bbox_inches="tight")
-    plt.close(img_fig)
+    # 統合ページ: 上部ジオラマ画像 + 下部ダッシュボード
+    fig2 = plt.figure(figsize=(14, 11))
+    gs = fig2.add_gridspec(
+        nrows=2, ncols=3,
+        height_ratios=[2.2, 1.0],
+        hspace=0.35, wspace=0.35,
+        left=0.05, right=0.97, top=0.94, bottom=0.07,
+    )
+
+    # 上部: ジオラマ画像を全幅で
+    ax_top = fig2.add_subplot(gs[0, :])
+    ax_top.imshow(np.array(img))
+    ax_top.set_axis_off()
+
+    # 下部: 3ダッシュボード
+    ax_priority = fig2.add_subplot(gs[1, 0])
+    draw_priority_donut(ax_priority, target)
+
+    ax_volume = fig2.add_subplot(gs[1, 1])
+    draw_volume_bars(ax_volume, target)
+
+    ax_exec = fig2.add_subplot(gs[1, 2])
+    draw_execution_status(ax_exec, project_name)
+
+    fig2.suptitle(
+        f"【機能分類ジオラマ + 評価ダッシュボード】{target_label}",
+        fontsize=14, weight="bold", y=0.98,
+    )
+    pdf.savefig(fig2, bbox_inches="tight")
+    plt.close(fig2)
 
 
 def make_title_page(pdf: PdfPages, project_name: str, targets: list[dict]):

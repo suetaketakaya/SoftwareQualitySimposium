@@ -164,7 +164,8 @@ def main():
         make_summary_page(pdf)
 
     print(f"Generated: {args.output}")
-    print(f"  Pages: {1 + len(all_targets) + 1} (title + {len(all_targets)} targets + summary)")
+    print(f"  Pages: {1 + 2 * len(all_targets) + 1} "
+          f"(title + {len(all_targets)} targets × 2 + summary)")
 
 
 if __name__ == "__main__":

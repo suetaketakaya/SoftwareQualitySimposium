@@ -436,6 +436,71 @@ FUNCTIONAL_CATEGORIES = {
 }
 
 
+# ==============================================================
+# 実行結果データ（プロジェクト単位）
+# ==============================================================
+# TRM に対してテストを実行した結果。各プロジェクトの
+# evaluation-report.md / test 実行ログから転記。
+
+EXECUTION_RESULTS = {
+    "sakura-editor/sakura": {
+        "total": 248,
+        "pass": 239,
+        "fail": 0,
+        "skip": 9,
+        "initial_pass_rate": 91.7,  # 初回PASS率
+        "final_pass_rate": 100.0,   # 修正後PASS率
+        "readability_rate": 65.7,   # 可読率(L1+L2)
+        "status": "実行完了",
+        "note": "初回 91.7% → 修正後 100% PASS",
+        "suites": [
+            ("Format",     103, 4, 107),
+            ("CWordParse", 87,  1, 88),
+            ("Convert",    49,  4, 53),
+        ],
+    },
+    "reversi-sample": {
+        "total": 9,
+        "pass": 9,
+        "fail": 0,
+        "skip": 0,
+        "initial_pass_rate": 100.0,
+        "final_pass_rate": 100.0,
+        "readability_rate": 97.8,
+        "status": "実行完了",
+        "note": "全件 PASS、survey 題材として完成",
+        "suites": [
+            ("reversi_move", 9, 0, 9),
+        ],
+    },
+    "pallets/click": {
+        "total": None,
+        "pass": None,
+        "fail": None,
+        "skip": None,
+        "initial_pass_rate": None,
+        "final_pass_rate": None,
+        "readability_rate": 24.3,  # 自動分類のみ
+        "status": "未実行",
+        "note": "TRM (173要求) 生成済、テスト実装は次段階",
+        "suites": [],
+    },
+}
+
+
+def get_execution_results(project_name: str) -> dict:
+    """プロジェクト名から実行結果を取得。部分一致フォールバック付き"""
+    if project_name in EXECUTION_RESULTS:
+        return EXECUTION_RESULTS[project_name]
+    for key, val in EXECUTION_RESULTS.items():
+        if project_name in key or key in project_name:
+            return val
+    return {
+        "total": None, "pass": None, "fail": None, "skip": None,
+        "status": "情報なし", "note": "", "suites": [],
+    }
+
+
 def get_categories(target_key: str) -> dict | None:
     """対象名から機能分類データを取得。部分一致フォールバック付き"""
     if target_key in FUNCTIONAL_CATEGORIES:
