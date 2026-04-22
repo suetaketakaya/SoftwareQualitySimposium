@@ -37,6 +37,15 @@ import matplotlib.patches as mpatches
 import numpy as np
 import yaml
 from matplotlib.backends.backend_pdf import PdfPages
+from mpl_toolkits.mplot3d import Axes3D  # noqa: F401
+
+# 機能分類マップのインポート
+import sys
+sys.path.insert(0, str(Path(__file__).parent))
+from functional_categories import (
+    FUNCTIONAL_CATEGORIES, RISK_TYPE_JA, VARIABLE_ROLE_JA,
+    get_categories, default_categories,
+)
 
 
 # ---------------------------------------------------------------------------
@@ -538,13 +547,183 @@ def _draw_chord_oop(ax, svars, risks, title):
 
 
 # ---------------------------------------------------------------------------
+# 5. Diorama (機能分類3層ジオラマ) — 非エンジニア向け主役図版
+# ---------------------------------------------------------------------------
+
+LAYER_COLORS = {
+    "input":      "#e3f2fd",  # 薄青
+    "functional": "#fff9c4",  # 薄黄
+    "perspective": "#c8e6c9",  # 薄緑
+}
+LAYER_EDGE_COLORS = {
+    "input":      "#1976d2",
+    "functional": "#f9a825",
+    "perspective": "#388e3c",
+}
+
+
+def _draw_floor(ax, z, x_range, y_range, color, edge_color, alpha=0.25):
+    """等角投影の半透明フロア"""
+    x = np.linspace(x_range[0], x_range[1], 2)
+    y = np.linspace(y_range[0], y_range[1], 2)
+    xx, yy = np.meshgrid(x, y)
+    zz = np.full_like(xx, z)
+    ax.plot_surface(xx, yy, zz, color=color, alpha=alpha,
+                    edgecolor=edge_color, linewidth=1.5,
+                    shade=False, antialiased=True)
+
+
+def _place_nodes(ax, nodes, z, color, spacing=1.6, y=0.0, node_size=500,
+                 labels_list=None):
+    """フロア上にノードを配置し、位置情報を返す。テキストは別途2Dオーバーレイで描く"""
+    positions = []
+    n = len(nodes)
+    if n == 0:
+        return positions
+    total_width = (n - 1) * spacing
+    start_x = -total_width / 2
+    for i, node in enumerate(nodes):
+        x = start_x + i * spacing
+        ax.scatter([x], [y], [z], s=node_size, c=color,
+                   edgecolors="white", linewidths=2, depthshade=True)
+        positions.append((x, y, z))
+        if labels_list is not None:
+            labels_list.append({
+                "x3d": x, "y3d": y, "z3d": z + 0.2,
+                "text": f"{node['icon']}\n{node['label']}",
+                "color": color,
+            })
+    return positions
+
+
+def _connect_layers(ax, lower_positions, upper_positions, color="#666666"):
+    """下層の各ノードから上層の各ノードへ線を描く"""
+    for lx, ly, lz in lower_positions:
+        for ux, uy, uz in upper_positions:
+            ax.plot([lx, ux], [ly, uy], [lz, uz],
+                    color=color, alpha=0.3, linewidth=1.0, zorder=1)
+
+
+def draw_diorama(ax, target: dict, project_name: str):
+    """機能分類3層ジオラマ (3D等角投影)。
+
+    日本語テキストは3D空間ではなく ax.text2D で後処理的に重ね描きする
+    (matplotlib 3D backend の日本語フォント問題回避のため)。
+    """
+    name = target_name(target)
+    cats = get_categories(name)
+    if cats is None:
+        cats = default_categories(
+            name,
+            target.get("responsibility", ""),
+            len(target.get("test_requirements", [])),
+        )
+
+    # 等角投影 (isometric-like)
+    ax.view_init(elev=22, azim=-58)
+
+    # 3つのフロア描画（Z=0, 1, 2）
+    x_range = (-3.5, 3.5)
+    y_range = (-0.9, 0.9)
+
+    _draw_floor(ax, 0.0, x_range, y_range,
+                LAYER_COLORS["input"], LAYER_EDGE_COLORS["input"], alpha=0.45)
+    _draw_floor(ax, 1.5, x_range, y_range,
+                LAYER_COLORS["functional"], LAYER_EDGE_COLORS["functional"], alpha=0.45)
+    _draw_floor(ax, 3.0, x_range, y_range,
+                LAYER_COLORS["perspective"], LAYER_EDGE_COLORS["perspective"], alpha=0.45)
+
+    # 各層にノード配置 (テキストラベルは後で投影→2D描画)
+    label_data = []
+    input_nodes = _place_nodes(
+        ax, cats.get("inputs", []), 0.0,
+        LAYER_EDGE_COLORS["input"], spacing=1.4, node_size=400,
+        labels_list=label_data,
+    )
+    functional_nodes = _place_nodes(
+        ax, cats.get("functional", []), 1.5,
+        LAYER_EDGE_COLORS["functional"], spacing=1.6, node_size=500,
+        labels_list=label_data,
+    )
+    perspective_nodes = _place_nodes(
+        ax, cats.get("perspectives", []), 3.0,
+        LAYER_EDGE_COLORS["perspective"], spacing=1.5, node_size=500,
+        labels_list=label_data,
+    )
+
+    # 層間接続（下→上）
+    _connect_layers(ax, input_nodes, functional_nodes, color="#1976d2")
+    _connect_layers(ax, functional_nodes, perspective_nodes, color="#f9a825")
+
+    # 軸を非表示
+    ax.set_xlim(-4.5, 3.5)
+    ax.set_ylim(-1.3, 1.3)
+    ax.set_zlim(-0.3, 4.2)
+    ax.set_xticks([])
+    ax.set_yticks([])
+    ax.set_zticks([])
+    ax.grid(False)
+    # 軸背景を白に
+    ax.xaxis.set_pane_color((1, 1, 1, 0))
+    ax.yaxis.set_pane_color((1, 1, 1, 0))
+    ax.zaxis.set_pane_color((1, 1, 1, 0))
+
+    # --- 日本語ラベルを2Dオーバーレイで描画 ---
+    # 3D座標 → 表示座標変換
+    from mpl_toolkits.mplot3d import proj3d
+    fig = ax.figure
+
+    def project(x3d, y3d, z3d):
+        x2, y2, _ = proj3d.proj_transform(x3d, y3d, z3d, ax.get_proj())
+        # ax の data座標 → ax の figure座標
+        return ax.transData.transform((x2, y2))
+
+    # ラベル描画 (fig.text で描く)
+    for label in label_data:
+        pixel_xy = project(label["x3d"], label["y3d"], label["z3d"])
+        inv = fig.transFigure.inverted()
+        fx, fy = inv.transform(pixel_xy)
+        fig.text(fx, fy, label["text"], ha="center", va="bottom",
+                 fontsize=8, weight="bold",
+                 bbox=dict(boxstyle="round,pad=0.25",
+                           facecolor="white",
+                           edgecolor=label["color"], linewidth=1, alpha=0.9))
+
+    # 層名ラベル (2D overlay、ax左側)
+    for z, text, color in [
+        (0.15, "① 目的・対象層\n(入力・パラメータ)", "#1976d2"),
+        (1.65, "② 機能分類層\n(業務的な処理分類)", "#f9a825"),
+        (3.15, "③ テスト観点層\n(検証の切り口)", "#388e3c"),
+    ]:
+        pixel_xy = project(-4.2, 0.0, z)
+        inv = fig.transFigure.inverted()
+        fx, fy = inv.transform(pixel_xy)
+        fig.text(fx, fy, text, color=color, fontsize=10, weight="bold",
+                 ha="left", va="center")
+
+    # タイトル (2D overlay)
+    purpose = cats.get("purpose", "")
+    project = cats.get("project") or project_name
+    ax.text2D(0.5, 0.97, f"【{project}】 {name}",
+              transform=ax.transAxes, fontsize=14, weight="bold", ha="center")
+    ax.text2D(0.5, 0.93, f"目的: {purpose}",
+              transform=ax.transAxes, fontsize=11, ha="center", color="#333")
+    ax.text2D(0.5, 0.02,
+              "▼ 入力層 (何が入力か) → 機能分類層 (何を処理するか) → テスト観点層 (どう検証するか) ▼",
+              transform=ax.transAxes, fontsize=9, ha="center", color="#666",
+              style="italic")
+
+
+# ---------------------------------------------------------------------------
 # Page生成
 # ---------------------------------------------------------------------------
 
 def make_target_page(pdf: PdfPages, target: dict, project_name: str):
+    """対象ごとに2ページ生成: (1) 4種の2x2図 + (2) ジオラマフルページ"""
     name = target_name(target)
     target_label = f"{project_name} / {name}"
 
+    # ページ1: 4種の2x2
     fig, axes = plt.subplots(2, 2, figsize=(14, 10))
     draw_sunburst(axes[0][0], target, target_label)
     draw_sankey(axes[0][1], target, target_label)
@@ -556,6 +735,31 @@ def make_target_page(pdf: PdfPages, target: dict, project_name: str):
     plt.tight_layout()
     pdf.savefig(fig, bbox_inches="tight")
     plt.close(fig)
+
+    # ページ2: ジオラマ（Aggで高解像度PNGに出してからPDFに埋込）
+    import io
+    from PIL import Image
+    diorama_fig = plt.figure(figsize=(14, 10))
+    ax3d = diorama_fig.add_subplot(111, projection="3d")
+    draw_diorama(ax3d, target, project_name)
+    diorama_fig.suptitle("【機能分類ジオラマ】非エンジニア向け構造図",
+                         fontsize=15, weight="bold", y=0.98)
+    plt.tight_layout()
+    # PNGバイトとして取得
+    buf = io.BytesIO()
+    diorama_fig.savefig(buf, format="png", dpi=200, bbox_inches="tight")
+    plt.close(diorama_fig)
+    buf.seek(0)
+    img = Image.open(buf)
+
+    # 新しい figure に PNG を image として配置
+    img_fig = plt.figure(figsize=(14, 10))
+    img_ax = img_fig.add_subplot(111)
+    img_ax.imshow(np.array(img))
+    img_ax.set_axis_off()
+    img_fig.subplots_adjust(0, 0, 1, 1)
+    pdf.savefig(img_fig, bbox_inches="tight")
+    plt.close(img_fig)
 
 
 def make_title_page(pdf: PdfPages, project_name: str, targets: list[dict]):
@@ -629,7 +833,8 @@ def main():
             make_target_page(pdf, target, project_name)
 
     print(f"Generated: {args.output}")
-    print(f"  Pages: {1 + len(targets)} (title + {len(targets)} targets)")
+    print(f"  Pages: {1 + 2 * len(targets)} "
+          f"(title + {len(targets)} targets × 2 = 4種図 + ジオラマ)")
 
 
 if __name__ == "__main__":
