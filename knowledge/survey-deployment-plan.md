@@ -2,11 +2,50 @@
 
 > **目的**: `survey-design.md` で設計したアンケートを実際に回して、研究の問い (2)「非エンジニアへの伝達妥当性」に定量データを得る
 > **前提資材**:
-> - `scripts/create_survey_form.gs`（Google Apps Script）
-> - `scripts/README_create_survey_form.md`（利用ガイド）
+> - `scripts/create_survey_form.gs`（Google Apps Script、v2: フル画像版）
+> - `scripts/README_create_survey_form.md`（利用ガイド v2）
 > - `knowledge/survey-design.md`（設計仕様）
-> - `experiments/visualizations/*.md`（題材A/B の図版）
+> - `report/survey-images/` 画像5枚（PNG）
 > **想定期間**: 準備 3日 / パイロット 2日 / 本展開 2週間 / 分析 3日 = 計 3週間程度
+
+---
+
+## 0. 既存成果物（2026-04-22時点で用意済）
+
+### 本番用 Google Forms
+- **編集URL**: `https://docs.google.com/forms/d/1Fs8JoJ6JUNKvWPuVs_0BoRQaqq2G_fdjGxCd_YvzjiQ/edit`
+- **Form ID**: `1Fs8JoJ6JUNKvWPuVs_0BoRQaqq2G_fdjGxCd_YvzjiQ`
+- 研究チーム側で既に作成済
+
+### 推奨 Google Drive 構成（画像保管用）
+
+```
+(マイドライブ)/
+  TRM-Survey-Images/            ← 画像5枚を保管する新規フォルダ
+    01-reversi-code.png
+    02-reversi-diorama.png
+    03-sakura-diorama.png
+    04-click-dashboard.png
+    05-readability-comparison.png
+```
+
+### Form と画像の統合手順
+
+1. Google Drive で `TRM-Survey-Images` フォルダを新規作成
+2. `report/survey-images/` の5枚をアップロード
+3. 各ファイルを右クリック →「共有」→「リンクを知っている全員が閲覧可」
+4. 共有URLから ID を抽出（`https://drive.google.com/file/d/XXXXXX/view` の `XXXXXX`）
+5. **以下2つの方法から選択**:
+
+   **A. 既存 Form に画像を手動追加**（既存URLを維持）
+   - 上記編集URLで Form を開く
+   - 各セクションに「+」→「画像」→「ドライブから選択」で5枚挿入
+   - Q26-Q29 がまだ無ければ手動で追加（survey-design.md §3 [5] 参照）
+
+   **B. GAS で Form を再生成**（推奨・再現性高い）
+   - `scripts/create_survey_form.gs` の `SURVEY_IMAGES` に ID を設定
+   - `createSurveyForm()` を実行 → 画像込み33問の Form を新規生成
+   - 既存 Form は保管用として残し、新 Form を本番運用
 
 ---
 
