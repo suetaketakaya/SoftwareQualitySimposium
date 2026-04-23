@@ -53,54 +53,52 @@ def load_target(trm_path: Path, target_id: str | None = None,
 
 
 def make_reversi_code_image(output_path: Path):
-    code = """# リバーシ: 石を置けるか判定する処理
+    """リバーシコード画像 (コメント・docstring込みの完全版)
 
-BOARD_SIZE = 8
-DIRECTIONS = [(-1,-1),(-1,0),(-1,1),(0,-1),(0,1),(1,-1),(1,0),(1,1)]
+    実ファイル experiments/reversi/reversi_move.py の内容を
+    そのまま読み込んで、コメントと docstring を含めた形で可視化する。
+    """
+    src_path = BASE / "experiments/reversi/reversi_move.py"
+    code = src_path.read_text(encoding="utf-8")
 
-def is_on_board(x, y):
-    return 0 <= x < BOARD_SIZE and 0 <= y < BOARD_SIZE
+    # 80行弱・docstring込みをそのまま表示
+    line_count = len(code.splitlines())
 
-def is_empty(board, x, y):
-    return board[x][y] == 0
-
-def count_flippable(board, x, y, dx, dy, me):
-    opp = 2 if me == 1 else 1
-    nx, ny = x + dx, y + dy
-    count = 0
-    while is_on_board(nx, ny) and board[nx][ny] == opp:
-        count += 1
-        nx += dx
-        ny += dy
-    if count == 0 or not is_on_board(nx, ny) or board[nx][ny] != me:
-        return 0
-    return count
-
-def is_valid_move(board, x, y, me):
-    if not is_on_board(x, y):
-        return False
-    if not is_empty(board, x, y):
-        return False
-    for dx, dy in DIRECTIONS:
-        if count_flippable(board, x, y, dx, dy, me) > 0:
-            return True
-    return False
-"""
-    fig = plt.figure(figsize=(10, 11), facecolor="#1e1e1e")
+    fig = plt.figure(figsize=(12, 14), facecolor="#1e1e1e")
     ax = fig.add_subplot(111)
     ax.set_facecolor("#1e1e1e")
-    ax.text(0.5, 0.97, "【題材A】リバーシの合法手判定（Python 約40行）",
-            ha="center", va="top", fontsize=16, weight="bold",
+
+    # タイトル
+    ax.text(0.5, 0.98,
+            "【題材A】リバーシの合法手判定（Python 実ファイル全文）",
+            ha="center", va="top", fontsize=15, weight="bold",
             color="white", transform=ax.transAxes)
-    ax.text(0.5, 0.93,
-            "以下のコードを読み、何を判定する処理かを想像してください。\n"
-            "コードを読んだ経験がなくてもOKです（感じたままでお答えください）。",
-            ha="center", va="top", fontsize=11, color="#cccccc",
+
+    ax.text(0.5, 0.955,
+            f"experiments/reversi/reversi_move.py（{line_count}行・"
+            "コメント/docstring 込み）",
+            ha="center", va="top", fontsize=9, color="#999",
             transform=ax.transAxes, style="italic")
-    ax.text(0.03, 0.86, code, ha="left", va="top", fontsize=10,
+
+    ax.text(0.5, 0.935,
+            "以下のコードを読み、何を判定する処理かを想像してください。\n"
+            "コードを読んだ経験がなくてもOKです（docstring の日本語説明も参考に）。",
+            ha="center", va="top", fontsize=10, color="#cccccc",
+            transform=ax.transAxes, style="italic")
+
+    # コード本体 (docstring/comment 込み)
+    # 行数増加に対応してフォントサイズを 10→8.5 に下げる
+    ax.text(0.02, 0.90, code, ha="left", va="top", fontsize=8.5,
             family="Consolas", color="#d4d4d4", transform=ax.transAxes,
-            bbox=dict(boxstyle="round,pad=0.6", facecolor="#252526",
+            bbox=dict(boxstyle="round,pad=0.5", facecolor="#252526",
                       edgecolor="#404040", linewidth=1))
+
+    # 下部の補足
+    ax.text(0.5, 0.02,
+            "💡 docstring(3連引用符で括られた日本語) は、各関数が何をするかの説明です。",
+            ha="center", va="bottom", fontsize=9, color="#888",
+            transform=ax.transAxes, style="italic")
+
     ax.set_axis_off()
     fig.savefig(output_path, dpi=180, bbox_inches="tight", facecolor="#1e1e1e")
     plt.close(fig)
