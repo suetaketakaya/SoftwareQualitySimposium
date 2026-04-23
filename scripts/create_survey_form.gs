@@ -20,16 +20,21 @@
 // 下記に設定。未設定の画像は省略される（画像なしで進行）。
 
 const SURVEY_IMAGES = {
-  reversi_code:              "",  // 01-reversi-code.png のGoogleドライブID
-  reversi_diorama:           "",  // 02-reversi-diorama.png
-  sakura_diorama:            "",  // 03-sakura-diorama.png
-  click_dashboard:           "",  // 04-click-dashboard.png
-  readability_comparison:    "",  // 05-readability-comparison.png
+  reversi_code:              "https://drive.google.com/file/d/1jUAyzTtgcSDmtUX_Bu3QGvAiCA7uRNR7/view?usp=sharing",  // 01-reversi-code.png のGoogleドライブID
+  reversi_diorama:           "https://drive.google.com/file/d/1scR_8F0iCXEVMZSdddx-gZGwE70E7En3/view?usp=sharing",  // 02-reversi-diorama.png
+  sakura_diorama:            "https://drive.google.com/file/d/1wjZeoMRf0CjAJdn2pygBLHGzcLVNBNL4/view?usp=sharing",  // 03-sakura-diorama.png
+  click_dashboard:           "https://drive.google.com/file/d/1oVIJc5eaClaD3_qqDy3clb2OeAgoekBd/view?usp=sharing",  // 04-click-dashboard.png
+  readability_comparison:    "https://drive.google.com/file/d/1QgOhB02pOO1Rkmm75RNBByd0YXyGNv7h/view?usp=sharing",  // 05-readability-comparison.png
 };
 
 function getImageUrl(key) {
-  const id = SURVEY_IMAGES[key];
-  if (!id) return "";
+  const value = SURVEY_IMAGES[key];
+  if (!value) return "";
+  // URL でも ID でも受け付ける
+  // 例1: "1WJjW4fPVDYgs1..."                              → ID 直接
+  // 例2: "https://drive.google.com/file/d/1WJjW4fP.../view" → URL から抽出
+  const match = value.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  const id = match ? match[1] : value;
   return "https://drive.google.com/uc?id=" + id;
 }
 
@@ -199,7 +204,7 @@ function addSection_2_PriorKnowledge(form) {
 // -----------------------------------------------------------------------------
 
 function addSection_3_Reversi(form) {
-  // A-0: コード提示
+  // A-0: コード提示 (画像として表示)
   form.addPageBreakItem()
     .setTitle("題材A: リバーシの合法手判定")
     .setHelpText(
@@ -208,9 +213,13 @@ function addSection_3_Reversi(form) {
       "・盤面の空きマスに、自分の石を置く\n" +
       "・置いた石の直線上に、相手の石を挟める向きがあるとき、その手は「合法」\n" +
       "・何も挟めない場所には置けない\n\n" +
-      "次のコードを見てください:\n\n" +
-      SAMPLE_REVERSI_CODE
+      "次のコード(下図)を見てください。" +
+      "docstring (3連引用符で囲まれた日本語) が各関数の説明です。"
     );
+
+  // コード画像を挿入 (docstring/コメント込みの整形済みバージョン)
+  tryAddImage(form, "reversi_code",
+              "リバーシの合法手判定コード (Python・docstring込み)");
 
   form.addScaleItem()
     .setTitle("Q7. 上のコードは、リバーシの「置けるか置けないか」を判定する処理です。おおよその意図が理解できましたか？")
