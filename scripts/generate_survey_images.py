@@ -87,9 +87,13 @@ def make_reversi_code_image(output_path: Path):
             transform=ax.transAxes, style="italic")
 
     # コード本体 (docstring/comment 込み)
-    # 行数増加に対応してフォントサイズを 10→8.5 に下げる
+    # 日本語 docstring が文字化けしないよう、フォントを
+    # 「等幅英語 + 日本語」をサポートするものに切替
+    # macOS: Hiragino Sans は等幅ではないが日本語に対応、コードも判読可能
+    # Menlo/Courier New は日本語グリフが無いため docstring が豆腐化する
     ax.text(0.02, 0.90, code, ha="left", va="top", fontsize=8.5,
-            family="Consolas", color="#d4d4d4", transform=ax.transAxes,
+            family=["Hiragino Sans", "sans-serif"],
+            color="#d4d4d4", transform=ax.transAxes,
             bbox=dict(boxstyle="round,pad=0.5", facecolor="#252526",
                       edgecolor="#404040", linewidth=1))
 
